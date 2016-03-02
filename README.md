@@ -14,7 +14,7 @@ compliance), documentation, open source development, packaging, and continuous
 integration.
 
 ## Important Links
-HTML Documentation - http://vighneshbirodkar.github.io/project-template/docs/
+HTML Documentation - http://contrib.scikit-learn.org/project-template/
 
 ## Installation and Usage
 The package by itself comes with a single module and an estimator. Before

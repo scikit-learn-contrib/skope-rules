@@ -24,11 +24,10 @@ git reset --hard origin/gh-pages
 git clean -dfx
 
 for name in $(ls -A $HOME/$DOC_REPO); do
-    echo "Filename = $name"
     case $name in
-        .nojekyll)
+        .nojekyll) # So that github does not build this as a Jekyll website.
         ;;
-        circle.yml)
+        circle.yml) # Config so that build gh-pages branch.
         ;;
         *)
         git rm -rf $name
