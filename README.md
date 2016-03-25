@@ -45,13 +45,13 @@ tests under `template/tests` which can be run using `nosetests`.
 ### 1. Cloning
 Clone the project into your computer by executing
 ```shell
-$ git clone https://github.com/vighneshbirodkar/project-template.git
+$ git clone https://github.com/scikit-learn-contrib/project-template.git
 ```
 You should rename the `project-template` folder to the name of your project.
 To host the project on Github, visit https://github.com/new and create a new
 repository. To upload your project on Github execute
 ```shell
-$ git remote add origin https://github.com/username/project-name.git
+$ git remote set-url origin https://github.com/username/project-name.git
 $ git push origin master
 ```
 
