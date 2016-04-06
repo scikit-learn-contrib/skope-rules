@@ -52,5 +52,5 @@ general:
     - "~/log.txt"
   # Restric the build to the branch master only
   branches:
-    only:
-       - master
+    ignore:
+       - gh-pages
