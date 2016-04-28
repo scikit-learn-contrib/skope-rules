@@ -3,7 +3,7 @@
 Plotting Template Estimator
 ===========================
 
-An example plot of TemplateEstimator
+An example plot of :class:`skltemplate.template.TemplateEstimator`
 """
 import numpy as np
 from skltemplate import TemplateEstimator

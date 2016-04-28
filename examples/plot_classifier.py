@@ -3,7 +3,7 @@
 Plotting Template Classifier
 ============================
 
-An example plot of TemplateClassifier
+An example plot of :class:`skltemplate.template.TemplateClassifier`
 """
 import numpy as np
 from skltemplate import TemplateClassifier
@@ -22,7 +22,7 @@ y_pred = clf.predict(X_test)
 X_0 = X_test[y_pred == 0]
 X_1 = X_test[y_pred == 1]
 
-ax0 = plt.scatter(X_0[:, 0], X_0[:, 1], c='darkorange', s=30)
+ax0 = plt.scatter(X_0[:, 0], X_0[:, 1], c='crimson', s=30)
 ax1 = plt.scatter(X_1[:, 0], X_1[:, 1], c='deepskyblue', s=30)
 
 
