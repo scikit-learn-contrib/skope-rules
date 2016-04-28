@@ -33,7 +33,7 @@ you should be able to execute the following in Python:
 ```python
 >>> from skltemplate import TemplateEstimator
 >>> estimator = TemplateEstimator()
->>> estimator.fit(np.arange(10), np.arange(10))
+>>> estimator.fit(np.arange(10).reshape(10, 1), np.arange(10))
 ```
 
 `TemplateEstimator` by itself does nothing useful, but it serves as an example
