@@ -130,7 +130,30 @@ Coveralls can start monitoring it. The project already contains the required
 configuration for Coveralls to work. All subsequent builds after adding your
 project will generate a coverage report.
 
-### 6. Setting up Circle CI
+### 6. Setting up Appveyor
+[Appveyor](https://www.appveyor.com/) provides continuous intergration on the
+windows  platform. Currently, Appveyor can also be used to build platform
+specific Windows wheels, which can be uploaded to a Cloud Service provider and
+be made available via a Content Delivery Network (CDN). To setup Appveyor to
+build your project you need to sign up on Appveyor and authorize it. Appveyor
+configaration is governed by the `appveyor.yml` file. You have to change the
+following variables in it to match the requirements of your project.
+
+| Variable | Value|
+|----------|------|
+| `PROJECT_NAME`  | The name of your project. This should be the same as the `name` field in `setup.py`  |
+| `MODULE` | The name of the module you want to be tested |
+| `CLOUD_STORAGE` | A constant which indicates which Cloud Storage service provider to use. It should be one among the [Supported Providers](https://libcloud.readthedocs.io/en/latest/storage/supported_providers.html) |
+| `CLOUD_CONTAINER` | The name of a container with your Cloud Storage service provider where the built files will be uploaded.|
+| `WHEELHOUSE_UPLOADER_USERNAME` | The username you have used to register with your Cloud Storage procider |
+| `WHEELHOUSE_UPLOADER_SECRET` | An API key you have obtained from your Cloud Storage provider, which will authenticate you to upload files to it. This should **never** be stored in plain text. To make Appveyor encrypt your API key, use Appveyor's [Encrypt Tool](https://ci.appveyor.com/tools/encrypt) and store the returned value using a `secure:` prefix. |
+
+Maintainers of an official [scikit-learn contrib](
+https://contrib.scikit-learn.org) repository can request [Rackspace]
+(https://mycloud.rackspace.com/) credentials from the scikit-learn developers.
+
+
+### 7. Setting up Circle CI
 The project uses [CircleCI](https://circleci.com/) to build its documentation
 from the `master` branch and host it using [Github Pages](https://pages.github.com/).
 Again,  you will need to Sign Up and authorize CircleCI. The configuration
@@ -157,14 +180,14 @@ on
 https://github.com/USERNAME/DOC_REPO/DOC_URL
 ```
 
-### 7. Adding Badges
+### 8. Adding Badges
 
 Follow the instructions to add a [Travis Badge](https://docs.travis-ci.com/user/status-images/), 
 [Coveralls Badge](https://coveralls.io) and 
 [CircleCI Badge](https://circleci.com/docs/status-badges) to your repository's
 `README`.
 
-### 8. Advertising your package
+### 9. Advertising your package
 
 Once your work is mature enough for the general public to use it, you should
 submit a Pull Request to modify scikit-learn's
@@ -174,7 +197,7 @@ repository or PyPI page.
 You may also wish to announce your work on the
 [`scikit-learn-general` mailing list](https://lists.sourceforge.net/lists/listinfo/scikit-learn-general).
 
-### 9. Uploading your package to PyPI
+### 10. Uploading your package to PyPI
 
 Uploading your package to [PyPI](https://pypi.python.org/pypi) allows users to
 install your package through `pip`. Python provides two repositories to upload
