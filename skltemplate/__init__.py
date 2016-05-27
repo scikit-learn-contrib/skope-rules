@@ -1,4 +1,6 @@
-from .template import TemplateEstimator
+from .template import (TemplateEstimator, TemplateClassifier,
+                       TemplateTransformer)
 from . import template
 
-__all__ = ['TemplateEstimator', 'template']
+__all__ = ['TemplateEstimator', 'TemplateClassifier',
+           'TemplateTransformer', 'template']
