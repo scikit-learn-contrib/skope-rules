@@ -44,7 +44,7 @@ deployment:
   push:
     branch: master
     commands:
-      - bash ci_scripts/push_doc.sh
+      - bash ci_scripts/circleci/push_doc.sh
 general:
   # Open the doc to the API
   artifacts:
