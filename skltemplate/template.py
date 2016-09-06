@@ -88,7 +88,7 @@ class TemplateClassifier(BaseEstimator, ClassifierMixin):
         """
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
-        # Store the classes seen durind fit
+        # Store the classes seen during fit
         self.classes_ = unique_labels(y)
 
         self.X_ = X
