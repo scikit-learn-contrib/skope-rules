@@ -43,12 +43,19 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'numpydoc',
-    'sphinx.ext.pngmath',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx_gallery.gen_gallery'
 
 ]
+
+# pngmath / imgmath compatibility layer for different sphinx versions
+import sphinx
+from distutils.version import LooseVersion
+if LooseVersion(sphinx.__version__) < LooseVersion('1.4'):
+    extensions.append('sphinx.ext.pngmath')
+else:
+    extensions.append('sphinx.ext.imgmath')
 
 sphinx_gallery_conf = {
     # path to your examples scripts
