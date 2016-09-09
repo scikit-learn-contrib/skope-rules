@@ -17,7 +17,7 @@ class TemplateEstimator(BaseEstimator):
         A parameter used for demonstation of how to pass and store paramters.
     """
     def __init__(self, demo_param='demo_param'):
-        self.demo_param = 'demo_param'
+        self.demo_param = demo_param
 
     def fit(self, X, y):
         """A reference implementation of a fitting function
@@ -29,12 +29,14 @@ class TemplateEstimator(BaseEstimator):
         y : array-like, shape = [n_samples] or [n_samples, n_outputs]
             The target values (class labels in classification, real numbers in
             regression).
+
         Returns
         -------
         self : object
             Returns self.
         """
         X, y = check_X_y(X, y)
+        # Return the estimator
         return self
 
     def predict(self, X):
@@ -81,6 +83,7 @@ class TemplateClassifier(BaseEstimator, ClassifierMixin):
             The training input samples.
         y : array-like, shape = [n_samples]
             The target values. An array of int.
+
         Returns
         -------
         self : object
@@ -143,8 +146,10 @@ class TemplateTransformer(BaseEstimator, TransformerMixin):
         ----------
         X : array-like or sparse matrix of shape = [n_samples, n_features]
             The training input samples.
-        y : array-like, shape = [n_samples]
-            The target values. An array of int.
+        y : None
+            There is no need of a target in a transformer, yet the pipeline API
+            requires this parameter.
+
         Returns
         -------
         self : object
@@ -154,7 +159,7 @@ class TemplateTransformer(BaseEstimator, TransformerMixin):
 
         self.input_shape_ = X.shape
 
-        # Return the classifier
+        # Return the transformer
         return self
 
     def transform(self, X):
