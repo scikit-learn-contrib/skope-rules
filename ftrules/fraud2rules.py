@@ -9,6 +9,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
+from sklearn.ensemble import BaggingClassifier, BaggingRegressor
+
 from sklearn.externals import six
 from sklearn.tree import _tree
 
@@ -20,13 +22,16 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    n_estimators : int, optional (default=1)
-        The number of base estimators (rules) to build.
 
     feature_names: list of str, optional (default=None)
         XXX (remove it if we want generic tool)
         The names of each feature to be used for returning rules in string
         format.
+
+    BAGGING PARAMETERS:
+
+    n_estimators : int, optional (default=1)
+        The number of base estimators (rules) to build.
 
     max_samples : int or float, optional (default=1.)
         The number of samples to draw from X to train each decision tree, from
@@ -36,15 +41,41 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
         If max_samples is larger than the number of samples provided,
         all samples will be used for all trees (no sampling).
 
-    max_features : int or float, optional (default=1.0)
+    max_samples_features : int or float, optional (default=1.0)
         The number of features to draw from X to train each decision tree.
             - If int, then draw `max_features` features.
             - If float, then draw `max_features * X.shape[1]` features.
+
+    bootstrap : boolean, optional (default=True)
+        Whether samples are drawn with replacement.
+
+    bootstrap_features : boolean, optional (default=False)
+        Whether features are drawn with replacement.
+
+
+    BASE ESTIMATORS PARAMETERS:
 
     max_depth : integer or None, optional (default=None)
         The maximum depth of the decision trees. If None, then nodes are
         expanded until all leaves are pure or until all leaves contain less
         than min_samples_split samples.  XXX faisable en pratique?
+
+    max_features : int, float, string or None, optional (default="auto")
+        The number of features considered (by each decision tree) when looking
+        for the best split:
+
+        - If int, then consider `max_features` features at each split.
+        - If float, then `max_features` is a percentage and
+          `int(max_features * n_features)` features are considered at each
+          split.
+        - If "auto", then `max_features=sqrt(n_features)`.
+        - If "sqrt", then `max_features=sqrt(n_features)` (same as "auto").
+        - If "log2", then `max_features=log2(n_features)`.
+        - If None, then `max_features=n_features`.
+
+        Note: the search for a split does not stop until at least one
+        valid partition of the node samples is found, even if it requires to
+        effectively inspect more than ``max_features`` features.
 
     min_samples_split : int, float, optional (default=2)
         The minimum number of samples required to split an internal node for
@@ -56,10 +87,7 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
 
     XXX should we add more DecisionTree params?
 
-    bootstrap : boolean, optional (default=False)
-        If True, individual trees are fit on random subsets of the training
-        data sampled with replacement. If False, sampling without replacement
-        is performed.
+    GENERAL PARAMETERS:
 
     n_jobs : integer, optional (default=1)
         The number of jobs to run in parallel for both `fit` and `predict`.
@@ -89,6 +117,9 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
         The subset of drawn samples (i.e., the in-bag samples) for each base
         estimator.
 
+    estimators_features_ : list of arrays
+        The subset of drawn features for each base estimator.
+
     max_samples_ : integer
         The actual number of samples
     """
@@ -97,20 +128,24 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
                  n_estimators=1,
                  feature_names=None,
                  max_samples=1.,
+                 max_samples_features=1.,
+                 max_depth=5,
                  max_features=1.,
-                 max_depth=None,
                  min_samples_split=2,
                  bootstrap=False,
+                 bootstrap_features=False,
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
         self.n_estimators = n_estimators
         self.feature_names = feature_names
         self.max_samples = max_samples
-        self.max_features = max_features
+        self.max_samples_features = max_samples_features
         self.max_depth = max_depth
+        self.max_features = max_features
         self.min_samples_split = min_samples_split
         self.bootstrap = bootstrap
+        self.bootstrap_features = bootstrap_features
         self.n_jobs = n_jobs
         self.random_state = random_state
         self.verbose = verbose
@@ -142,14 +177,8 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
 
         X, y = check_X_y(X, y)
 
-        testing_size = int(X.shape[0] / 10.)
-        ind_test = range(X.shape[0])
-        np.random.shuffle(ind_test)
-        X_test = X[ind_test][:testing_size]
-        X_train = X[ind_test][testing_size:]
-
         # ensure that max_samples is in [1, n_samples]:
-        n_samples = X_train.shape[0]
+        n_samples = X.shape[0]
 
         if isinstance(self.max_samples, six.string_types):
             raise ValueError('max_samples (%s) is not supported.'
@@ -169,52 +198,103 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
             if not (0. < self.max_samples <= 1.):
                 raise ValueError("max_samples must be in (0, 1], got %r"
                                  % self.max_samples)
-            max_samples = int(self.max_samples * X_train.shape[0])
+            max_samples = int(self.max_samples * X.shape[0])
 
         self.max_samples_ = max_samples
 
         self.rules_ = []
         self.estimators_ = []
+        self.estimators_samples_ = []
+        self.estimators_features_ = []
 
-        for _ in range(self.n_estimators):
-            # XXX TODO: use max_samples and bootstrap params
-            clf = DecisionTreeClassifier(
-                max_features=self.max_features,
-                max_depth=self.max_depth,
-                min_samples_split=self.min_samples_split)
-            clf.fit(X_train, y)
-            self.estimators_.append(clf)
-            if self.feature_names is not None:
-                rules = self._tree_to_rules(clf, self.feature_names)
-            else:
-                rules = self._tree_to_rules(clf,
-                                            map(str, range(X_train.shape[1])))
-            self.rules_ += rules
+        # default columns names of the form ['c0', 'c1', ...]:
+        feature_names_ = (self.feature_names if self.feature_names is not None
+                          else ['c' + x for x in
+                                np.arange(X.shape[1]).astype(str)])
+        self.feature_names_ = feature_names_
+
+        bagging_clf = BaggingClassifier(
+            base_estimator=DecisionTreeClassifier(),
+            n_estimators=self.n_estimators,
+            max_samples=self.max_samples_,
+            max_features=self.max_samples_features,
+            bootstrap=self.bootstrap,
+            bootstrap_features=self.bootstrap_features,
+            # oob_score=... XXX may be added if selection on tree perf needed.
+            # warm_start=... XXX may be added to increase computation perf.
+            n_jobs=self.n_jobs,
+            random_state=self.random_state,
+            verbose=self.verbose)
+
+        bagging_reg = BaggingRegressor(
+            base_estimator=DecisionTreeRegressor(),
+            n_estimators=self.n_estimators,
+            max_samples=self.max_samples_,
+            max_features=self.max_samples_features,
+            bootstrap=self.bootstrap,
+            bootstrap_features=self.bootstrap_features,
+            # oob_score=... XXX may be added if selection on tree perf needed.
+            # warm_start=... XXX may be added to increase computation perf.
+            n_jobs=self.n_jobs,
+            random_state=self.random_state,
+            verbose=self.verbose)
+
+        #import pdb; pdb.set_trace()
+        bagging_clf.fit(X, y)
+        y_reg = y  # XXX todo define y_reg
+        bagging_reg.fit(X, y_reg)
+
+        self.estimators_ += bagging_clf.estimators_
+        self.estimators_ += bagging_reg.estimators_
+
+        self.estimators_samples_ += bagging_clf.estimators_samples_
+        self.estimators_samples_ += bagging_reg.estimators_samples_
+
+        self.estimators_features_ += bagging_clf.estimators_features_
+        self.estimators_features_ += bagging_reg.estimators_features_
+
+        for estimator, samples, features in zip(self.estimators_,
+                                                self.estimators_samples_,
+                                                self.estimators_features_):
+
+            # Create mask for OOB samples
+            mask = ~samples
+            rules_from_tree = self._tree_to_rules(estimator, self.feature_names_)
+
+            # XXX todo: idem without dataframe
+            X_oob = pandas.DataFrame((X[mask, :])[:, features],
+                                     columns=self.feature_names_)
+            y_oob = y[mask]
+
+            # Add OOB performances to rules:
+            rules_from_tree = [(r, (1 - y_oob[
+                list(X_oob.query(r).index)].mean()) / 2)
+                               for r in rules_from_tree]
+            self.rules_ += rules_from_tree
+
+        # for _ in range(self.n_estimators):
+        #     # XXX TODO: use max_samples and bootstrap params
+        #     clf = DecisionTreeClassifier(
+        #         max_features=self.max_features,
+        #         max_depth=self.max_depth,
+        #         min_samples_split=self.min_samples_split)
+        #     clf.fit(X_train, y_train)
+        #     self.estimators_.append(clf)
+        #     rules = self._tree_to_rules(clf, feature_names_)
+        #     self.rules_ += rules
 
         # for _ in range(self.n_estimators):
         #     clf = DecisionTreeRegressor(
         #         max_features=self.max_features,
         #         max_depth=self.max_depth,
         #         min_samples_split=self.min_samples_split)
-        #     clf.fit(X_train, y)
+        #     clf.fit(X_train, y_train)
         #     self.estimators_.append(clf)
-        #     if self.feature_names is not None:
-        #         rules = self._tree_to_rules(clf, self.feature_names)
-        #     else:
-        #         rules = self._tree_to_rules(clf, map(str,
-        #                                              range(X_train.shape[1])))
+        #     rules = self._tree_to_rules(clf, feature_names_)
         #     self.rules_ += rules
 
-        # XXX TODO: add to X_test the data not used in fit, in case of
-        # subsampling or bootstrap.
-
-        df = pandas.DataFrame(X_test, columns=self.feature_names)
-        self.rules = [(r, df.query(r)) for r in self.rules_]
         self.rules_ = sorted(self.rules_, key=lambda x: -x[1])
 
-        # XXX todo: create self.estimators_samples_
-
-        # Return the classifier
         return self
 
     def predict(self, X):
@@ -263,7 +343,7 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
 
         """
         selected_rules = self.rules_[:self.n_estimators]
-        df = pandas.DataFrame(X, columns=self.feature_names)
+        df = pandas.DataFrame(X, columns=self.feature_names_)
 
         scores = np.zeros(X.shape[0])
         for (r, w) in selected_rules:
@@ -313,3 +393,15 @@ class FraudToRules(BaseEstimator, ClassifierMixin):
         recurse(0, [])
 
         return rules
+
+
+
+
+if __name__ == '__main__':
+    rnd = np.random.RandomState(0)
+    X = 3 * rnd.uniform(size=(50, 5)).astype(np.float32)
+    y = np.array([1] * (X.shape[0] - 10) + [0] * 10)
+    clf = FraudToRules()
+    clf.fit(X, y)
+    import pdb; pdb.set_trace()
+    clf.predict(X)
