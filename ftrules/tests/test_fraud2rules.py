@@ -106,7 +106,7 @@ def test_fraudetorules_works():
     decision_func = - clf.decision_function(X_test)
     pred = clf.predict(X_test)
     # assert detect outliers:
-    assert_greater(np.min(decision_func[-2:]), np.max(decision_func[:-2]))
+    assert_greater(np.max(decision_func[:-2]), np.min(decision_func[-2:]))
     assert_array_equal(pred, 6 * [0] + 2 * [1])
 
 
