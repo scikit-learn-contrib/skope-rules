@@ -120,11 +120,7 @@ def test_fraudetorules_works():
     assert_array_equal(pred, 6 * [0] + 2 * [1])
 
 
-# XXX TODO: add test for parallel computation (n_jobs)
-# add performance test
-
-
-def check_classifiers_train():
+def test_performances():
     X, y = make_blobs(n_samples=1000, random_state=0, centers=2)
 
     # make labels imbalanced by remove all but 100 instances from class 1
@@ -148,5 +144,5 @@ def check_classifiers_train():
     # decision_function agrees with predict
     decision = -clf.decision_function(X)
     assert_equal(decision.shape, (n_samples,))
-    dec_pred = (decision.ravel() > 0).astype(np.int)
+    dec_pred = (decision.ravel() < 0).astype(np.int)
     assert_array_equal(dec_pred, y_pred)
