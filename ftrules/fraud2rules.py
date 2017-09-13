@@ -475,10 +475,10 @@ class FraudToRules(BaseEstimator):
         return y_detected.mean(), float(true_pos) / pos
 
 
-if __name__ == '__main__':
-    rnd = np.random.RandomState(0)
-    X = 3 * rnd.uniform(size=(50, 5)).astype(np.float32)
-    y = np.array([1] * (X.shape[0] - 10) + [0] * 10)
-    clf = FraudToRules()
-    clf.fit(X, y)
-    clf.predict(X)
+# if __name__ == '__main__':
+#     rnd = np.random.RandomState(0)
+#     X = 3 * rnd.uniform(size=(50, 5)).astype(np.float32)
+#     y = np.array([1] * (X.shape[0] - 10) + [0] * 10)
+#     clf = FraudToRules()
+#     clf.fit(X, y)
+#     clf.predict(X)
