@@ -44,9 +44,19 @@ def test_fraudetorules():
     y_train = np.array([0, 1])
     X_test = np.array([[2, 1], [1, 1]])
 
-    grid = ParameterGrid({"n_estimators": [1],
-                          "max_samples": [0.5, 1.0, 3],
-                          "bootstrap": [True, False]})
+    grid = ParameterGrid({
+        "feature_names": [None, ['a', 'b']],
+        "precision_min": [0.1],
+        "recall_min": [0.1],
+        "n_estimators": [1],
+        "max_samples": [0.5, 3],
+        "max_samples_features": [0.5, 2],
+        "bootstrap": [True, False],
+        "bootstrap_features": [True, False],
+        "max_depth": [2],
+        "max_features": ["auto", 1, 0.1],
+        "min_samples_split": [2, 0.1],
+        "n_jobs": [-1, 1]})
 
     with ignore_warnings():
         for params in grid:

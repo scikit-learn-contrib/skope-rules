@@ -226,9 +226,10 @@ class FraudToRules(BaseEstimator):
                              " class: %r" % self.classes_[0])
 
         if not set(self.classes_) == set([0, 1]):
-            warn("This method assumes fraud to be labeled as 1 and"
-                 " normal data to be labeled as 0. Any label"
-                 " different from 0 will be considered as fraud.")
+            warn("Found labels %s. This method assumes fraud to be labeled as"
+                 " 1 and normal data to be labeled as 0. Any label"
+                 " different from 0 will be considered as fraud."
+                 % set(self.classes_))
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
