@@ -3,12 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to sklearn-template's documentation!
+Welcome to fraude_to_rules' documentation!
 ============================================
 
-This project is a reference implementation to anyone who wishes to develop
-scikit-learn compatible classes. It comes with a `template` module which
-contains a single estimator with unit tests.
+This project can be useful to anyone who wishes to do supervised
+classification under interpretability constraints: explicit logical
+rules have to be used for classifying data.
+This project is particularly suitable for supervised anomaly detection,
+i.e. imbalanced classification.
+Application domains include fraud detection, predictive
+maintenance, intrusion detection, churn detection.
+
+This project comes with a `ftrules` module which contains a single
+estimator with unit tests, along with examples and benchmarks.
 
 
     .. toctree::
@@ -18,14 +25,17 @@ contains a single estimator with unit tests.
        auto_examples/index
        ...
 
-See the `README <https://github.com/vighneshbirodkar/project-template/blob/master/README.md>`_
+See the `README <https://github.com/fdetector/fraud_to_rules/blob/master/README.md>`_
 for more information.
 
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
+
+
+
+
+
+
+
+:ref:`genindex`
