@@ -15,6 +15,8 @@ each new samples how many rules have find it abnormal.
 """
 print(__doc__)
 
+print('aaa')
+
 # import numpy as np
 # import matplotlib.pyplot as plt
 # from ftrules import FraudToRules

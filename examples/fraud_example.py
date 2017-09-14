@@ -16,6 +16,8 @@ each new samples how many rules have find it abnormal.
 """
 print(__doc__)
 
+print('aaa')
+
 # import numpy as np
 # import pandas as pd
 # import matplotlib.pyplot as plt
