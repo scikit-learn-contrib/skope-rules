@@ -58,7 +58,7 @@ else:
     extensions.append('sphinx.ext.imgmath')
 
 sphinx_gallery_conf = {
-    'backreferences_dir': False,
+    # 'backreferences_dir': False,
     # path to your examples scripts
     'examples_dirs' : '../examples',
     # path where to save gallery generated examples
