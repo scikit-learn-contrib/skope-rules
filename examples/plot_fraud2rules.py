@@ -1,19 +1,19 @@
-# """
-# ==========================================
-# FraudToRules example
-# ==========================================
+"""
+==========================================
+FraudToRules example
+==========================================
 
-# An example using FraudToRules for imbalanced classification.
+An example using FraudToRules for imbalanced classification.
 
-# FraudToRules find logical rules with high precision and fuse them. Finding good
-# rules is done by fitting classification and regression trees to sub-samples.
-# A fitted tree defines a set of rules (each tree node defines a rule); rules
-# are then tested out of the bag, and the ones with higher precision are selected
-# and merged. This produces a integer-valued decision function, reflecting for
-# each new samples how many rules have find it abnormal.
+FraudToRules find logical rules with high precision and fuse them. Finding good
+rules is done by fitting classification and regression trees to sub-samples.
+A fitted tree defines a set of rules (each tree node defines a rule); rules
+are then tested out of the bag, and the ones with higher precision are selected
+and merged. This produces a integer-valued decision function, reflecting for
+each new samples how many rules have find it abnormal.
 
-# """
-# print(__doc__)
+"""
+print(__doc__)
 
 # import numpy as np
 # import matplotlib.pyplot as plt
