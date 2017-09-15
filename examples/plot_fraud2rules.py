@@ -20,11 +20,12 @@ import matplotlib.pyplot as plt
 from ftrules import FraudToRules
 
 rng = np.random.RandomState(42)
+
 n_inliers = 1000
 n_outliers = 50
 
 # Generate train data
-I = 0.5 * rng.randn(n_inliers / 2, 2)
+I = 0.5 * rng.randn(int(n_inliers / 2), 2)
 X_inliers = np.r_[I + 2, I - 2]
 O = 0.5 * rng.randn(n_outliers, 2)
 X_outliers = O  # np.r_[O, O + [2, -2]]

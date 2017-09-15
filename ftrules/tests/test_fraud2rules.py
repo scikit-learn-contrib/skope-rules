@@ -84,6 +84,7 @@ def test_fraudetorules_error():
     assert_no_warnings(FraudToRules(max_samples=np.int64(2)).fit, X, y)
     assert_raises(ValueError, FraudToRules(max_samples='foobar').fit, X, y)
     assert_raises(ValueError, FraudToRules(max_samples=1.5).fit, X, y)
+    assert_raises(ValueError, FraudToRules().fit(X, y).predict, X[:, 1:])
 
 
 def test_max_samples_attribute():

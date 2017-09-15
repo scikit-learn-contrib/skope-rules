@@ -1,21 +1,5 @@
-"""
-Rk (to be explained to scikit-contrib):
-Some classifiers tests failing (that's why we do not inherit from
-ClassifierMixin, then all the tests are passing):
-
--check_classifier_classes
-due to multiclass classification testing
-
--check_classifiers_train
-due to multiclass classification testing (make_blobs generate 3 classes)
-and also due to requirement "pred = decision > 0", which is in contradiction
-with the bigger is better (here less abnormal) convention: in our case, we
-have pred = decision < 0
-"""
-
-import pdb
 import numpy as np
-import pandas  # XXX to be rm
+import pandas
 import numbers
 from warnings import warn
 from sklearn.base import BaseEstimator
@@ -39,7 +23,6 @@ class FraudToRules(BaseEstimator):
     ----------
 
     feature_names: list of str, optional
-        XXX (remove it if we want generic tool)
         The names of each feature to be used for returning rules in string
         format.
 
@@ -48,8 +31,6 @@ class FraudToRules(BaseEstimator):
 
     recall_min: float, optional (default=0.1)
         minimal recall of a rule to be selected.
-
-    BAGGING PARAMETERS:
 
     n_estimators : int, optional (default=1)
         The number of base estimators (rules) to use for prediction. More are
@@ -74,13 +55,10 @@ class FraudToRules(BaseEstimator):
     bootstrap_features : boolean, optional (default=False)
         Whether features are drawn with replacement.
 
-
-    BASE ESTIMATORS PARAMETERS:
-
     max_depth : integer or None, optional (default=None)
         The maximum depth of the decision trees. If None, then nodes are
         expanded until all leaves are pure or until all leaves contain less
-        than min_samples_split samples.  XXX faisable en pratique?
+        than min_samples_split samples.
 
     max_features : int, float, string or None, optional (default="auto")
         The number of features considered (by each decision tree) when looking
@@ -106,10 +84,6 @@ class FraudToRules(BaseEstimator):
         - If float, then `min_samples_split` is a percentage and
           `ceil(min_samples_split * n_samples)` are the minimum
           number of samples for each split.
-
-    XXX should we add more DecisionTree params?
-
-    GENERAL PARAMETERS:
 
     n_jobs : integer, optional (default=1)
         The number of jobs to run in parallel for both `fit` and `predict`.
@@ -230,6 +204,7 @@ class FraudToRules(BaseEstimator):
                  " 1 and normal data to be labeled as 0. Any label"
                  " different from 0 will be considered as fraud."
                  % set(self.classes_))
+            y = (y > 0)
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
@@ -300,7 +275,19 @@ class FraudToRules(BaseEstimator):
             verbose=self.verbose)
 
         bagging_clf.fit(X, y)
-        y_reg = y  # XXX todo define y_reg
+
+        # define regression target:
+        if sample_weight is not None:
+            if sample_weight is not None:
+                sample_weight = check_array(sample_weight, ensure_2d=False)
+            weights = sample_weight - sample_weight.min()
+            contamination = float(sum(y)) / len(y)
+            y_reg = (pow(weights, 0.5) * 0.5 / contamination  * (y > 0)
+                     - pow((weights).mean(), 0.5) * (y == 0))
+            y_reg = 1. / (1 + np.exp(-y_reg))  # sigmoid
+        else:
+            y_reg = y  # same as an other classification bagging
+        
         bagging_reg.fit(X, y_reg)
 
         self.estimators_ += bagging_clf.estimators_
@@ -320,7 +307,10 @@ class FraudToRules(BaseEstimator):
             # Create mask for OOB samples
             mask = ~samples
             if sum(mask) == 0:
-                warn("OOB evaluation not possible: doing it in-bag")
+                warn("OOB evaluation not possible: doing it in-bag."
+                     " Performance evaluation is likely to be wrong"
+                     " (overfitting) and selected rules are likely to"
+                     " not perform well! Please use max_samples < 1.")
                 mask = samples
             rules_from_tree = self._tree_to_rules(
                 estimator, np.array(self.feature_names_)[features])

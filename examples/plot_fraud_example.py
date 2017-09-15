@@ -1,7 +1,7 @@
 """
-==========================================
-FraudToRules example
-==========================================
+============================================
+example: detecting fraud on transaction data
+============================================
 
 An example using FraudToRules for finding good rules in a fraud detection
 setting.
@@ -59,11 +59,10 @@ scoring = clf.decision_function(X_test)
 scoring_RF = RF.predict_proba(X_test)[:, 1]
 scoring_one_rule = np.zeros(X_test.shape[0])
 rule = clf.rules_[0][0]
-detected_index = list(pd.DataFrame(X_test, columns=feature_names).query(rule).index)
+detected_index = list(
+    pd.DataFrame(X_test, columns=feature_names).query(rule).index)
 scoring_one_rule[detected_index] = 1
 print('best rule precision:', y_test[detected_index].mean())
-
-import pdb; pdb.set_trace()
 
 # XXX add semi-weighted PR in some utils dir and plot it too?
 fig, axes = plt.subplots(2, 2, figsize=(20, 10),
