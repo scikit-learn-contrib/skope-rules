@@ -204,6 +204,7 @@ class FraudToRules(BaseEstimator):
                  " 1 and normal data to be labeled as 0. Any label"
                  " different from 0 will be considered as fraud."
                  % set(self.classes_))
+            y = (y > 0)
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
@@ -274,7 +275,19 @@ class FraudToRules(BaseEstimator):
             verbose=self.verbose)
 
         bagging_clf.fit(X, y)
-        y_reg = y  # XXX todo define y_reg
+
+        # define regression target:
+        if sample_weight is not None:
+            if sample_weight is not None:
+                sample_weight = check_array(sample_weight, ensure_2d=False)
+            weights = sample_weight - sample_weight.min()
+            contamination = float(sum(y)) / len(y)
+            y_reg = (pow(weights, 0.5) * 0.5 / contamination  * (y > 0)
+                     - pow((weights).mean(), 0.5) * (y == 0))
+            y_reg = 1. / (1 + np.exp(-y_reg))  # sigmoid
+        else:
+            y_reg = y  # same as an other classification bagging
+        
         bagging_reg.fit(X, y_reg)
 
         self.estimators_ += bagging_clf.estimators_
@@ -294,7 +307,10 @@ class FraudToRules(BaseEstimator):
             # Create mask for OOB samples
             mask = ~samples
             if sum(mask) == 0:
-                warn("OOB evaluation not possible: doing it in-bag")
+                warn("OOB evaluation not possible: doing it in-bag."
+                     " Performance evaluation is likely to be wrong"
+                     " (overfitting) and selected rules are likely to"
+                     " not perform well! Please use max_samples < 1.")
                 mask = samples
             rules_from_tree = self._tree_to_rules(
                 estimator, np.array(self.feature_names_)[features])
