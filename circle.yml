@@ -21,7 +21,12 @@ dependencies:
     - sudo apt-get update
     - sudo apt-get install libatlas-dev libatlas3gf-base
     - sudo apt-get install build-essential python-dev python-setuptools
+
+    - sudo apt-get install tk-dev
+    - sudo apt-get install pkg-config
+    - sudo apt-get install python-dev
     - sudo apt-get install python-tk
+
     # install numpy first as it is a compile time dependency for other packages
     - pip install --upgrade numpy
     - pip install --upgrade scipy matplotlib setuptools nose coverage sphinx pillow sphinx-gallery sphinx_rtd_theme
