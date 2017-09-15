@@ -31,3 +31,4 @@ pip install sphinx-gallery numpydoc
 
 # Build and install scikit-learn in dev mode
 python setup.py develop
+set -o pipefail && cd doc && make html 2>&1 | tee ~/log.txt
