@@ -15,7 +15,7 @@ machine:
 
 dependencies:
   override:
-    - ./ci_scripts/circleci/build_doc.sh
+    - bash ci_scripts/circleci/build_doc.sh
 
   # # Various dependencies
   # pre:

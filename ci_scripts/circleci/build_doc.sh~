@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -x
+set -e
 
 
 # Installing required system packages to support the rendering of math
