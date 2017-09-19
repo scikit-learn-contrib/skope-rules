@@ -1,28 +1,17 @@
-from __future__ import print_function
-import sys
 from setuptools import setup, find_packages
 
-with open('requirements.txt') as f:
-    INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
-
-
-try:
-    import numpy
-except ImportError:
-    print('numpy is required during installation')
-    sys.exit(1)
-
-try:
-    import scipy
-except ImportError:
-    print('scipy is required during installation')
-    sys.exit(1)
-
-setup(name='sklearn-template',
-      version='0.0.3',
-      description='A template for scikit-learn compatible packages',
-      author='Vighnesh Birodkar',
+setup(name='fraud_to_rules',
+      version='0.0.1',
+      description='Machine Learning with Interpretable Rules',
+      url='https://github.com/fdetector/fraud_to_rules',
+      author='see AUTHORS.rst',
+      license='BSD 3 clause',
       packages=find_packages(),
-      install_requires=INSTALL_REQUIRES,
-      author_email='vighneshbirodkar@nyu.edu',
-      )
+      keywords=['learning with rules',
+                'anomaly/fraud detection',
+                'interpretable machine learning'],
+      install_requires=['numpy>=1.10.4',
+                        'scikit-learn>=0.17.1',
+                        'scipy>=0.17.0',
+                        'pandas>=0.18.1'
+                        ])

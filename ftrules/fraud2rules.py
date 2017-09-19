@@ -29,14 +29,14 @@ class FraudToRules(BaseEstimator):
     precision_min: float, optional (default=0.5)
         minimal precision of a rule to be selected.
 
-    recall_min: float, optional (default=0.1)
+    recall_min: float, optional (default=0.01)
         minimal recall of a rule to be selected.
 
-    n_estimators : int, optional (default=1)
+    n_estimators : int, optional (default=10)
         The number of base estimators (rules) to use for prediction. More are
         built before selection. All are available in the estimators_ attribute.
 
-    max_samples : int or float, optional (default=1.)
+    max_samples : int or float, optional (default=.8)
         The number of samples to draw from X to train each decision tree, from
         which rules are generated and selected.
             - If int, then draw `max_samples` samples.
@@ -49,13 +49,13 @@ class FraudToRules(BaseEstimator):
             - If int, then draw `max_features` features.
             - If float, then draw `max_features * X.shape[1]` features.
 
-    bootstrap : boolean, optional (default=True)
+    bootstrap : boolean, optional (default=False)
         Whether samples are drawn with replacement.
 
     bootstrap_features : boolean, optional (default=False)
         Whether features are drawn with replacement.
 
-    max_depth : integer or None, optional (default=None)
+    max_depth : integer or None, optional (default=3)
         The maximum depth of the decision trees. If None, then nodes are
         expanded until all leaves are pure or until all leaves contain less
         than min_samples_split samples.
@@ -135,7 +135,7 @@ class FraudToRules(BaseEstimator):
                  feature_names=None,
                  precision_min=0.5,
                  recall_min=0.01,
-                 n_estimators=1,
+                 n_estimators=10,
                  max_samples=.8,
                  max_samples_features=1.,
                  max_depth=3,
