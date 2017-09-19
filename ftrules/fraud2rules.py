@@ -138,11 +138,11 @@ class FraudToRules(BaseEstimator):
                  n_estimators=10,
                  max_samples=.8,
                  max_samples_features=1.,
+                 bootstrap=False,
+                 bootstrap_features=False,
                  max_depth=3,
                  max_features=1.,
                  min_samples_split=2,
-                 bootstrap=False,
-                 bootstrap_features=False,
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
@@ -152,11 +152,11 @@ class FraudToRules(BaseEstimator):
         self.n_estimators = n_estimators
         self.max_samples = max_samples
         self.max_samples_features = max_samples_features
+        self.bootstrap = bootstrap
+        self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
         self.max_features = max_features
         self.min_samples_split = min_samples_split
-        self.bootstrap = bootstrap
-        self.bootstrap_features = bootstrap_features
         self.n_jobs = n_jobs
         self.random_state = random_state
         self.verbose = verbose
