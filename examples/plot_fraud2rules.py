@@ -9,8 +9,9 @@ FraudToRules find logical rules with high precision and fuse them. Finding good
 rules is done by fitting classification and regression trees to sub-samples.
 A fitted tree defines a set of rules (each tree node defines a rule); rules
 are then tested out of the bag, and the ones with higher precision are selected
-and merged. This produces a integer-valued decision function, reflecting for
-each new samples how many rules have find it abnormal.
+and merged. This produces a real-valued decision function, reflecting for
+each new sample how many rules (each weighted by respective precision) have
+found it abnormal.
 
 """
 print(__doc__)
@@ -42,7 +43,7 @@ Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 
 plt.title("Fraud To Rules")
-plt.contourf(xx, yy, Z, cmap=plt.cm.Blues_r)
+plt.contourf(xx, yy, Z, cmap=plt.cm.Blues)
 
 a = plt.scatter(X_inliers[:, 0], X_inliers[:, 1], c='white',
                 s=20, edgecolor='k')
