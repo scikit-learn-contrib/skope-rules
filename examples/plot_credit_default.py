@@ -24,7 +24,7 @@ The dataset comes from BLABLABLA.
 # Data import and preparation
 # ..................
 #
-# Loading and preparing data. There are 3 categorical variables (SEX, EDUCATION and MARRIAGE) and 20 numerical variables.
+# There are 3 categorical variables (SEX, EDUCATION and MARRIAGE) and 20 numerical variables.
 # The target (credit defaults) is transformed in a binary variable with integers 0 (no default) and 1 (default).
 # From the 30000 credits, 50% are used for training and 50% are used for testing.
 # The target is unbalanced with a 22%/78% ratio.
@@ -37,12 +37,7 @@ import matplotlib
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-#from sklearn.metrics import make_scorer
-#from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
-
-
-
 from ftrules import FraudToRules
 
 rng = np.random.RandomState(42)
@@ -108,6 +103,7 @@ DT = GridSearchCV(DecisionTreeClassifier(),
                   'min_samples_split': range(10, 1000, 200),
                   'criterion':["gini", "entropy"]},
                   scoring = {'AUC': 'roc_auc'}, cv = 5, refit = 'AUC', n_jobs = -1)
+#DT = DecisionTreeClassifier()
 DT.fit(X_train, y_train)
 scoring_DT = DT.predict_proba(X_test)[:, 1]
 
@@ -117,6 +113,7 @@ RF = GridSearchCV(RandomForestClassifier(n_estimators = 30, class_weight = 'bala
                   'max_features': np.linspace(0.1, 0.5, 5)
                   },
                   scoring = {'AUC': 'roc_auc'}, cv = 5, refit = 'AUC', n_jobs = -1)
+#RF = RandomForestClassifier()
 RF.fit(X_train, y_train)
 scoring_RF = RF.predict_proba(X_test)[:, 1]
 
@@ -135,7 +132,7 @@ matplotlib.rcParams.update({'font.size': 18})
 
 curves = [roc_curve, precision_recall_curve]
 xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
-ylabels = ['True Positive Rate', 'Precision']
+ylabels = ['True Positive Rate (Recall)', 'Precision']
 
 for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
                                             xlabels, ylabels):
@@ -143,7 +140,7 @@ for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
         y_rf1, x_rf1, _ = curve(y_test, scoring_DT)
         y_rf2, x_rf2, _ = curve(y_test, scoring_RF)
         #y_rf3, x_rf3, _ = curve(y_test, scoring_ET)
-        ax.scatter(x_rf1, y_rf1, c='b', s=10)
+        ax.scatter(x_rf1, y_rf1, c='b', s=10,  label=label)
         #ax.step(x_rf1, y_rf1, lw=2, where = 'post')
         ax.step(x_rf2, y_rf2, linestyle = '-.', c = 'g', lw=1, where = 'post')
         #ax.step(x_rf3, y_rf3, linestyle = '-.', lw=1, where = 'post')
@@ -182,20 +179,21 @@ plt.show()
 # This part shows how FraudToRules can be fitted to detect credit defaults. Performances are compared with the random forest model previously trained.
 # 
 
-
 # fit the model
-clf = FraudToRules(max_depth=3, max_features=0.5, max_samples_features=0.5,
+rng = np.random.RandomState(42)
+
+clf = FraudToRules(similarity_thres = 1.0, max_depth=3, max_features=0.5, max_samples_features=0.5,
                    random_state=rng, n_estimators=30,
-                   feature_names=feature_names, recall_min = 0.1, precision_min = 0.5
+                   feature_names=feature_names, recall_min = 0.05, precision_min = 0.6
                   )
 clf.fit(X_train, y_train)
 scoring = clf.decision_function(X_test)
 
-#rule = clf.rules_[0][0]
-#detected_index = list(
-#    pd.DataFrame(X_test, columns=feature_names).query(rule).index)
-#scoring_one_rule[detected_index] = 1
-#print('best rule precision:', y_test[detected_index].mean())
+print(str(len(clf.rules_)) + ' rules have been built.')
+print(clf.rules_[:5])
+
+###############################################################################
+# The most precise rules are displayed above.
 
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
@@ -211,22 +209,16 @@ for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
     if curve == precision_recall_curve:
         y_rf1, x_rf1, _ = curve(y_test, scoring)
         y_rf2, x_rf2, _ = curve(y_test, scoring_RF)
-        #y_rf3, x_rf3, _ = curve(y_test, scoring_ET)
         ax.scatter(x_rf1, y_rf1, c='b', s=10, label=label)
-        #ax.step(x_rf1, y_rf1, lw=2, where = 'post')
         ax.step(x_rf2, y_rf2, linestyle = '-.', c = 'g', lw=1, where = 'post')
-        #ax.step(x_rf3, y_rf3, linestyle = '-.', lw=1, where = 'post')
         ax.set_title("Precision-Recall Curves", fontsize=20)
     else:
         x_rf1, y_rf1, _ = curve(y_test, scoring)
         x_rf2, y_rf2, _ = curve(y_test, scoring_RF)
-        #x_rf3, y_rf3, _ = curve(y_test, scoring_ET)
         label = ('FraudToRules, AUC: %0.3f' % auc(x_rf1, y_rf1))
         ax.scatter(x_rf1, y_rf1, c='b', s=10, label=label)
         label = ('Random Forest, AUC: %0.3f' % auc(x_rf2, y_rf2))
         ax.plot(x_rf2, y_rf2, '-.', lw=1, label=label, c = 'g')
-        #label = ('ExtraTrees, AUC: %0.3f' % auc(x_rf3, y_rf3))
-        #ax.plot(x_rf3, y_rf3, '-.', lw=1, label=label)
         ax.set_title("ROC Curves", fontsize=20)
         ax.legend(loc='upper center', fontsize = 8) 
 
@@ -234,6 +226,92 @@ for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
     ax.set_ylabel(ylabel)
 
 plt.show()
+
+
+
+
+###############################################################################
+# Refining rules with the similarity threshold parameter
+# ..................
+#
+# This part shows how FraudToRules can be set up to discard unecessary rules. 
+# This rule selection consists in 
+# 
+
+# fit the model
+rng = np.random.RandomState(42)
+
+clf = FraudToRules(similarity_thres = 1.0, max_depth=3, max_features=0.5, max_samples_features=0.5,
+                   random_state=rng, n_estimators=30,
+                   feature_names=feature_names, recall_min = 0.05, precision_min = 0.6
+                  )
+clf.fit(X_train, y_train)
+scoring = clf.decision_function(X_test)
+
+rng = np.random.RandomState(42)
+
+clf = FraudToRules(similarity_thres = 0.9, max_depth=3, max_features=0.5, max_samples_features=0.5,
+                   random_state=rng, n_estimators=30,
+                   feature_names=feature_names, recall_min = 0.05, precision_min = 0.6
+                  )
+clf.fit(X_train, y_train)
+scoring_RF = clf.decision_function(X_test)
+
+rng = np.random.RandomState(42)
+
+clf = FraudToRules(similarity_thres = 0.5, max_depth=3, max_features=0.5, max_samples_features=0.5,
+                   random_state=rng, n_estimators=30,
+                   feature_names=feature_names, recall_min = 0.05, precision_min = 0.6
+                  )
+clf.fit(X_train, y_train)
+scoring_ET = clf.decision_function(X_test)
+
+
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5),
+                         sharex=True, sharey=True)
+matplotlib.rcParams.update({'font.size': 18})
+
+curves = [roc_curve, precision_recall_curve]
+xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
+ylabels = ['True Positive Rate (Recall)', 'Precision']
+
+for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
+                                            xlabels, ylabels):
+    if curve == precision_recall_curve:
+        y_rf1, x_rf1, _ = curve(y_test, scoring)
+        y_rf2, x_rf2, _ = curve(y_test, scoring_RF)
+        y_rf3, x_rf3, _ = curve(y_test, scoring_ET)
+        ax.scatter(x_rf1, y_rf1, c='b', s=10, label=label)
+        #ax.step(x_rf1, y_rf1, lw=2, where = 'post')
+        ax.step(x_rf2, y_rf2, linestyle = '-.', c = 'g', lw=1, where = 'post')
+        ax.scatter(x_rf3, y_rf3, c='r', s=10, label=label)
+        ax.set_title("Precision-Recall Curves", fontsize=20)
+    else:
+        x_rf1, y_rf1, _ = curve(y_test, scoring)
+        x_rf2, y_rf2, _ = curve(y_test, scoring_RF)
+        x_rf3, y_rf3, _ = curve(y_test, scoring_ET)
+        label = ('FraudToRules, AUC: %0.3f' % auc(x_rf1, y_rf1))
+        ax.scatter(x_rf1, y_rf1, c='b', s=10, label=label)
+        label = ('Random Forest, AUC: %0.3f' % auc(x_rf2, y_rf2))
+        ax.plot(x_rf2, y_rf2, '-.', lw=1, label=label, c = 'g')
+        label = ('ExtraTrees, AUC: %0.3f' % auc(x_rf3, y_rf3))
+        ax.scatter(x_rf3, y_rf3, c='r', s=10, label=label)
+        ax.set_title("ROC Curves", fontsize=20)
+        ax.legend(loc='upper center', fontsize = 8) 
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+plt.show()
+
+###############################################################################
+# Applying rules and predicting with ftrules
+# ..................
+#
+# This part shows how, once fitted, FraudToRules can be used to make predictions.
+# 
+
 
 ###############################################################################
 # The end
