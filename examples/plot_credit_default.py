@@ -37,7 +37,7 @@ from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
-from ftrules import FraudToRules
+from skrules import SkopeRules
 
 print(__doc__)
 rng = np.random.RandomState(42)
