@@ -29,6 +29,7 @@ The dataset comes from BLABLABLA.
 # From the 30000 credits, 50% are used for training and 50% are used
 # for testing. The target is unbalanced with a 22%/78% ratio.
 
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -42,6 +43,7 @@ from skrules import SkopeRules
 print(__doc__)
 
 rng = np.random.RandomState(42)
+
 
 def _load_credit_data():
     from sklearn.datasets.base import get_data_home
