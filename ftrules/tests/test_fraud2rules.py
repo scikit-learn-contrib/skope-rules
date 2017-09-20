@@ -38,7 +38,7 @@ boston.data = boston.data[perm]
 boston.target = boston.target[perm]
 
 
-def test_fraudetorules():
+def test_fraudtorules():
     """Check various parameter settings."""
     X_train = np.array([[0, 1], [1, 2]])
     y_train = np.array([0, 1])
@@ -56,15 +56,18 @@ def test_fraudetorules():
         "max_depth": [2],
         "max_features": ["auto", 1, 0.1],
         "min_samples_split": [2, 0.1],
-        "n_jobs": [-1, 1]})
+        "n_jobs": [-1, 2]})
 
     with ignore_warnings():
         for params in grid:
             FraudToRules(random_state=rng,
                          **params).fit(X_train, y_train).predict(X_test)
 
+    # additional parameters:
+    FraudToRules(n_estimators=50).fit(X_train, y_train).predict(X_test)
 
-def test_fraudetorules_error():
+
+def test_fraudtorules_error():
     """Test that it gives proper exception on deficient input."""
     X = iris.data
     y = iris.target
@@ -111,7 +114,7 @@ def test_max_samples_attribute():
     assert_equal(clf.max_samples_, 0.4*X.shape[0])
 
 
-def test_fraudetorules_works():
+def test_fraudtorules_works():
     # toy sample (the last two samples are outliers)
     X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1], [6, 3], [4, -7]]
     y = [0] * 6 + [1] * 2

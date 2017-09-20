@@ -355,7 +355,7 @@ class FraudToRules(BaseEstimator):
 
         # removing dupe rules:
         # for efficiency:
-        self.rules_ = self.rules_[:min(self.rules_, 5 * self.n_estimators)]
+        self.rules_ = self.rules_[:min(len(self.rules_), 5 * self.n_estimators)]
         X_ = pandas.DataFrame(X, columns=np.array(self.feature_names_))
         for i in range(len(self.rules_)):
             for j in range(i):
