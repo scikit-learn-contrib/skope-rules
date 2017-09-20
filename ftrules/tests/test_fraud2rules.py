@@ -40,16 +40,17 @@ boston.target = boston.target[perm]
 
 def test_fraudtorules():
     """Check various parameter settings."""
-    X_train = np.array([[0, 1], [1, 2]])
-    y_train = np.array([0, 1])
+    X_train = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1],
+               [6, 3], [-4, -7]]
+    y_train = [0] * 6 + [1] * 2
     X_test = np.array([[2, 1], [1, 1]])
 
     grid = ParameterGrid({
         "feature_names": [None, ['a', 'b']],
-        "precision_min": [0.1],
-        "recall_min": [0.1],
+        "precision_min": [0.],
+        "recall_min": [0.],
         "n_estimators": [1],
-        "max_samples": [0.5, 3],
+        "max_samples": [0.5, 4],
         "max_samples_features": [0.5, 2],
         "bootstrap": [True, False],
         "bootstrap_features": [True, False],
@@ -64,7 +65,8 @@ def test_fraudtorules():
                          **params).fit(X_train, y_train).predict(X_test)
 
     # additional parameters:
-    FraudToRules(n_estimators=50).fit(X_train, y_train).predict(X_test)
+    FraudToRules(n_estimators=50, max_samples=1.).fit(X_train,
+                                                      y_train).predict(X_test)
 
 
 def test_fraudtorules_error():

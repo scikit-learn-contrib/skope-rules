@@ -26,10 +26,10 @@ class FraudToRules(BaseEstimator):
         The names of each feature to be used for returning rules in string
         format.
 
-    precision_min: float, optional (default=0.5)
+    precision_min: float, optional (default=0.)
         minimal precision of a rule to be selected.
 
-    recall_min: float, optional (default=0.01)
+    recall_min: float, optional (default=0.)
         minimal recall of a rule to be selected.
 
     n_estimators : int, optional (default=10)
@@ -134,8 +134,8 @@ class FraudToRules(BaseEstimator):
 
     def __init__(self,
                  feature_names=None,
-                 precision_min=0.5,
-                 recall_min=0.01,
+                 precision_min=0.,
+                 recall_min=0.,
                  n_estimators=10,
                  similarity_thres=0.99,
                  max_samples=.8,
@@ -337,7 +337,7 @@ class FraudToRules(BaseEstimator):
 
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
-            if (score[0] > self.precision_min and score[1] > self.recall_min):
+            if score[0] >= self.precision_min and score[1] >= self.recall_min:
                 if rule in self.rules_:
                     # update the score to the new mean
                     c = self.rules_[rule][2] + 1
@@ -355,7 +355,8 @@ class FraudToRules(BaseEstimator):
 
         # removing dupe rules:
         # for efficiency:
-        self.rules_ = self.rules_[:min(len(self.rules_), 5 * self.n_estimators)]
+        self.rules_ = self.rules_[:min(len(self.rules_),
+                                       5 * self.n_estimators)]
         X_ = pandas.DataFrame(X, columns=np.array(self.feature_names_))
         for i in range(len(self.rules_)):
             for j in range(i):
@@ -363,12 +364,11 @@ class FraudToRules(BaseEstimator):
                 rival = self.rules_[j]
                 perimeter_current = np.zeros(X.shape[0]).astype(bool)
                 perimeter_current[list(X_.query(current[0]).index)] = True
-                perimeter_rival = np.zeros(X.shape[0])
+                perimeter_rival = np.zeros(X.shape[0]).astype(bool)
                 perimeter_rival[list(X_.query(rival[0]).index)] = True
-
-                if (sum(perimeter_rival * perimeter_current)
-                    / sum(perimeter_rival
-                          + perimeter_current)) > self.similarity_thres:
+                if float(sum(perimeter_rival * perimeter_current)
+                         / sum(perimeter_rival
+                         + perimeter_current)) > self.similarity_thres:
                     del current
 
         return self
@@ -472,7 +472,7 @@ class FraudToRules(BaseEstimator):
                 rule = str.join(' and ', base_name)
                 rule = (rule if rule != ''
                         else '=='.join([feature_names[0]] * 2))
-                # better than "c0==c0" for a rule selecting all?
+                # a rule selecting all is set to "c0==c0"
                 rules.append(rule)
 
         recurse(0, [])
@@ -480,13 +480,12 @@ class FraudToRules(BaseEstimator):
         return rules if len(rules) > 0 else 'True'
 
     def _eval_rule_perf(self, rule, X, y):
-        # import pdb; pdb.set_trace()
         detected_index = list(X.query(rule).index)
         if len(detected_index) <= 1:
-            return (-1, -1)
+            return (0, 0)
         y_detected = y[detected_index]
         true_pos = y_detected[y_detected > 0].sum()
         if true_pos == 0:
-            return (-1, -1)
+            return (0, 0)
         pos = y[y > 0].sum()
         return y_detected.mean(), float(true_pos) / pos
