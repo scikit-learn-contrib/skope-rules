@@ -65,8 +65,10 @@ def test_fraudtorules():
                          **params).fit(X_train, y_train).predict(X_test)
 
     # additional parameters:
-    FraudToRules(n_estimators=50, max_samples=1.).fit(X_train,
-                                                      y_train).predict(X_test)
+    FraudToRules(n_estimators=50,
+                 max_samples=1.,
+                 recall_min=0.,
+                 precision_min=0.).fit(X_train, y_train).predict(X_test)
 
 
 def test_fraudtorules_error():

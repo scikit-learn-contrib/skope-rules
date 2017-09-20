@@ -26,10 +26,10 @@ class FraudToRules(BaseEstimator):
         The names of each feature to be used for returning rules in string
         format.
 
-    precision_min: float, optional (default=0.)
+    precision_min: float, optional (default=0.5)
         minimal precision of a rule to be selected.
 
-    recall_min: float, optional (default=0.)
+    recall_min: float, optional (default=0.01)
         minimal recall of a rule to be selected.
 
     n_estimators : int, optional (default=10)
@@ -134,8 +134,8 @@ class FraudToRules(BaseEstimator):
 
     def __init__(self,
                  feature_names=None,
-                 precision_min=0.,
-                 recall_min=0.,
+                 precision_min=0.5,
+                 recall_min=0.01,
                  n_estimators=10,
                  similarity_thres=0.99,
                  max_samples=.8,
@@ -356,7 +356,7 @@ class FraudToRules(BaseEstimator):
         # removing dupe rules:
         # for efficiency:
         self.rules_ = self.rules_[:min(len(self.rules_),
-                                       5 * self.n_estimators)]
+                                       3 * self.n_estimators)]
         X_ = pandas.DataFrame(X, columns=np.array(self.feature_names_))
         for i in range(len(self.rules_)):
             for j in range(i):
