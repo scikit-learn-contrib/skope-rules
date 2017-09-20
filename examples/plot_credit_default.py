@@ -290,6 +290,7 @@ ylabels = ['True Positive Rate (Recall)', 'Precision']
 
 for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
                                      xlabels, ylabels):
+
     if curve == precision_recall_curve:
         y_rf1, x_rf1, _ = curve(y_test, scoring)
         y_rf2, x_rf2, _ = curve(y_test, scoring_RF)
