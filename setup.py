@@ -1,4 +1,18 @@
+import sys
 from setuptools import setup, find_packages
+
+
+try:
+    import numpy
+except ImportError:
+    print('numpy is required during installation')
+    sys.exit(1)
+
+try:
+    import scipy
+except ImportError:
+    print('scipy is required during installation')
+    sys.exit(1)
 
 setup(name='fraud_to_rules',
       version='0.0.1',

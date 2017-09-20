@@ -38,37 +38,50 @@ boston.data = boston.data[perm]
 boston.target = boston.target[perm]
 
 
-def test_fraudetorules():
+def test_fraudtorules():
     """Check various parameter settings."""
-    X_train = np.array([[0, 1], [1, 2]])
-    y_train = np.array([0, 1])
+    X_train = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1],
+               [6, 3], [-4, -7]]
+    y_train = [0] * 6 + [1] * 2
     X_test = np.array([[2, 1], [1, 1]])
 
     grid = ParameterGrid({
         "feature_names": [None, ['a', 'b']],
-        "precision_min": [0.1],
-        "recall_min": [0.1],
+        "precision_min": [0.],
+        "recall_min": [0.],
         "n_estimators": [1],
-        "max_samples": [0.5, 3],
+        "max_samples": [0.5, 4],
         "max_samples_features": [0.5, 2],
         "bootstrap": [True, False],
         "bootstrap_features": [True, False],
         "max_depth": [2],
         "max_features": ["auto", 1, 0.1],
         "min_samples_split": [2, 0.1],
-        "n_jobs": [-1, 1]})
+        "n_jobs": [-1, 2]})
 
     with ignore_warnings():
         for params in grid:
             FraudToRules(random_state=rng,
                          **params).fit(X_train, y_train).predict(X_test)
 
+    # additional parameters:
+    FraudToRules(n_estimators=50,
+                 max_samples=1.,
+                 recall_min=0.,
+                 precision_min=0.).fit(X_train, y_train).predict(X_test)
 
-def test_fraudetorules_error():
+
+def test_fraudtorules_error():
     """Test that it gives proper exception on deficient input."""
     X = iris.data
     y = iris.target
     y = (y != 0)
+
+    # Test similarity_thres:
+    assert_raises(ValueError,
+                  FraudToRules(similarity_thres=2).fit, X, y)
+    assert_raises(ValueError,
+                  FraudToRules(similarity_thres=0).fit, X, y)
 
     # Test max_samples
     assert_raises(ValueError,
@@ -105,7 +118,7 @@ def test_max_samples_attribute():
     assert_equal(clf.max_samples_, 0.4*X.shape[0])
 
 
-def test_fraudetorules_works():
+def test_fraudtorules_works():
     # toy sample (the last two samples are outliers)
     X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1], [6, 3], [4, -7]]
     y = [0] * 6 + [1] * 2

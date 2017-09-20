@@ -34,7 +34,7 @@ X_train = np.r_[X_inliers, X_outliers]
 y_train = [0] * n_inliers + [1] * n_outliers
 
 # fit the model
-clf = FraudToRules(random_state=rng, n_estimators=100)
+clf = FraudToRules(random_state=rng, n_estimators=10)
 clf.fit(X_train, y_train)
 
 # plot the line, the samples, and the nearest vectors to the plane
