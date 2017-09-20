@@ -41,7 +41,6 @@ from skrules import SkopeRules
 
 print(__doc__)
 
-print(__doc__)
 rng = np.random.RandomState(42)
 
 def _load_credit_data():
