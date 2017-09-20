@@ -280,12 +280,12 @@ class FraudToRules(BaseEstimator):
                 sample_weight = check_array(sample_weight, ensure_2d=False)
             weights = sample_weight - sample_weight.min()
             contamination = float(sum(y)) / len(y)
-            y_reg = (pow(weights, 0.5) * 0.5 / contamination  * (y > 0)
+            y_reg = (pow(weights, 0.5) * 0.5 / contamination * (y > 0)
                      - pow((weights).mean(), 0.5) * (y == 0))
             y_reg = 1. / (1 + np.exp(-y_reg))  # sigmoid
         else:
             y_reg = y  # same as an other classification bagging
-        
+
         bagging_reg.fit(X, y_reg)
 
         self.estimators_ += bagging_clf.estimators_
@@ -319,8 +319,8 @@ class FraudToRules(BaseEstimator):
                                          self.feature_names_)[features])
             y_oob = y[mask]
             y_oob = np.array((y_oob != 0))
-            # Add OOB performances to rules:
 
+            # Add OOB performances to rules:
             rules_from_tree = [(r, self._eval_rule_perf(r, X_oob, y_oob))
                                for r in set(rules_from_tree)]
             rules_ += rules_from_tree
