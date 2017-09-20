@@ -36,6 +36,11 @@ class FraudToRules(BaseEstimator):
         The number of base estimators (rules) to use for prediction. More are
         built before selection. All are available in the estimators_ attribute.
 
+    similarity_thres : float, optional (default=0.99)
+        Similarity threshold between rules. Rules too similar
+        (> similarity_thres) are fused. The similarity between two rules is
+        computed according to the formula `# {intersection} / # {union}`.
+
     max_samples : int or float, optional (default=.8)
         The number of samples to draw from X to train each decision tree, from
         which rules are generated and selected.
@@ -89,7 +94,7 @@ class FraudToRules(BaseEstimator):
         The number of jobs to run in parallel for both `fit` and `predict`.
         If -1, then the number of jobs is set to the number of cores.
 
-    random_state : int, RandomState instance or None, optional (default=None)
+    random_state : int, RandomState instance or None, optional
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
@@ -134,6 +139,7 @@ class FraudToRules(BaseEstimator):
                  precision_min=0.5,
                  recall_min=0.01,
                  n_estimators=10,
+                 similarity_thres=0.99,
                  max_samples=.8,
                  max_samples_features=1.,
                  bootstrap=False,
@@ -148,6 +154,7 @@ class FraudToRules(BaseEstimator):
         self.recall_min = recall_min
         self.feature_names = feature_names
         self.n_estimators = n_estimators
+        self.similarity_thres = similarity_thres
         self.max_samples = max_samples
         self.max_samples_features = max_samples_features
         self.bootstrap = bootstrap
@@ -203,6 +210,11 @@ class FraudToRules(BaseEstimator):
                  " target class."
                  % set(self.classes_))
             y = (y > 0)
+
+        # ensure similarity_thres is in (0., 1.]:
+        if not (0. < self.similarity_thres <= 1.):
+            raise ValueError("similarity_thres must be in (0, 1], got %r"
+                             % self.similarity_thres)
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
@@ -342,6 +354,23 @@ class FraudToRules(BaseEstimator):
 
         self.rules_ = sorted(self.rules_.items(),
                              key=lambda x: (x[1][0], x[1][1]), reverse=True)
+
+        # removing dupe rules:
+        X_ = pandas.DataFrame(X, columns=np.array(self.feature_names_))
+        for i in range(len(self.rules_)):
+            for j in range(i):
+                current = self.rules_[i]
+                rival = self.rules_[j]
+                perimeter_current = np.zeros(X.shape[0]).astype(bool)
+                perimeter_current[list(X_.query(current[0]).index)] = True
+                perimeter_rival = np.zeros(X.shape[0])
+                perimeter_rival[list(X_.query(rival[0]).index)] = True
+
+                if (sum(perimeter_rival * perimeter_current)
+                    / sum(perimeter_rival
+                          + perimeter_current)) > self.similarity_thres:
+                    del current
+
         return self
 
     def predict(self, X):

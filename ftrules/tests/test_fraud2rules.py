@@ -70,6 +70,12 @@ def test_fraudetorules_error():
     y = iris.target
     y = (y != 0)
 
+    # Test similarity_thres:
+    assert_raises(ValueError,
+                  FraudToRules(similarity_thres=2).fit, X, y)
+    assert_raises(ValueError,
+                  FraudToRules(similarity_thres=0).fit, X, y)
+
     # Test max_samples
     assert_raises(ValueError,
                   FraudToRules(max_samples=-1).fit, X, y)
