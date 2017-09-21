@@ -14,10 +14,10 @@ except ImportError:
     print('scipy is required during installation')
     sys.exit(1)
 
-setup(name='skope_rules',
+setup(name='skope-rules',
       version='0.0.1',
       description='Machine Learning with Interpretable Rules',
-      url='https://github.com/fdetector/fraud_to_rules',
+      url='https://github.com/skope-rules/skope-rules',
       author='see AUTHORS.rst',
       license='BSD 3 clause',
       packages=find_packages(),
