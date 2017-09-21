@@ -42,6 +42,7 @@ from skrules import SkopeRules
 print(__doc__)
 rng = np.random.RandomState(42)
 
+
 def _load_credit_data():
     from sklearn.datasets.base import get_data_home
     from sklearn.datasets.base import _fetch_remote, RemoteFileMetadata
@@ -60,7 +61,6 @@ def _load_credit_data():
 
     return(pd.read_excel(join(sk_data_dir, archive.filename),
                          sheetname='Data', header=1))
-    
 # Importing data
 data = _load_credit_data()
 
@@ -208,7 +208,7 @@ plt.show()
 # fit the model
 rng = np.random.RandomState(42)
 
-clf = FraudToRules(
+clf = SkopeRules(
     similarity_thres=1.0, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=30,
     feature_names=feature_names, recall_min=0.02, precision_min=0.6
@@ -264,7 +264,7 @@ plt.show()
 # fit the model
 rng = np.random.RandomState(42)
 
-clf = FraudToRules(
+clf = SkopeRules(
     similarity_thres=1.0, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=30,
     feature_names=feature_names, recall_min=0.02, precision_min=0.6
@@ -320,7 +320,7 @@ plt.show()
 # fit the model
 rng = np.random.RandomState(42)
 
-clf = FraudToRules(
+clf = SkopeRules(
     similarity_thres=1.0, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=30,
     feature_names=feature_names, recall_min=0.05, precision_min=0.6
@@ -331,7 +331,7 @@ scoring = clf.decision_function(X_test)
 
 rng = np.random.RandomState(42)
 
-clf = FraudToRules(
+clf = SkopeRules(
     similarity_thres=0.9, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=30,
     feature_names=feature_names, recall_min=0.05, precision_min=0.6
@@ -341,7 +341,7 @@ scoring_RF = clf.decision_function(X_test)
 
 rng = np.random.RandomState(42)
 
-clf = FraudToRules(
+clf = SkopeRules(
     similarity_thres=0.5, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=30,
     feature_names=feature_names, recall_min=0.05, precision_min=0.6
