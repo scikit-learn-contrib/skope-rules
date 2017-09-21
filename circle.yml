@@ -2,10 +2,10 @@ machine:
   environment:
     # The github organization or username of the repository which hosts the
     # project and documentation.
-    USERNAME: "fdetector"
+    USERNAME: "skope-rules"
 
     # The repository where the documentation will be hosted
-    DOC_REPO: "skope_rules"
+    DOC_REPO: "skope-rules"
 
     # The base URL for the Github page where the documentation will be hosted
     DOC_URL: ""
