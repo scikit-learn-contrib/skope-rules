@@ -3,10 +3,10 @@
 example: detecting fraud on transaction data
 ============================================
 
-An example using FraudToRules for finding good rules in a fraud detection
+An example using SkopeRules for finding good rules in a fraud detection
 setting.
 
-FraudToRules find logical rules with high precision and fuse them. Finding good
+SkopeRules find logical rules with high precision and fuse them. Finding good
 rules is done by fitting classification and regression trees to sub-samples.
 A fitted tree defines a set of rules (each tree node defines a rule); rules
 are then tested out of the bag, and the ones with higher precision are selected
@@ -21,7 +21,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.ensemble import RandomForestClassifier
-from ftrules import FraudToRules
+from skrules import SkopeRules
 
 rng = np.random.RandomState(42)
 
@@ -47,7 +47,7 @@ X_train = data[:n_samples_train]
 X_test = data[n_samples_train:]
 
 # fit the model
-clf = FraudToRules(max_depth=2, max_features=0.5, max_samples_features=0.5,
+clf = SkopeRules(max_depth=2, max_features=0.5, max_samples_features=0.5,
                    random_state=rng, n_estimators=10,
                    feature_names=feature_names)
 clf.fit(X_train, y_train)

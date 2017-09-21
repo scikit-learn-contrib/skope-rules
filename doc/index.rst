@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to fraude_to_rules' documentation!
+Welcome to skope_rules' documentation!
 ============================================
 
 This project can be useful to anyone who wishes to do supervised
@@ -14,7 +14,7 @@ i.e. imbalanced classification.
 Application domains include fraud detection, predictive
 maintenance, intrusion detection, churn detection.
 
-This project comes with a `ftrules` module which contains a single
+This project comes with a `skrules` module which contains a single
 estimator with unit tests, along with examples and benchmarks.
 
 
@@ -25,7 +25,7 @@ estimator with unit tests, along with examples and benchmarks.
        auto_examples/index
        ...
 
-See the `README <https://github.com/fdetector/fraud_to_rules/blob/master/README.md>`_
+See the `README <https://github.com/fdetector/skope_rules/blob/master/README.md>`_
 for more information.
 
 

@@ -5,7 +5,7 @@ machine:
     USERNAME: "fdetector"
 
     # The repository where the documentation will be hosted
-    DOC_REPO: "fraud_to_rules"
+    DOC_REPO: "skope_rules"
 
     # The base URL for the Github page where the documentation will be hosted
     DOC_URL: ""

@@ -1,15 +1,15 @@
 """
 ==========================================
-FraudToRules benchmark
+SkopeRules benchmark
 ==========================================
-A test of FraudToRules on classical anomaly detection datasets.
+A test of SkopeRules on classical anomaly detection datasets.
 """
 
 from time import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ftrules import FraudToRules
+from skrules import SkopeRules
 from sklearn.metrics import roc_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -101,15 +101,14 @@ for dat in datasets:
 
     n_samples, n_features = X.shape
     n_samples_train = n_samples // 2
-    import pdb; pdb.set_trace()
     X = X.astype(float)
     X_train = X[:n_samples_train, :]
     X_test = X[n_samples_train:, :]
     y_train = y[:n_samples_train]
     y_test = y[n_samples_train:]
 
-    print('--- Fitting the FraudToRules estimator...')
-    model = FraudToRules(n_estimators=5, max_depth=5, n_jobs=-1)
+    print('--- Fitting the SkopeRules estimator...')
+    model = SkopeRules(n_estimators=5, max_depth=5, n_jobs=-1)
     tstart = time()
     model.fit(X_train, y_train)
     fit_time = time() - tstart

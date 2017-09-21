@@ -1,4 +1,4 @@
 API Documentation
 =================
 
-* :doc:`fraud2rules`
+* :doc:`skope_rules`

@@ -1,4 +1,4 @@
-#fraud_to_rules -- machine learning library finding interpretable rules for fraud detection.
+#skope_rules -- machine learning library learning interpretable rules for scoping a target class of data.
 
 [![Travis Status](https://travis-ci.org/fdetector/fraud_to_rules.svg?branch=master)](https://travis-ci.org/fdetector/fraud_to_rules)
 

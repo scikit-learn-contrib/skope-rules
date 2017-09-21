@@ -80,7 +80,7 @@ plot_gallery = True
 master_doc = 'index'
 
 # General information about the project.
-project = u'fraud_to_rules'
+project = u'skope_rules'
 #copyright = u'2016, Vighnesh Birodkar'
 
 # The version info for the project you're documenting, acts as replacement for

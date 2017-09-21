@@ -1,11 +1,11 @@
 """
 ==========================================
-FraudToRules example
+SkopeRules example
 ==========================================
 
-An example using FraudToRules for imbalanced classification.
+An example using SkopeRules for imbalanced classification.
 
-FraudToRules find logical rules with high precision and fuse them. Finding good
+SkopeRules find logical rules with high precision and fuse them. Finding good
 rules is done by fitting classification and regression trees to sub-samples.
 A fitted tree defines a set of rules (each tree node defines a rule); rules
 are then tested out of the bag, and the ones with higher precision are selected
@@ -18,7 +18,7 @@ print(__doc__)
 
 import numpy as np
 import matplotlib.pyplot as plt
-from ftrules import FraudToRules
+from skrules import SkopeRules
 
 rng = np.random.RandomState(42)
 
@@ -34,7 +34,7 @@ X_train = np.r_[X_inliers, X_outliers]
 y_train = [0] * n_inliers + [1] * n_outliers
 
 # fit the model
-clf = FraudToRules(random_state=rng, n_estimators=10)
+clf = SkopeRules(random_state=rng, n_estimators=10)
 clf.fit(X_train, y_train)
 
 # plot the line, the samples, and the nearest vectors to the plane
@@ -42,7 +42,7 @@ xx, yy = np.meshgrid(np.linspace(-5, 5, 50), np.linspace(-5, 5, 50))
 Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 
-plt.title("Fraud To Rules")
+plt.title("Skope Rules")
 plt.contourf(xx, yy, Z, cmap=plt.cm.Blues)
 
 a = plt.scatter(X_inliers[:, 0], X_inliers[:, 1], c='white',
