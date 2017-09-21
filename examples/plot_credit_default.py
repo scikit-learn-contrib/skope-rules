@@ -32,45 +32,27 @@ The dataset comes from BLABLABLA.
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.utils import shuffle
 from skrules import SkopeRules
+from skrules.datasets import _load_credit_data
 
 print(__doc__)
 
 rng = np.random.RandomState(42)
 
-
-def _load_credit_data():
-    from sklearn.datasets.base import get_data_home
-    from sklearn.datasets.base import _fetch_remote, RemoteFileMetadata
-    from os.path import exists, join
-
-    sk_data_dir = get_data_home()
-    archive = RemoteFileMetadata(
-        filename='default of credit card clients.xls',
-        url='https://archive.ics.uci.edu/ml/machine-learning-databases/'
-            '00350/default%20of%20credit%20card%20clients.xls',
-        checksum=('30c6be3abd8dcfd3e6096c828bad8c2f'
-                  '011238620f5369220bd60cfc82700933'))
-
-    if not exists(join(sk_data_dir, archive.filename)):
-        _fetch_remote(archive, dirname=sk_data_dir)
-
-    return(pd.read_excel(join(sk_data_dir, archive.filename),
-                         sheetname='Data', header=1))
-
 # Importing data
-data = _load_credit_data()
-
+dataset = _load_credit_data()
+X = dataset.data
+y = dataset.target
 # Shuffling data, preparing target and variables
-data = data.sample(frac=1).reset_index(drop=True)
+data, y = shuffle(np.array(X), y)
+data = pd.DataFrame(data, columns=X.columns)
 
-target = data['default payment next month'].values
-for col in ['default payment next month', 'ID']:
+for col in ['ID']:
     del data[col]
 
 # data = pd.get_dummies(data, columns = ['SEX', 'EDUCATION', 'MARRIAGE'])
@@ -103,8 +85,8 @@ print(feature_names)
 data = data.values
 n_samples = data.shape[0]
 n_samples_train = int(n_samples / 2)
-y_train = target[:n_samples_train]
-y_test = target[n_samples_train:]
+y_train = y[:n_samples_train]
+y_test = y[n_samples_train:]
 X_train = data[:n_samples_train]
 X_test = data[n_samples_train:]
 
@@ -145,16 +127,13 @@ RF = GridSearchCV(
 RF.fit(X_train, y_train)
 scoring_RF = RF.predict_proba(X_test)[:, 1]
 
-print("Decision Tree parameters : "+str(DT.best_params_))
-print("Random Forest parameters : "+str(RF.best_params_))
-###############################################################################
-# Above are printed the parameters which have been chosen by the Grid Search.
+print("Decision Tree selected parameters : "+str(DT.best_params_))
+print("Random Forest selected parameters : "+str(RF.best_params_))
 
 # Plot ROC and PR curves
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
-matplotlib.rcParams.update({'font.size': 18})
 
 curves = [roc_curve, precision_recall_curve]
 xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
@@ -184,8 +163,8 @@ for ax, curve, xlabel, ylabel in zip(axes.flatten(),
         ax.set_title("ROC Curves", fontsize=20)
         ax.legend(loc='upper center', fontsize=8)
 
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel, fontsize=18)
+    ax.set_ylabel(ylabel, fontsize=18)
 
 plt.show()
 
@@ -227,7 +206,6 @@ print(clf.rules_[:5])
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
-matplotlib.rcParams.update({'font.size': 18})
 
 curves = [roc_curve, precision_recall_curve]
 xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
@@ -251,8 +229,8 @@ for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
         ax.set_title("ROC Curves", fontsize=20)
         ax.legend(loc='upper center', fontsize=8)
 
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel, fontsize=18)
+    ax.set_ylabel(ylabel, fontsize=18)
 
 plt.show()
 
@@ -283,7 +261,6 @@ print(clf.rules_[:5])
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
-matplotlib.rcParams.update({'font.size': 18})
 
 curves = [roc_curve, precision_recall_curve]
 xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
@@ -307,8 +284,8 @@ for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
         ax.set_title("ROC Curves", fontsize=20)
         ax.legend(loc='upper center', fontsize=8)
 
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel, fontsize=18)
+    ax.set_ylabel(ylabel, fontsize=18)
 
 plt.show()
 
@@ -354,7 +331,6 @@ scoring_ET = clf.decision_function(X_test)
 # Plot models
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
-matplotlib.rcParams.update({'font.size': 18})
 
 curves = [roc_curve, precision_recall_curve]
 xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
@@ -384,8 +360,8 @@ for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
         ax.set_title("ROC Curves", fontsize=20)
         ax.legend(loc='upper center', fontsize=8)
 
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel, fontsize=18)
+    ax.set_ylabel(ylabel, fontsize=18)
 
 plt.show()
 
