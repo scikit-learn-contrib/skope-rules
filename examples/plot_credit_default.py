@@ -61,7 +61,7 @@ def _load_credit_data():
 
     return(pd.read_excel(join(sk_data_dir, archive.filename),
                          sheetname='Data', header=1))
-
+    
 # Importing data
 data = _load_credit_data()
 
