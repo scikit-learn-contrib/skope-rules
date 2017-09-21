@@ -327,13 +327,15 @@ class FraudToRules(BaseEstimator):
             X_oob = pandas.DataFrame((X[mask, :])[:, features],
                                      columns=np.array(
                                          self.feature_names_)[features])
-            y_oob = y[mask]
-            y_oob = np.array((y_oob != 0))
 
-            # Add OOB performances to rules:
-            rules_from_tree = [(r, self._eval_rule_perf(r, X_oob, y_oob))
-                               for r in set(rules_from_tree)]
-            rules_ += rules_from_tree
+            if X_oob.shape[1] > 1:  # otherwise pandas bug (cf. issue #16363)
+                y_oob = y[mask]
+                y_oob = np.array((y_oob != 0))
+
+                # Add OOB performances to rules:
+                rules_from_tree = [(r, self._eval_rule_perf(r, X_oob, y_oob))
+                                   for r in set(rules_from_tree)]
+                rules_ += rules_from_tree
 
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
