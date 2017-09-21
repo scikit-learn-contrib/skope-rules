@@ -57,7 +57,7 @@ def _load_credit_data():
                   '011238620f5369220bd60cfc82700933'))
 
     if not exists(join(sk_data_dir, archive.filename)):
-        fetch_remote(archive, dirname=sk_data_dir)
+        _fetch_remote(archive, dirname=sk_data_dir)
     
     return(pd.read_excel(join(sk_data_dir, archive.filename), sheetname='Data', header=1))
 
