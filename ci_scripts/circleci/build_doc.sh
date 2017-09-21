@@ -29,6 +29,6 @@ conda create -n $CONDA_ENV_NAME --yes --quiet python numpy scipy \
 source activate testenv
 pip install sphinx-gallery numpydoc
 
-# Build and install scikit-learn in dev mode
+# Build and install skope-rules in dev mode
 python setup.py develop
 set -o pipefail && cd doc && make html 2>&1 | tee ~/log.txt
