@@ -371,6 +371,3 @@ plt.show()
 #
 # This part shows how, once fitted, SkopeRules can be used to
 # make predictions.
-
-###############################################################################
-# The end
