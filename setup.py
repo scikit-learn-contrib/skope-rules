@@ -14,7 +14,7 @@ except ImportError:
     print('scipy is required during installation')
     sys.exit(1)
 
-setup(name='fraud_to_rules',
+setup(name='skope_rules',
       version='0.0.1',
       description='Machine Learning with Interpretable Rules',
       url='https://github.com/fdetector/fraud_to_rules',

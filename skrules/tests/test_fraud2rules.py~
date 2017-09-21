@@ -1,5 +1,5 @@
 """
-Testing for FraudToRules algorithm (ftrules.fraud2rules).
+Testing for SkopeRules algorithm (skrules.fraud2rules).
 """
 
 
@@ -19,7 +19,7 @@ from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import ignore_warnings
 
 
-from ftrules import FraudToRules
+from skrules import SkopeRules
 
 rng = check_random_state(0)
 
@@ -61,11 +61,11 @@ def test_fraudtorules():
 
     with ignore_warnings():
         for params in grid:
-            FraudToRules(random_state=rng,
+            SkopeRules(random_state=rng,
                          **params).fit(X_train, y_train).predict(X_test)
 
     # additional parameters:
-    FraudToRules(n_estimators=50,
+    SkopeRules(n_estimators=50,
                  max_samples=1.,
                  recall_min=0.,
                  precision_min=0.).fit(X_train, y_train).predict(X_test)
@@ -79,25 +79,25 @@ def test_fraudtorules_error():
 
     # Test similarity_thres:
     assert_raises(ValueError,
-                  FraudToRules(similarity_thres=2).fit, X, y)
+                  SkopeRules(similarity_thres=2).fit, X, y)
     assert_raises(ValueError,
-                  FraudToRules(similarity_thres=0).fit, X, y)
+                  SkopeRules(similarity_thres=0).fit, X, y)
 
     # Test max_samples
     assert_raises(ValueError,
-                  FraudToRules(max_samples=-1).fit, X, y)
+                  SkopeRules(max_samples=-1).fit, X, y)
     assert_raises(ValueError,
-                  FraudToRules(max_samples=0.0).fit, X, y)
+                  SkopeRules(max_samples=0.0).fit, X, y)
     assert_raises(ValueError,
-                  FraudToRules(max_samples=2.0).fit, X, y)
+                  SkopeRules(max_samples=2.0).fit, X, y)
     # explicitly setting max_samples > n_samples should result in a warning.
     assert_warns_message(UserWarning,
                          "max_samples will be set to n_samples for estimation",
-                         FraudToRules(max_samples=1000).fit, X, y)
-    assert_no_warnings(FraudToRules(max_samples=np.int64(2)).fit, X, y)
-    assert_raises(ValueError, FraudToRules(max_samples='foobar').fit, X, y)
-    assert_raises(ValueError, FraudToRules(max_samples=1.5).fit, X, y)
-    assert_raises(ValueError, FraudToRules().fit(X, y).predict, X[:, 1:])
+                         SkopeRules(max_samples=1000).fit, X, y)
+    assert_no_warnings(SkopeRules(max_samples=np.int64(2)).fit, X, y)
+    assert_raises(ValueError, SkopeRules(max_samples='foobar').fit, X, y)
+    assert_raises(ValueError, SkopeRules(max_samples=1.5).fit, X, y)
+    assert_raises(ValueError, SkopeRules().fit(X, y).predict, X[:, 1:])
 
 
 def test_max_samples_attribute():
@@ -105,16 +105,16 @@ def test_max_samples_attribute():
     y = iris.target
     y = (y != 0)
 
-    clf = FraudToRules(max_samples=1.).fit(X, y)
+    clf = SkopeRules(max_samples=1.).fit(X, y)
     assert_equal(clf.max_samples_, X.shape[0])
 
-    clf = FraudToRules(max_samples=500)
+    clf = SkopeRules(max_samples=500)
     assert_warns_message(UserWarning,
                          "max_samples will be set to n_samples for estimation",
                          clf.fit, X, y)
     assert_equal(clf.max_samples_, X.shape[0])
 
-    clf = FraudToRules(max_samples=0.4).fit(X, y)
+    clf = SkopeRules(max_samples=0.4).fit(X, y)
     assert_equal(clf.max_samples_, 0.4*X.shape[0])
 
 
@@ -125,7 +125,7 @@ def test_fraudtorules_works():
     X_test = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1],
               [10, 5], [5, -7]]
     # Test LOF
-    clf = FraudToRules(random_state=rng, max_samples=1.)
+    clf = SkopeRules(random_state=rng, max_samples=1.)
     clf.fit(X, y)
     decision_func = - clf.decision_function(X_test)
     pred = clf.predict(X_test)
@@ -145,7 +145,7 @@ def test_performances():
     y = y[indexes]
     n_samples, n_features = X.shape
 
-    clf = FraudToRules()
+    clf = SkopeRules()
     # fit
     clf.fit(X, y)
     # with lists
