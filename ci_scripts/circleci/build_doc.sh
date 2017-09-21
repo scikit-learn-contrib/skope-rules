@@ -27,8 +27,8 @@ conda update --yes --quiet conda
 conda create -n $CONDA_ENV_NAME --yes --quiet python numpy scipy \
   cython nose coverage matplotlib sphinx=1.6.2 pillow
 source activate testenv
-pip install sphinx-gallery numpydoc sphinx_rtd_theme
+pip install sphinx-gallery numpydoc
 
-# Build and install scikit-learn in dev mode
+# Build and install skope-rules in dev mode
 python setup.py develop
 set -o pipefail && cd doc && make html 2>&1 | tee ~/log.txt
