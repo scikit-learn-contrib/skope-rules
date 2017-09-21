@@ -29,7 +29,6 @@ The dataset comes from BLABLABLA.
 # From the 30000 credits, 50% are used for training and 50% are used
 # for testing. The target is unbalanced with a 22%/78% ratio.
 
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -292,7 +291,6 @@ ylabels = ['True Positive Rate (Recall)', 'Precision']
 
 for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
                                      xlabels, ylabels):
-
     if curve == precision_recall_curve:
         y_rf1, x_rf1, _ = curve(y_test, scoring)
         y_rf2, x_rf2, _ = curve(y_test, scoring_RF)
