@@ -65,6 +65,10 @@ the easiest way to install skope-rules is using ``pip`` ::
 Source code
 ~~~~~~~~~~~
 
-You can check the latest sources with the command::
+You can get the latest sources with the command::
 
-    git clone https://github.com/scikit-learn/scikit-learn.git
+    git clone https://github.com/skope-rules/skope-rules.git
+
+Then you just need to execute in the skope-rules directory::
+
+    python setup.py install

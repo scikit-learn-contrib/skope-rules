@@ -1,0 +1,9 @@
+include *.rst
+recursive-include doc *
+recursive-include examples *
+recursive-include skrules *.c *.h *.pyx *.pxd *.pxi
+recursive-include skrules/datasets *.csv *.csv.gz *.rst *.jpg *.txt
+include COPYING
+include AUTHORS.rst
+include README.rst
+
