@@ -97,6 +97,11 @@ def test_skope_rules_error():
     assert_raises(ValueError, SkopeRules(max_samples='foobar').fit, X, y)
     assert_raises(ValueError, SkopeRules(max_samples=1.5).fit, X, y)
     assert_raises(ValueError, SkopeRules().fit(X, y).predict, X[:, 1:])
+    assert_raises(ValueError, SkopeRules().fit(X, y).decision_function,
+                  X[:, 1:])
+    assert_raises(ValueError, SkopeRules().fit(X, y).rules_vote, X[:, 1:])
+    assert_raises(ValueError, SkopeRules().fit(X, y).separate_rules_score,
+                  X[:, 1:])
 
 
 def test_max_samples_attribute():
