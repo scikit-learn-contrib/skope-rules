@@ -2,7 +2,6 @@
 Testing for SkopeRules algorithm (skrules.skope_rules).
 """
 
-
 import numpy as np
 
 from sklearn.model_selection import ParameterGrid

@@ -14,11 +14,11 @@ each new sample how many rules (each weighted by respective precision) have
 found it abnormal.
 
 """
-print(__doc__)
 
 import numpy as np
 import matplotlib.pyplot as plt
 from skrules import SkopeRules
+print(__doc__)
 
 rng = np.random.RandomState(42)
 

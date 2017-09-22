@@ -290,8 +290,9 @@ class SkopeRules(BaseEstimator):
                 sample_weight = check_array(sample_weight, ensure_2d=False)
             weights = sample_weight - sample_weight.min()
             contamination = float(sum(y)) / len(y)
-            y_reg = (pow(weights, 0.5) * 0.5 / contamination * (y > 0)
-                     - pow((weights).mean(), 0.5) * (y == 0))
+            y_reg = (
+                pow(weights, 0.5) * 0.5 / contamination * (y > 0) -
+                pow((weights).mean(), 0.5) * (y == 0))
             y_reg = 1. / (1 + np.exp(-y_reg))  # sigmoid
         else:
             y_reg = y  # same as an other classification bagging
@@ -355,23 +356,33 @@ class SkopeRules(BaseEstimator):
         self.rules_ = sorted(self.rules_.items(),
                              key=lambda x: (x[1][0], x[1][1]), reverse=True)
 
-        # removing dupe rules:
-        # for efficiency:
-        self.rules_ = self.rules_[:min(len(self.rules_),
-                                       3 * self.n_estimators)]
+        # removing rules which have very similar domains
         X_ = pandas.DataFrame(X, columns=np.array(self.feature_names_))
+        omit_these_rules_list = []
+        perimeter_index_of_all_rules = []
         for i in range(len(self.rules_)):
+            current = self.rules_[i]
+            perimeter_index_of_all_rules.append(
+                set(list(X_.query(current[0]).index))
+                )
+            index_current = perimeter_index_of_all_rules[i]
+
             for j in range(i):
-                current = self.rules_[i]
-                rival = self.rules_[j]
-                perimeter_current = np.zeros(X.shape[0]).astype(bool)
-                perimeter_current[list(X_.query(current[0]).index)] = True
-                perimeter_rival = np.zeros(X.shape[0]).astype(bool)
-                perimeter_rival[list(X_.query(rival[0]).index)] = True
-                if float(sum(perimeter_rival * perimeter_current)
-                         / sum(perimeter_rival
-                         + perimeter_current)) > self.similarity_thres:
-                    del current
+                if j in omit_these_rules_list:
+                    continue
+                    # if a rule have already been discarded,
+                    # it should not be processed again
+
+                index_rival = perimeter_index_of_all_rules[j]
+                size_union = len(index_rival.union(index_current))
+                size_intersection = len(
+                    index_rival.intersection(index_current))
+
+                if float(size_intersection/size_union) > self.similarity_thres:
+                    omit_these_rules_list.append(j)
+
+        self.rules_ = [self.rules_[i] for i in range(
+            len(self.rules_)) if i not in omit_these_rules_list]
 
         return self
 
