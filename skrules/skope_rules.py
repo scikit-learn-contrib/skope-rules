@@ -378,7 +378,7 @@ class SkopeRules(BaseEstimator):
                 size_intersection = len(
                     index_rival.intersection(index_current))
 
-                if float(size_intersection/size_union) > self.similarity_thres:
+                if float(size_intersection)/size_union > self.similarity_thres:
                     omit_these_rules_list.append(j)
 
         self.rules_ = [self.rules_[i] for i in range(
@@ -442,7 +442,92 @@ class SkopeRules(BaseEstimator):
 
         scores = np.zeros(X.shape[0])
         for (r, w) in selected_rules:
-            scores[list(df.query(r).index)] += w[0]
+            scores[list(df.query(r).index)] += 1  # w[0]
+
+        return scores
+
+    def rules_vote(self, X):
+        """Score representing a vote of the base classifiers (rules).
+
+        The score of an input sample is computed as the sum of the binary
+        rules outputs: a score of k means than k rules have voted positively.
+
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        scores : array, shape (n_samples,)
+            The score of the input samples.
+            The higher, the more abnormal. Positive scores represent outliers,
+            null scores represent inliers.
+
+        """
+        # Check if fit had been called
+        check_is_fitted(self, ['rules_', 'estimators_', 'estimators_samples_',
+                               'max_samples_'])
+
+        # Input validation
+        X = check_array(X)
+
+        if X.shape[1] != self.n_features_:
+            raise ValueError("X.shape[1] = %d should be equal to %d, "
+                             "the number of features at training time."
+                             " Please reshape your data."
+                             % (X.shape[1], self.n_features_))
+
+        selected_rules = self.rules_[:self.n_estimators]
+        df = pandas.DataFrame(X, columns=self.feature_names_)
+
+        scores = np.zeros(X.shape[0])
+        for (r, _) in selected_rules:
+            scores[list(df.query(r).index)] += 1
+
+        return scores
+
+    def separate_rule_score(self, X):
+        """Score representing an ordering between the base classifiers (rules).
+
+        The score of an input sample is computed as the number of the more
+        precise rule voting positively.
+        If there are n rules, ordered by increasing OOB precision, a score of k
+        means than the kth rule has voted positively, but not the (k-1) first
+        rules.
+
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        scores : array, shape (n_samples,)
+            The score of the input samples.
+            Positive scores represent outliers, null scores represent inliers.
+
+        """
+        # Check if fit had been called
+        check_is_fitted(self, ['rules_', 'estimators_', 'estimators_samples_',
+                               'max_samples_'])
+
+        # Input validation
+        X = check_array(X)
+
+        if X.shape[1] != self.n_features_:
+            raise ValueError("X.shape[1] = %d should be equal to %d, "
+                             "the number of features at training time."
+                             " Please reshape your data."
+                             % (X.shape[1], self.n_features_))
+
+        selected_rules = self.rules_[:self.n_estimators]
+        df = pandas.DataFrame(X, columns=self.feature_names_)
+
+        scores = np.zeros(X.shape[0])
+        for (k, r) in enumerate(list((selected_rules))):
+            scores[list(df.query(r[0]).index)] = np.maximum(
+                k, scores[list(df.query(r[0]).index)])
 
         return scores
 
