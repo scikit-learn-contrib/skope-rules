@@ -5,9 +5,6 @@
 .. |Travis| image:: https://api.travis-ci.org/skope-rules/skope-rules.svg?branch=master
 .. _Travis: https://travis-ci.org/skope-rules/skope-rules
 
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/skope-rules/skope-rules?branch=master&svg=true
-.. _AppVeyor: https://ci.appveyor.com/project/sklearn-ci/skope-rules/history
-
 .. |Codecov| image:: https://coveralls.io/repos/github/skope-rules/skope-rules/badge.svg?branch=master
 .. _Codecov: https://coveralls.io/github/skope-rules/skope-rules?branch=master
 
@@ -22,9 +19,6 @@
 
 .. |PyPi| image:: https://badge.fury.io/py/skope-rules.svg
 .. _PyPi: https://badge.fury.io/py/skope-rules
-
-.. |DOI| image:: https://zenodo.org/badge/21369/skope-rules/skope-rules.svg
-.. _DOI: https://zenodo.org/badge/latestdoi/21369/skope-rules/skope-rules
 
 skope-rules
 ============
