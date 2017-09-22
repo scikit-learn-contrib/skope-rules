@@ -184,10 +184,10 @@ clf = SkopeRules(
     )
 clf.fit(X_train, y_train)
 
-# in separate_rule_score method, a score of k means that rule number k
+# in the separate_rules_score method, a score of k means that rule number k
 # vote positively, but not rules 1, ..., k-1. It will allow us to plot
 # performance of each rule separately on ROC and PR plots.
-scoring = clf.separate_rule_score(X_test)
+scoring = clf.separate_rules_score(X_test)
 
 print(str(len(clf.rules_)) + ' rules have been built.')
 print('The most precise rules are the following:')

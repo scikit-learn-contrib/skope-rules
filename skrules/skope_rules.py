@@ -487,7 +487,7 @@ class SkopeRules(BaseEstimator):
 
         return scores
 
-    def separate_rule_score(self, X):
+    def separate_rules_score(self, X):
         """Score representing an ordering between the base classifiers (rules).
 
         The score of an input sample is computed as the number of the more
@@ -527,7 +527,7 @@ class SkopeRules(BaseEstimator):
         scores = np.zeros(X.shape[0])
         for (k, r) in enumerate(list((selected_rules))):
             scores[list(df.query(r[0]).index)] = np.maximum(
-                k, scores[list(df.query(r[0]).index)])
+                k + 1, scores[list(df.query(r[0]).index)])
 
         return scores
 
