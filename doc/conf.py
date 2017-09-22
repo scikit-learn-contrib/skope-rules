@@ -229,8 +229,8 @@ htmlhelp_basename = 'project-templatedoc'
 # #'preamble': '',
 # }
 
-# # The name of an image file (relative to this directory) to place at the top of
-# # the title page.
+# # The name of an image file (relative to this directory) to place at the top
+# # of the title page.
 # # #latex_logo = None
 
 # # For "manual" documents, if this is true, then toplevel headings are parts,
@@ -275,6 +275,7 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect('autodoc-process-docstring', generate_example_rst)
+
 
 # Documents to append as an appendix to all manuals.
 # #texinfo_appendices = []
