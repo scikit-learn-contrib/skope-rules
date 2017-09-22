@@ -1,7 +1,7 @@
 """
-============================================
+=============================================
 Example: detecting defaults on retail credits with skope_rules
-============================================
+=============================================
 
 
 SkopeRules finds logical rules with high precision and fuse them. Finding
@@ -142,22 +142,22 @@ ylabels = ['True Positive Rate (Recall)', 'Precision']
 for ax, curve, xlabel, ylabel in zip(axes.flatten(),
                                      curves, xlabels, ylabels):
     if curve == precision_recall_curve:
-        y_rf1, x_rf1, _ = curve(y_test, scoring_DT)
-        y_rf2, x_rf2, _ = curve(y_test, scoring_RF)
+        y_dt, x_dt, _ = curve(y_test, scoring_DT)
+        y_rf, x_rf, _ = curve(y_test, scoring_RF)
         # y_rf3, x_rf3, _ = curve(y_test, scoring_ET)
-        ax.scatter(x_rf1, y_rf1, c='b', s=10)
-        # ax.step(x_rf1, y_rf1, lw=2, where='post')
-        ax.step(x_rf2, y_rf2, linestyle='-.', c='g', lw=1, where='post')
+        ax.scatter(x_dt, y_dt, c='b', s=10)
+        # ax.step(x_dt, y_dt, lw=2, where='post')
+        ax.step(x_rf, y_rf, linestyle='-.', c='g', lw=1, where='post')
         # ax.step(x_rf3, y_rf3, linestyle='-.', lw=1, where = 'post')
         ax.set_title("Precision-Recall Curves", fontsize=20)
     else:
-        x_rf1, y_rf1, _ = curve(y_test, scoring_DT)
-        x_rf2, y_rf2, _ = curve(y_test, scoring_RF)
+        x_dt, y_dt, _ = curve(y_test, scoring_DT)
+        x_rf, y_rf, _ = curve(y_test, scoring_RF)
         # x_rf3, y_rf3, _ = curve(y_test, scoring_ET)
-        label = ('Decision Tree, AUC: %0.3f' % auc(x_rf1, y_rf1))
-        ax.scatter(x_rf1, y_rf1, c='b', s=10, label=label)
-        label = ('Random Forest, AUC: %0.3f' % auc(x_rf2, y_rf2))
-        ax.plot(x_rf2, y_rf2, '-.', lw=1, label=label, c='g')
+        label = ('Decision Tree, AUC: %0.3f' % auc(x_dt, y_dt))
+        ax.scatter(x_dt, y_dt, c='b', s=10, label=label)
+        label = ('Random Forest, AUC: %0.3f' % auc(x_rf, y_rf))
+        ax.plot(x_rf, y_rf, '-.', lw=1, label=label, c='g')
         # label = ('ExtraTrees, AUC: %0.3f' % auc(x_rf3, y_rf3))
         # ax.plot(x_rf3, y_rf3, '-.', lw=1, label=label)
         ax.set_title("ROC Curves", fontsize=20)
@@ -198,11 +198,8 @@ clf.fit(X_train, y_train)
 scoring = clf.decision_function(X_test)
 
 print(str(len(clf.rules_)) + ' rules have been built.')
+print('The most precise rules are the following:')
 print(clf.rules_[:5])
-
-###############################################################################
-# The most precise rules are displayed above.
-
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
