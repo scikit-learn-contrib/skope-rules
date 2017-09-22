@@ -1,6 +1,6 @@
 from sklearn.utils.estimator_checks import check_estimator
 from skrules import SkopeRules
-from skrules.datasets import _load_credit_data
+from skrules.datasets import load_credit_data
 
 
 def test_classifier():
@@ -8,4 +8,4 @@ def test_classifier():
 
 
 def test_load_credit_data():
-    return _load_credit_data().data.shape[0] == 30000
+    return load_credit_data().data.shape[0] == 30000

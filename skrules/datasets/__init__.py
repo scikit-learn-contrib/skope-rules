@@ -1,3 +1,3 @@
-from .credit_data import _load_credit_data
+from .credit_data import load_credit_data
 
-__all__ = ['_load_credit_data']
+__all__ = ['load_credit_data']

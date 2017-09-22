@@ -5,7 +5,7 @@ from sklearn.datasets.base import _fetch_remote, RemoteFileMetadata
 from os.path import exists, join
 
 
-def _load_credit_data():
+def load_credit_data():
     sk_data_dir = get_data_home()
     archive = RemoteFileMetadata(
         filename='default of credit card clients.xls',
