@@ -20,8 +20,6 @@ import matplotlib.pyplot as plt
 from skrules import SkopeRules
 print(__doc__)
 
-print(__doc__)
-
 rng = np.random.RandomState(42)
 
 n_inliers = 1000
