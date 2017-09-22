@@ -32,10 +32,9 @@ The dataset comes from BLABLABLA.
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, precision_recall_curve, auc
+from sklearn.metrics import roc_curve, precision_recall_curve
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils import shuffle
 from skrules import SkopeRules
 from skrules.datasets import load_credit_data
@@ -100,17 +99,6 @@ X_test = data[n_samples_train:]
 # This benchmark shows the performance reached with a decision tree and a
 # random forest.
 
-# DT = GridSearchCV(DecisionTreeClassifier(),
-#                   param_grid={
-#                   'max_depth': range(3, 8, 1),
-#                   'min_samples_split': range(10, 1000, 200),
-#                   'criterion': ["gini", "entropy"]},
-#                   scoring={'AUC': 'roc_auc'}, cv=5, refit='AUC',
-#                   n_jobs=-1)
-
-# DT.fit(X_train, y_train)
-# scoring_DT = DT.predict_proba(X_test)[:, 1]
-
 RF = GridSearchCV(
     RandomForestClassifier(
         random_state=rng,
@@ -137,7 +125,6 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 5),
 ax = axes[0]
 # fpr_DT, tpr_DT, _ = roc_curve(y_test, scoring_DT)
 fpr_RF, tpr_RF, _ = roc_curve(y_test, scoring_RF)
-#ax.scatter(fpr_DT, tpr_DT, c='b', s=10)
 ax.step(fpr_RF, tpr_RF, linestyle='-.', c='g', lw=1, where='post')
 ax.set_title("ROC", fontsize=20)
 ax.legend(loc='upper center', fontsize=8)
@@ -147,7 +134,6 @@ ax.set_ylabel('True Positive Rate (Recall)', fontsize=18)
 ax = axes[1]
 # precision_DT, recall_DT, _ = precision_recall_curve(y_test, scoring_DT)
 precision_RF, recall_RF, _ = precision_recall_curve(y_test, scoring_RF)
-#ax.scatter(recall_DT, precision_DT, c='b', s=10)
 ax.step(recall_RF, precision_RF, linestyle='-.', c='g', lw=1, where='post')
 ax.set_title("Precision-Recall", fontsize=20)
 ax.set_xlabel('Recall (True Positive Rate)', fontsize=18)
