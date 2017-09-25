@@ -22,15 +22,15 @@ class SkopeRules(BaseEstimator):
     Parameters
     ----------
 
-    feature_names: list of str, optional
+    feature_names : list of str, optional
         The names of each feature to be used for returning rules in string
         format.
 
-    precision_min: float, optional (default=0.5)
-        minimal precision of a rule to be selected.
+    precision_min : float, optional (default=0.5)
+        The minimal precision of a rule to be selected.
 
-    recall_min: float, optional (default=0.01)
-        minimal recall of a rule to be selected.
+    recall_min : float, optional (default=0.01)
+        The minimal recall of a rule to be selected.
 
     n_estimators : int, optional (default=10)
         The number of base estimators (rules) to use for prediction. More are
@@ -50,7 +50,8 @@ class SkopeRules(BaseEstimator):
         all samples will be used for all trees (no sampling).
 
     max_samples_features : int or float, optional (default=1.0)
-        The number of features to draw from X to train each decision tree.
+        The number of features to draw from X to train each decision tree, from
+        which rules are generated and selected.
             - If int, then draw `max_features` features.
             - If float, then draw `max_features * X.shape[1]` features.
 
@@ -95,9 +96,9 @@ class SkopeRules(BaseEstimator):
         If -1, then the number of jobs is set to the number of cores.
 
     random_state : int, RandomState instance or None, optional
-        If int, random_state is the seed used by the random number generator;
-        If RandomState instance, random_state is the random number generator;
-        If None, the random number generator is the RandomState instance used
+        - If int, random_state is the seed used by the random number generator.
+        - If RandomState instance, random_state is the random number generator.
+        - If None, the random number generator is the RandomState instance used
         by `np.random`.
 
     verbose : int, optional (default=0)
@@ -442,7 +443,7 @@ class SkopeRules(BaseEstimator):
 
         scores = np.zeros(X.shape[0])
         for (r, w) in selected_rules:
-            scores[list(df.query(r).index)] += 1  # w[0]
+            scores[list(df.query(r).index)] += w[0]
 
         return scores
 
