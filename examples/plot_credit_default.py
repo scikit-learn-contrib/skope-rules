@@ -5,17 +5,14 @@ Example: detecting defaults on retail credits
 
 
 SkopeRules finds logical rules with high precision and fuse them. Finding
-good rules is done by fitting classification or regression trees
+good rules is done by fitting classification and regression trees
 to sub-samples.
 A fitted tree defines a set of rules (each tree node defines a rule); rules
 are then tested out of the bag, and the ones with higher precision are kept.
-This set of rules is  decision function, reflecting for
-each new samples how many rules have find it abnormal.
 
 This example aims at finding logical rules to predict credit defaults. The
 analysis shows that setting.
 
-The dataset comes from BLABLABLA.
 """
 
 ###############################################################################
