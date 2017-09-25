@@ -25,7 +25,7 @@ estimator with unit tests, along with examples and benchmarks.
        auto_examples/index
        ...
 
-See the `README <https://github.com/skope_rules/skope_rules/blob/master/README.md>`_
+See the `README <https://github.com/skope-rules/skope-rules/blob/master/README.md>`_
 for more information.
 
 
