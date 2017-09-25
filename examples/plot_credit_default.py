@@ -51,8 +51,6 @@ data = pd.DataFrame(data, columns=X.columns)
 for col in ['ID']:
     del data[col]
 
-# data = pd.get_dummies(data, columns = ['SEX', 'EDUCATION', 'MARRIAGE'])
-
 # Quick feature engineering
 data = data.rename(columns={"PAY_0": "PAY_1"})
 old_PAY = ['PAY_3', 'PAY_4', 'PAY_5', 'PAY_6']
@@ -77,7 +75,7 @@ data = data.drop(old_PAY, axis=1)
 
 # Creating the train/test split
 feature_names = list(data.columns)
-print(feature_names)
+print("List of variables used to train models : " + str(feature_names))
 data = data.values
 n_samples = data.shape[0]
 n_samples_train = int(n_samples / 2)
@@ -87,7 +85,7 @@ X_train = data[:n_samples_train]
 X_test = data[n_samples_train:]
 
 ###############################################################################
-# Benchmark with a Decision Tree and Random Forests
+# Benchmark with a Random Forest classifier.
 # ..................
 #
 # This part shows the training and performance evaluation of
@@ -111,8 +109,7 @@ RF = GridSearchCV(
 RF.fit(X_train, y_train)
 scoring_RF = RF.predict_proba(X_test)[:, 1]
 
-# print("Decision Tree selected parameters : "+str(DT.best_params_))
-print("Random Forest selected parameters : "+str(RF.best_params_))
+print("Random Forest selected parameters : " + str(RF.best_params_))
 
 # Plot ROC and PR curves
 
@@ -120,7 +117,6 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
 
 ax = axes[0]
-# fpr_DT, tpr_DT, _ = roc_curve(y_test, scoring_DT)
 fpr_RF, tpr_RF, _ = roc_curve(y_test, scoring_RF)
 ax.step(fpr_RF, tpr_RF, linestyle='-.', c='g', lw=1, where='post')
 ax.set_title("ROC", fontsize=20)
@@ -129,7 +125,6 @@ ax.set_xlabel('False Positive Rate', fontsize=18)
 ax.set_ylabel('True Positive Rate (Recall)', fontsize=18)
 
 ax = axes[1]
-# precision_DT, recall_DT, _ = precision_recall_curve(y_test, scoring_DT)
 precision_RF, recall_RF, _ = precision_recall_curve(y_test, scoring_RF)
 ax.step(recall_RF, precision_RF, linestyle='-.', c='g', lw=1, where='post')
 ax.set_title("Precision-Recall", fontsize=20)
