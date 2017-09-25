@@ -1,3 +1,21 @@
+"""default of credit card clients dataset.
+
+The original database is available from UCI Machine Learning Repository:
+
+    https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients
+
+The data contains 30000 observations on 24 variables.
+
+References
+----------
+
+Lichman, M. (2013). UCI Machine Learning Repository
+[http://archive.ics.uci.edu/ml].
+Irvine, CA: University of California, School of Information and Computer
+Science.
+
+"""
+
 import pandas as pd
 import numpy as np
 from sklearn.datasets.base import get_data_home, Bunch
