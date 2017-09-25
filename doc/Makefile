@@ -53,7 +53,7 @@ clean:
 	-rm -rf modules/generated/*
 
 html:
-	# These two lines make the build a bit more lengthy, and the
+	# These two lines make the build a bit more lengthy, and
 	# the embedding of images more robust
 	rm -rf $(BUILDDIR)/html/_images
 	#rm -rf _build/doctrees/

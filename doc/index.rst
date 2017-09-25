@@ -12,7 +12,7 @@ rules have to be used for classifying data.
 This project is particularly suitable for supervised anomaly detection,
 i.e. imbalanced classification.
 Application domains include fraud detection, predictive
-maintenance, intrusion detection, churn detection.
+maintenance, intrusion detection, churn detection...
 
 This project comes with a `skrules` module which contains a single
 estimator with unit tests, along with examples and benchmarks.
