@@ -97,6 +97,11 @@ def test_skope_rules_error():
     assert_raises(ValueError, SkopeRules(max_samples='foobar').fit, X, y)
     assert_raises(ValueError, SkopeRules(max_samples=1.5).fit, X, y)
     assert_raises(ValueError, SkopeRules().fit(X, y).predict, X[:, 1:])
+    assert_raises(ValueError, SkopeRules().fit(X, y).decision_function,
+                  X[:, 1:])
+    assert_raises(ValueError, SkopeRules().fit(X, y).rules_vote, X[:, 1:])
+    assert_raises(ValueError, SkopeRules().fit(X, y).separate_rules_score,
+                  X[:, 1:])
 
 
 def test_max_samples_attribute():
@@ -126,10 +131,15 @@ def test_skope_rules_works():
     # Test LOF
     clf = SkopeRules(random_state=rng, max_samples=1.)
     clf.fit(X, y)
-    decision_func = - clf.decision_function(X_test)
+    decision_func = clf.decision_function(X_test)
+    rules_vote = clf.rules_vote(X_test)
+    separate_rules_score = clf.separate_rules_score(X_test)
     pred = clf.predict(X_test)
     # assert detect outliers:
-    assert_greater(np.max(decision_func[:-2]), np.min(decision_func[-2:]))
+    assert_greater(np.min(decision_func[-2:]), np.max(decision_func[:-2]))
+    assert_greater(np.min(rules_vote[-2:]), np.max(rules_vote[:-2]))
+    assert_greater(np.min(separate_rules_score[-2:]),
+                   np.max(separate_rules_score[:-2]))
     assert_array_equal(pred, 6 * [0] + 2 * [1])
 
 

@@ -1,7 +1,7 @@
 """
-==============================================================
-Example: detecting defaults on retail credits with skope_rules
-==============================================================
+=============================================
+Example: detecting defaults on retail credits
+=============================================
 
 
 SkopeRules finds logical rules with high precision and fuse them. Finding
@@ -32,24 +32,23 @@ The dataset comes from BLABLABLA.
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, precision_recall_curve, auc
+from sklearn.metrics import roc_curve, precision_recall_curve
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils import shuffle
 from skrules import SkopeRules
 from skrules.datasets import load_credit_data
 
 print(__doc__)
 
-rng = np.random.RandomState(42)
+rng = np.random.RandomState(1)
 
 # Importing data
 dataset = load_credit_data()
 X = dataset.data
 y = dataset.target
 # Shuffling data, preparing target and variables
-data, y = shuffle(np.array(X), y)
+data, y = shuffle(np.array(X), y, random_state=rng)
 data = pd.DataFrame(data, columns=X.columns)
 
 for col in ['ID']:
@@ -100,24 +99,14 @@ X_test = data[n_samples_train:]
 # This benchmark shows the performance reached with a decision tree and a
 # random forest.
 
-DT = GridSearchCV(DecisionTreeClassifier(),
-                  param_grid={
-                  'max_depth': range(3, 10, 1),
-                  'min_samples_split': range(10, 1000, 200),
-                  'criterion': ["gini", "entropy"]},
-                  scoring={'AUC': 'roc_auc'}, cv=5, refit='AUC',
-                  n_jobs=-1)
-
-DT.fit(X_train, y_train)
-scoring_DT = DT.predict_proba(X_test)[:, 1]
-
 RF = GridSearchCV(
     RandomForestClassifier(
+        random_state=rng,
         n_estimators=30,
         class_weight='balanced'),
     param_grid={
-        'max_depth': range(2, 7, 1),
-        'max_features': np.linspace(0.1, 0.5, 5)
+        'max_depth': range(3, 8, 1),
+        'max_features': np.linspace(0.1, 0.2, 1.)
         },
     scoring={'AUC': 'roc_auc'}, cv=5,
     refit='AUC', n_jobs=-1)
@@ -125,7 +114,7 @@ RF = GridSearchCV(
 RF.fit(X_train, y_train)
 scoring_RF = RF.predict_proba(X_test)[:, 1]
 
-print("Decision Tree selected parameters : "+str(DT.best_params_))
+# print("Decision Tree selected parameters : "+str(DT.best_params_))
 print("Random Forest selected parameters : "+str(RF.best_params_))
 
 # Plot ROC and PR curves
@@ -133,43 +122,37 @@ print("Random Forest selected parameters : "+str(RF.best_params_))
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
 
-curves = [roc_curve, precision_recall_curve]
-xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
-ylabels = ['True Positive Rate (Recall)', 'Precision']
+ax = axes[0]
+# fpr_DT, tpr_DT, _ = roc_curve(y_test, scoring_DT)
+fpr_RF, tpr_RF, _ = roc_curve(y_test, scoring_RF)
+ax.step(fpr_RF, tpr_RF, linestyle='-.', c='g', lw=1, where='post')
+ax.set_title("ROC", fontsize=20)
+ax.legend(loc='upper center', fontsize=8)
+ax.set_xlabel('False Positive Rate', fontsize=18)
+ax.set_ylabel('True Positive Rate (Recall)', fontsize=18)
 
-for ax, curve, xlabel, ylabel in zip(axes.flatten(),
-                                     curves, xlabels, ylabels):
-    if curve == precision_recall_curve:
-        y_dt, x_dt, _ = curve(y_test, scoring_DT)
-        y_rf, x_rf, _ = curve(y_test, scoring_RF)
-        ax.scatter(x_dt, y_dt, c='b', s=10)
-        ax.step(x_rf, y_rf, linestyle='-.', c='g', lw=1, where='post')
-        ax.set_title("Precision-Recall Curves", fontsize=20)
-    else:
-        x_dt, y_dt, _ = curve(y_test, scoring_DT)
-        x_rf, y_rf, _ = curve(y_test, scoring_RF)
-        label = ('Decision Tree, AUC: %0.3f' % auc(x_dt, y_dt))
-        ax.scatter(x_dt, y_dt, c='b', s=10, label=label)
-        label = ('Random Forest, AUC: %0.3f' % auc(x_rf, y_rf))
-        ax.plot(x_rf, y_rf, '-.', lw=1, label=label, c='g')
-        ax.set_title("ROC Curves", fontsize=20)
-        ax.legend(loc='upper center', fontsize=8)
-
-    ax.set_xlabel(xlabel, fontsize=18)
-    ax.set_ylabel(ylabel, fontsize=18)
-
+ax = axes[1]
+# precision_DT, recall_DT, _ = precision_recall_curve(y_test, scoring_DT)
+precision_RF, recall_RF, _ = precision_recall_curve(y_test, scoring_RF)
+ax.step(recall_RF, precision_RF, linestyle='-.', c='g', lw=1, where='post')
+ax.set_title("Precision-Recall", fontsize=20)
+ax.set_xlabel('Recall (True Positive Rate)', fontsize=18)
+ax.set_ylabel('Precision', fontsize=18)
 plt.show()
 
 ###############################################################################
-# The ROC and Precision-Recall curves show that both models
-# approximatively have the same performances for low True Positive Rates
-# (also called Recall).
-# This "low-recall" domain is visible around the bottom right hand side
-# of the ROC curve and on the left side of the Precision-Recall curve.
-# A good performance on this part of the curve means that the model can
-# precisely detect a fraction of credit defaults (the easiest one).
-# For highest recalls, Random Forests shows a better performance
-# in this domain.
+# The ROC and Precision-Recall curves illustrate the performance of Random
+# Forests in this classification task.
+# Suppose now that we add an interpretability contraint to this setting:
+# Typically, we want to express our model in terms of logical rules detecting
+# defaults. A random forest could be expressed in term of weighted sum of
+# rules, but 1) such a large weighted sum, is hardly interpretable and 2)
+# simplifying it by removing rules/weights is not easy, as optimality is
+# targeted by the ensemble of weighted rules, not by each rule.
+# In the following section, we show how SkopeRules can be used to produce
+# a number of rules, each seeking for high precision on a potentially small
+# area of detection (low recall).
+
 
 ###############################################################################
 # Getting rules with skrules
@@ -179,128 +162,61 @@ plt.show()
 # Performances are compared with the random forest model previously trained.
 
 # fit the model
-rng = np.random.RandomState(42)
 
 clf = SkopeRules(
-    similarity_thres=1.0, max_depth=3, max_features=0.5,
+    similarity_thres=.9, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=30,
     feature_names=feature_names, recall_min=0.02, precision_min=0.6
     )
 clf.fit(X_train, y_train)
-scoring = clf.decision_function(X_test)
+
+# in the separate_rules_score method, a score of k means that rule number k
+# vote positively, but not rules 1, ..., k-1. It will allow us to plot
+# performance of each rule separately on ROC and PR plots.
+scoring = clf.separate_rules_score(X_test)
 
 print(str(len(clf.rules_)) + ' rules have been built.')
 print('The most precise rules are the following:')
 print(clf.rules_[:5])
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5),
-                         sharex=True, sharey=True)
-
 curves = [roc_curve, precision_recall_curve]
 xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
 ylabels = ['True Positive Rate (Recall)', 'Precision']
 
-for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
-                                     xlabels, ylabels):
-    if curve == precision_recall_curve:
-        y_sr, x_sr, _ = curve(y_test, scoring)
-        y_rf, x_rf, _ = curve(y_test, scoring_RF)
-        ax.scatter(x_sr, y_sr, c='b', s=10, label=label)
-        ax.step(x_rf, y_rf, linestyle='-.', c='g', lw=1, where='post')
-        ax.set_title("Precision-Recall Curves", fontsize=20)
-    else:
-        x_sr, y_sr, _ = curve(y_test, scoring)
-        x_rf, y_rf, _ = curve(y_test, scoring_RF)
-        label = ('SkopeRules, AUC: %0.3f' % auc(x_sr, y_sr))
-        ax.scatter(x_sr, y_sr, c='b', s=10, label=label)
-        label = ('Random Forest, AUC: %0.3f' % auc(x_rf, y_rf))
-        ax.plot(x_rf, y_rf, '-.', lw=1, label=label, c='g')
-        ax.set_title("ROC Curves", fontsize=20)
-        ax.legend(loc='upper center', fontsize=8)
 
-    ax.set_xlabel(xlabel, fontsize=18)
-    ax.set_ylabel(ylabel, fontsize=18)
-
-plt.show()
-
-###############################################################################
-# Refining rules with the similarity threshold parameter
-# ..................
-#
-# This part shows how SkopeRules can be set up to discard unecessary rules.
-# This rule selection consists in
-
-# fit the model
-rng = np.random.RandomState(42)
-
-clf = SkopeRules(
-    similarity_thres=1.0, max_depth=3, max_features=0.5,
-    max_samples_features=0.5, random_state=rng, n_estimators=30,
-    feature_names=feature_names, recall_min=0.05, precision_min=0.6
-    )
-
-clf.fit(X_train, y_train)
-scoring = clf.decision_function(X_test)
-
-rng = np.random.RandomState(42)
-
-clf = SkopeRules(
-    similarity_thres=0.9, max_depth=3, max_features=0.5,
-    max_samples_features=0.5, random_state=rng, n_estimators=30,
-    feature_names=feature_names, recall_min=0.05, precision_min=0.6
-    )
-clf.fit(X_train, y_train)
-scoring_RF = clf.decision_function(X_test)
-
-rng = np.random.RandomState(42)
-
-clf = SkopeRules(
-    similarity_thres=0.5, max_depth=3, max_features=0.5,
-    max_samples_features=0.5, random_state=rng, n_estimators=30,
-    feature_names=feature_names, recall_min=0.05, precision_min=0.6
-    )
-clf.fit(X_train, y_train)
-scoring_ET = clf.decision_function(X_test)
-
-# Plot models
 fig, axes = plt.subplots(1, 2, figsize=(12, 5),
                          sharex=True, sharey=True)
 
-curves = [roc_curve, precision_recall_curve]
-xlabels = ['False Positive Rate', 'Recall (True Positive Rate)']
-ylabels = ['True Positive Rate (Recall)', 'Precision']
+ax = axes[0]
+fpr, tpr, _ = roc_curve(y_test, scoring)
+fpr_RF, tpr_RF, _ = roc_curve(y_test, scoring_RF)
+ax.scatter(fpr[:-1], tpr[:-1], c='b', s=10)
+ax.step(fpr_RF, tpr_RF, linestyle='-.', c='g', lw=1, where='post')
+ax.set_title("ROC", fontsize=20)
+ax.legend(loc='upper center', fontsize=8)
+ax.set_xlabel('False Positive Rate', fontsize=18)
+ax.set_ylabel('True Positive Rate (Recall)', fontsize=18)
 
-for ax, curve, xlabel, ylabel in zip(axes.flatten(), curves,
-                                     xlabels, ylabels):
-    if curve == precision_recall_curve:
-        y_sr1, x_sr1, _ = curve(y_test, scoring)
-        y_sr2, x_sr2, _ = curve(y_test, scoring_RF)
-        y_sr3, x_sr3, _ = curve(y_test, scoring_ET)
-        ax.scatter(x_sr1, y_sr1, c='b', s=10, label=label)
-        ax.step(x_sr2, y_sr2, linestyle='-.', c='g', lw=1, where='post')
-        ax.scatter(x_sr3, y_sr3, c='r', s=10, label=label)
-        ax.set_title("Precision-Recall Curves", fontsize=20)
-    else:
-        x_sr1, y_sr1, _ = curve(y_test, scoring)
-        x_sr2, y_sr2, _ = curve(y_test, scoring_RF)
-        x_sr3, y_sr3, _ = curve(y_test, scoring_ET)
-        label = ('SkopeRules, AUC: %0.3f' % auc(x_sr1, y_sr1))
-        ax.scatter(x_sr1, y_sr1, c='b', s=10, label=label)
-        label = ('Random Forest, AUC: %0.3f' % auc(x_sr2, y_sr2))
-        ax.plot(x_sr2, y_sr2, '-.', lw=1, label=label, c='g')
-        label = ('ExtraTrees, AUC: %0.3f' % auc(x_sr3, y_sr3))
-        ax.scatter(x_sr3, y_sr3, c='r', s=10, label=label)
-        ax.set_title("ROC Curves", fontsize=20)
-        ax.legend(loc='upper center', fontsize=8)
-
-    ax.set_xlabel(xlabel, fontsize=18)
-    ax.set_ylabel(ylabel, fontsize=18)
-
+ax = axes[1]
+precision, recall, _ = precision_recall_curve(y_test, scoring)
+precision_RF, recall_RF, _ = precision_recall_curve(y_test, scoring_RF)
+ax.scatter(recall[1:-1], precision[1:-1], c='b', s=10)
+ax.step(recall_RF, precision_RF, linestyle='-.', c='g', lw=1, where='post')
+ax.set_title("Precision-Recall", fontsize=20)
+ax.set_xlabel('Recall (True Positive Rate)', fontsize=18)
+ax.set_ylabel('Precision', fontsize=18)
 plt.show()
 
 ###############################################################################
-# Applying rules and predicting with skrules
-# ..................
-#
-# This part shows how, once fitted, SkopeRules can be used to
-# make predictions.
+# The ROC and Precision-Recall curves show the performance of the rules
+# generated by SkopeRulesthe (blue points) and the performance of the Random
+# Forest classifier fitted above.
+# Each blue point represents the performance of a set of rules: The kth point
+# represents the score associated to the concatenation (union) of the k first
+# rules, etc. Thus, each blue point is associated with an interpretable
+# classifier.
+# In terms of performance, each of these interpretable classifiers compare well
+# with Random Forest, while offering complete interpretation.
+# The range of recall and precision can be controlled by the precision_min and
+# recall_min parameters. Here, setting precision_min to 0.6 force the rules to
+# have a limited recall.
