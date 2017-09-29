@@ -29,12 +29,29 @@ class, i.e. detecting with high precision instances of this class.
 
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
+Links with existing litterature
+------------------------------
 
-Installation
-------------
+The main advantage of decision rules is that they are offering interpretable models. The problem of generating such rules has been widely considered in machine learning, see e.g. RuleFit [1], Slipper [2], LRI [3], MLRules[4].
+
+A decision rule is a logical expression of the form "IF conditions THEN reponse". In a binary classification setting, if an instance satisfies conditions of the rule, then it is assigned to one of the two classes. If this instance does not satisfy conditions, it remains unassigned.
+
+1) In [2, 3, 4], rules induction is done by considering each single decision rule as a base classifier in an ensemble, which is built by greedily minimizing some loss function.
+
+2) In [1], rules are extracted from an ensemble of trees; a weighted combination of these rules is then built by solving a L1-regularized optimization problem over the weights as described in [5].
+
+In this package, we use approach 2). Rules are extracting from tree ensemble, which allow us to take advantage of existing fast algorithms to produce such tree ensemble. Too similar or duplicated rules are then removed.
+The main goal of this package is to provide rules verifying precision and recall conditions. It still implement a score (`decision_function`) method, but which does not solve the L1-regularized optimization problem as in [1]. Instead, weights are simply proportional to the OOB associated precision of the rule.
+
+
+[1] Friedman and Popescu, Predictive learning via rule ensembles,Technical Report, 2005.
+[2] Cohen and Singer, A simple, fast, and effective rule learner, National Conference on Artificial Intelligence, 1999.
+[3] Weiss and Indurkhya, Lightweight rule induction, ICML, 2000.
+[4] Dembczyński, Kotłowski and Słowiński, Maximum Likelihood Rule Ensembles, ICML, 2008.
+[5] Friedman and Popescu, Gradient directed regularization, Technical Report, 2004.
 
 Dependencies
-~~~~~~~~~~~~
+------------
 
 skope-rules requires:
 
@@ -47,7 +64,7 @@ skope-rules requires:
 For running the examples Matplotlib >= 1.1.1 is required.
 
 Installation
-~~~~~~~~~~~~~~~~~
+------------
 
 You can get the latest sources with the command::
 
