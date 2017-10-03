@@ -40,14 +40,18 @@ A decision rule is a logical expression of the form "IF conditions THEN reponse"
 
 2) In [1], rules are extracted from an ensemble of trees; a weighted combination of these rules is then built by solving a L1-regularized optimization problem over the weights as described in [5].
 
-In this package, we use approach 2). Rules are extracting from tree ensemble, which allow us to take advantage of existing fast algorithms to produce such tree ensemble. Too similar or duplicated rules are then removed.
+In this package, we use the second approach. Rules are extracted from tree ensemble, which allow us to take advantage of existing fast algorithms (such as bagged decision trees, or gradient boosting) to produce such tree ensemble. Too similar or duplicated rules are then removed, based on a similarity threshold of their supports..
 The main goal of this package is to provide rules verifying precision and recall conditions. It still implement a score (`decision_function`) method, but which does not solve the L1-regularized optimization problem as in [1]. Instead, weights are simply proportional to the OOB associated precision of the rule.
 
 
 [1] Friedman and Popescu, Predictive learning via rule ensembles,Technical Report, 2005.
+
 [2] Cohen and Singer, A simple, fast, and effective rule learner, National Conference on Artificial Intelligence, 1999.
+
 [3] Weiss and Indurkhya, Lightweight rule induction, ICML, 2000.
+
 [4] Dembczyński, Kotłowski and Słowiński, Maximum Likelihood Rule Ensembles, ICML, 2008.
+
 [5] Friedman and Popescu, Gradient directed regularization, Technical Report, 2004.
 
 Dependencies
