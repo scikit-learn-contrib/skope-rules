@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>SkopeRules &mdash; skope_rules 0.1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="skope_rules 0.1.0 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> skope_rules
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">General examples</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">skope_rules</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>SkopeRules</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="skoperules">
+<h1>SkopeRules<a class="headerlink" href="#skoperules" title="Permalink to this headline">¶</a></h1>
+<p>The documentation of the SkopeRules module.</p>
+<span class="target" id="module-skrules.skope_rules"></span><dl class="class">
+<dt id="skrules.skope_rules.SkopeRules">
+<em class="property">class </em><code class="descclassname">skrules.skope_rules.</code><code class="descname">SkopeRules</code><span class="sig-paren">(</span><em>feature_names=None</em>, <em>precision_min=0.5</em>, <em>recall_min=0.01</em>, <em>n_estimators=10</em>, <em>similarity_thres=0.99</em>, <em>max_samples=0.8</em>, <em>max_samples_features=1.0</em>, <em>bootstrap=False</em>, <em>bootstrap_features=False</em>, <em>max_depth=3</em>, <em>max_features=1.0</em>, <em>min_samples_split=2</em>, <em>n_jobs=1</em>, <em>random_state=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules" title="Permalink to this definition">¶</a></dt>
+<dd><p>An easy-interpretable classifier optimizing simple logical rules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>feature_names</strong> : list of str, optional</p>
+<blockquote>
+<div><p>The names of each feature to be used for returning rules in string
+format.</p>
+</div></blockquote>
+<p><strong>precision_min</strong> : float, optional (default=0.5)</p>
+<blockquote>
+<div><p>The minimal precision of a rule to be selected.</p>
+</div></blockquote>
+<p><strong>recall_min</strong> : float, optional (default=0.01)</p>
+<blockquote>
+<div><p>The minimal recall of a rule to be selected.</p>
+</div></blockquote>
+<p><strong>n_estimators</strong> : int, optional (default=10)</p>
+<blockquote>
+<div><p>The number of base estimators (rules) to use for prediction. More are
+built before selection. All are available in the <a href="#id1"><span class="problematic" id="id2">estimators_</span></a> attribute.</p>
+</div></blockquote>
+<p><strong>similarity_thres</strong> : float, optional (default=0.99)</p>
+<blockquote>
+<div><p>Similarity threshold between rules. Rules too similar
+(&gt; similarity_thres) are fused. The similarity between two rules is
+computed according to the formula <cite># {intersection} / # {union}</cite>.</p>
+</div></blockquote>
+<p><strong>max_samples</strong> : int or float, optional (default=.8)</p>
+<blockquote>
+<div><p>The number of samples to draw from X to train each decision tree, from
+which rules are generated and selected.</p>
+<blockquote>
+<div><ul class="simple">
+<li>If int, then draw <cite>max_samples</cite> samples.</li>
+<li>If float, then draw <cite>max_samples * X.shape[0]</cite> samples.</li>
+</ul>
+</div></blockquote>
+<p>If max_samples is larger than the number of samples provided,
+all samples will be used for all trees (no sampling).</p>
+</div></blockquote>
+<p><strong>max_samples_features</strong> : int or float, optional (default=1.0)</p>
+<blockquote>
+<div><p>The number of features to draw from X to train each decision tree, from
+which rules are generated and selected.</p>
+<blockquote>
+<div><ul class="simple">
+<li>If int, then draw <cite>max_features</cite> features.</li>
+<li>If float, then draw <cite>max_features * X.shape[1]</cite> features.</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>bootstrap</strong> : boolean, optional (default=False)</p>
+<blockquote>
+<div><p>Whether samples are drawn with replacement.</p>
+</div></blockquote>
+<p><strong>bootstrap_features</strong> : boolean, optional (default=False)</p>
+<blockquote>
+<div><p>Whether features are drawn with replacement.</p>
+</div></blockquote>
+<p><strong>max_depth</strong> : integer or None, optional (default=3)</p>
+<blockquote>
+<div><p>The maximum depth of the decision trees. If None, then nodes are
+expanded until all leaves are pure or until all leaves contain less
+than min_samples_split samples.</p>
+</div></blockquote>
+<p><strong>max_features</strong> : int, float, string or None, optional (default=&#8221;auto&#8221;)</p>
+<blockquote>
+<div><p>The number of features considered (by each decision tree) when looking
+for the best split:</p>
+<ul class="simple">
+<li>If int, then consider <cite>max_features</cite> features at each split.</li>
+<li>If float, then <cite>max_features</cite> is a percentage and
+<cite>int(max_features * n_features)</cite> features are considered at each
+split.</li>
+<li>If &#8220;auto&#8221;, then <cite>max_features=sqrt(n_features)</cite>.</li>
+<li>If &#8220;sqrt&#8221;, then <cite>max_features=sqrt(n_features)</cite> (same as &#8220;auto&#8221;).</li>
+<li>If &#8220;log2&#8221;, then <cite>max_features=log2(n_features)</cite>.</li>
+<li>If None, then <cite>max_features=n_features</cite>.</li>
+</ul>
+<p>Note: the search for a split does not stop until at least one
+valid partition of the node samples is found, even if it requires to
+effectively inspect more than <code class="docutils literal"><span class="pre">max_features</span></code> features.</p>
+</div></blockquote>
+<p><strong>min_samples_split</strong> : int, float, optional (default=2)</p>
+<blockquote>
+<div><p>The minimum number of samples required to split an internal node for
+each decision tree.</p>
+<blockquote>
+<div><ul class="simple">
+<li>If int, then consider <cite>min_samples_split</cite> as the minimum number.</li>
+<li>If float, then <cite>min_samples_split</cite> is a percentage and
+<cite>ceil(min_samples_split * n_samples)</cite> are the minimum
+number of samples for each split.</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>n_jobs</strong> : integer, optional (default=1)</p>
+<blockquote>
+<div><p>The number of jobs to run in parallel for both <cite>fit</cite> and <cite>predict</cite>.
+If -1, then the number of jobs is set to the number of cores.</p>
+</div></blockquote>
+<p><strong>random_state</strong> : int, RandomState instance or None, optional</p>
+<blockquote>
+<div><ul class="simple">
+<li>If int, random_state is the seed used by the random number generator.</li>
+<li>If RandomState instance, random_state is the random number generator.</li>
+<li>If None, the random number generator is the RandomState instance used</li>
+</ul>
+<p>by <cite>np.random</cite>.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : int, optional (default=0)</p>
+<blockquote class="last">
+<div><p>Controls the verbosity of the tree building process.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="93%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>rules_</strong></td>
+<td>(dict of tuples (rule, precision, recall, nb).) The collection of <cite>n_estimators</cite> rules used in the <code class="docutils literal"><span class="pre">predict</span></code> method. The rules are generated by fitted sub-estimators (decision trees). Each rule satisfies recall_min and precision_min conditions. The selection is done according to OOB precisions.</td>
+</tr>
+<tr class="row-even"><td><strong>estimators_</strong></td>
+<td>(list of DecisionTreeClassifier) The collection of fitted sub-estimators used to generate candidate rules.</td>
+</tr>
+<tr class="row-odd"><td><strong>estimators_samples_</strong></td>
+<td>(list of arrays) The subset of drawn samples (i.e., the in-bag samples) for each base estimator.</td>
+</tr>
+<tr class="row-even"><td><strong>estimators_features_</strong></td>
+<td>(list of arrays) The subset of drawn features for each base estimator.</td>
+</tr>
+<tr class="row-odd"><td><strong>max_samples_</strong></td>
+<td>(integer) The actual number of samples</td>
+</tr>
+<tr class="row-even"><td><strong>n_features_</strong></td>
+<td>(integer) The number of features when <code class="docutils literal"><span class="pre">fit</span></code> is performed.</td>
+</tr>
+<tr class="row-odd"><td><strong>classes_</strong></td>
+<td>(array, shape (n_classes,)) The classes labels.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="skrules.skope_rules.SkopeRules.decision_function">
+<code class="descname">decision_function</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.decision_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.decision_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average anomaly score of X of the base classifiers (rules).</p>
+<p>The anomaly score of an input sample is computed as
+the weighted sum of the binary rules outputs, the weight being
+the respective precision of each rule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : array-like, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>The training input samples.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>scores</strong> : array, shape (n_samples,)</p>
+<blockquote class="last">
+<div><p>The anomaly score of the input samples.
+The higher, the more abnormal. Positive scores represent outliers,
+null scores represent inliers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skrules.skope_rules.SkopeRules.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the model according to the given training data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : array-like, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>Training vector, where n_samples is the number of samples and
+n_features is the number of features.</p>
+</div></blockquote>
+<p><strong>y</strong> : array-like, shape (n_samples,)</p>
+<blockquote>
+<div><p>Target vector relative to X. Has to follow the convention 0 for
+normal data, 1 for anomalies.</p>
+</div></blockquote>
+<p><strong>sample_weight</strong> : array-like, shape (n_samples,) optional</p>
+<blockquote>
+<div><p>Array of weights that are assigned to individual samples, typically
+the amount in case of transactions data. Used to grow regression
+trees producing further rules to be tested.
+If not provided, then each sample is given unit weight.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>self</strong> : object</p>
+<blockquote class="last">
+<div><p>Returns self.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skrules.skope_rules.SkopeRules.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict if a particular sample is an outlier or not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : array-like, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>The input samples. Internally, it will be converted to
+<code class="docutils literal"><span class="pre">dtype=np.float32</span></code></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>is_outlier</strong> : array, shape (n_samples,)</p>
+<blockquote class="last">
+<div><p>For each observations, tells whether or not (1 or 0) it should
+be considered as an outlier according to the selected rules.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skrules.skope_rules.SkopeRules.rules_vote">
+<code class="descname">rules_vote</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.rules_vote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.rules_vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Score representing a vote of the base classifiers (rules).</p>
+<p>The score of an input sample is computed as the sum of the binary
+rules outputs: a score of k means than k rules have voted positively.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : array-like, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>The training input samples.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>scores</strong> : array, shape (n_samples,)</p>
+<blockquote class="last">
+<div><p>The score of the input samples.
+The higher, the more abnormal. Positive scores represent outliers,
+null scores represent inliers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skrules.skope_rules.SkopeRules.separate_rules_score">
+<code class="descname">separate_rules_score</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.separate_rules_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.separate_rules_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Score representing an ordering between the base classifiers (rules).</p>
+<p>The score of an input sample is computed as the number of the more
+precise rule voting positively.
+If there are n rules, ordered by increasing OOB precision, a score of k
+means than the kth rule has voted positively, but not the (k-1) first
+rules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : array-like, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>The training input samples.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>scores</strong> : array, shape (n_samples,)</p>
+<blockquote class="last">
+<div><p>The score of the input samples.
+Positive scores represent outliers, null scores represent inliers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

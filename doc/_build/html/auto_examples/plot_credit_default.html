@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Example: detecting defaults on retail credits &mdash; skope_rules 0.1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="skope_rules 0.1.0 documentation" href="../index.html"/>
+        <link rel="up" title="General examples" href="index.html"/>
+        <link rel="prev" title="SkopeRules example" href="plot_skope_rules.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> skope_rules
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">General examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_skope_rules.html">SkopeRules example</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Example: detecting defaults on retail credits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-import-and-preparation">Data import and preparation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#benchmark-with-a-random-forest-classifier">Benchmark with a Random Forest classifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-rules-with-skrules">Getting rules with skrules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">skope_rules</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">General examples</a> &raquo;</li>
+      
+    <li>Example: detecting defaults on retail credits</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="example-detecting-defaults-on-retail-credits">
+<span id="sphx-glr-auto-examples-plot-credit-default-py"></span><h1>Example: detecting defaults on retail credits<a class="headerlink" href="#example-detecting-defaults-on-retail-credits" title="Permalink to this headline">¶</a></h1>
+<p>SkopeRules finds logical rules with high precision and fuse them. Finding
+good rules is done by fitting classification and regression trees
+to sub-samples.
+A fitted tree defines a set of rules (each tree node defines a rule); rules
+are then tested out of the bag, and the ones with higher precision are kept.</p>
+<p>This example aims at finding logical rules to predict credit defaults. The
+analysis shows that setting.</p>
+<div class="section" id="data-import-and-preparation">
+<h2>Data import and preparation<a class="headerlink" href="#data-import-and-preparation" title="Permalink to this headline">¶</a></h2>
+<p>There are 3 categorical variables (SEX, EDUCATION and MARRIAGE) and 20
+numerical variables.
+The target (credit defaults) is transformed in a binary variable with
+integers 0 (no default) and 1 (default).
+From the 30000 credits, 50% are used for training and 50% are used
+for testing. The target is unbalanced with a 22%/78% ratio.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">precision_recall_curve</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">skrules</span> <span class="kn">import</span> <span class="n">SkopeRules</span>
+<span class="kn">from</span> <span class="nn">skrules.datasets</span> <span class="kn">import</span> <span class="n">load_credit_data</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">__doc__</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Importing data</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_credit_data</span><span class="p">()</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">target</span>
+<span class="c1"># Shuffling data, preparing target and variables</span>
+<span class="n">data</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]:</span>
+    <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+
+<span class="c1"># Quick feature engineering</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;PAY_0&quot;</span><span class="p">:</span> <span class="s2">&quot;PAY_1&quot;</span><span class="p">})</span>
+<span class="n">old_PAY</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PAY_3&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_4&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_5&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_6&#39;</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">&#39;PAY_old_mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">old_PAY</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">old_BILL_AMT</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BILL_AMT3&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT4&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT5&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT6&#39;</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">&#39;BILL_AMT_old_mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">old_BILL_AMT</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">&#39;BILL_AMT_old_std&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">old_BILL_AMT</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">old_PAY_AMT</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PAY_AMT3&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT4&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT5&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT6&#39;</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">&#39;PAY_AMT_old_mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">old_PAY_AMT</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">&#39;PAY_AMT_old_std&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">old_PAY_AMT</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">old_PAY_AMT</span> <span class="o">+</span> <span class="n">old_BILL_AMT</span> <span class="o">+</span> <span class="n">old_PAY</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Creating the train/test split</span>
+<span class="n">feature_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;List of variables used to train models : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">feature_names</span><span class="p">))</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_samples_train</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_samples</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="n">n_samples_train</span><span class="p">]</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">n_samples_train</span><span class="p">:]</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">n_samples_train</span><span class="p">]</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">n_samples_train</span><span class="p">:]</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-default"><div class="highlight"><pre><span></span><span class="n">List</span> <span class="n">of</span> <span class="n">variables</span> <span class="n">used</span> <span class="n">to</span> <span class="n">train</span> <span class="n">models</span> <span class="p">:</span> <span class="p">[</span><span class="s1">u&#39;LIMIT_BAL&#39;</span><span class="p">,</span> <span class="s1">u&#39;SEX&#39;</span><span class="p">,</span> <span class="s1">u&#39;EDUCATION&#39;</span><span class="p">,</span> <span class="s1">u&#39;MARRIAGE&#39;</span><span class="p">,</span> <span class="s1">u&#39;AGE&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_1&#39;</span><span class="p">,</span> <span class="s1">u&#39;PAY_2&#39;</span><span class="p">,</span> <span class="s1">u&#39;BILL_AMT1&#39;</span><span class="p">,</span> <span class="s1">u&#39;BILL_AMT2&#39;</span><span class="p">,</span> <span class="s1">u&#39;PAY_AMT1&#39;</span><span class="p">,</span> <span class="s1">u&#39;PAY_AMT2&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_old_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT_old_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT_old_std&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT_old_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT_old_std&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="benchmark-with-a-random-forest-classifier">
+<h2>Benchmark with a Random Forest classifier<a class="headerlink" href="#benchmark-with-a-random-forest-classifier" title="Permalink to this headline">¶</a></h2>
+<p>This part shows the training and performance evaluation of a random forest
+model. The objective remains to extract rules which targets credit defaults.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">rf</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+    <span class="n">RandomForestClassifier</span><span class="p">(</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">class_weight</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">),</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="s1">&#39;max_features&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span>
+    <span class="n">scoring</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;AUC&#39;</span><span class="p">:</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">},</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">refit</span><span class="o">=</span><span class="s1">&#39;AUC&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">rf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">scoring_rf</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Random Forest selected parameters : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rf</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
+
+<span class="c1"># Plot ROC and PR curves</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                         <span class="n">sharex</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">fpr_RF</span><span class="p">,</span> <span class="n">tpr_RF</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">scoring_rf</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">fpr_RF</span><span class="p">,</span> <span class="n">tpr_RF</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;ROC&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;False Positive Rate&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;True Positive Rate (Recall)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">precision_RF</span><span class="p">,</span> <span class="n">recall_RF</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">precision_recall_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">scoring_rf</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">recall_RF</span><span class="p">,</span> <span class="n">precision_RF</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Precision-Recall&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Recall (True Positive Rate)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Precision&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/sphx_glr_plot_credit_default_001.png" class="align-center" src="../_images/sphx_glr_plot_credit_default_001.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-default"><div class="highlight"><pre><span></span><span class="n">Random</span> <span class="n">Forest</span> <span class="n">selected</span> <span class="n">parameters</span> <span class="p">:</span> <span class="p">{</span><span class="s1">&#39;max_features&#39;</span><span class="p">:</span> <span class="mf">0.55000000000000004</span><span class="p">,</span> <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The ROC and Precision-Recall curves illustrate the performance of Random
+Forests in this classification task.
+Suppose now that we add an interpretability contraint to this setting:
+Typically, we want to express our model in terms of logical rules detecting
+defaults. A random forest could be expressed in term of weighted sum of
+rules, but 1) such a large weighted sum, is hardly interpretable and 2)
+simplifying it by removing rules/weights is not easy, as optimality is
+targeted by the ensemble of weighted rules, not by each rule.
+In the following section, we show how SkopeRules can be used to produce
+a number of rules, each seeking for high precision on a potentially small
+area of detection (low recall).</p>
+</div>
+<div class="section" id="getting-rules-with-skrules">
+<h2>Getting rules with skrules<a class="headerlink" href="#getting-rules-with-skrules" title="Permalink to this headline">¶</a></h2>
+<p>This part shows how SkopeRules can be fitted to detect credit defaults.
+Performances are compared with the random forest model previously trained.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># fit the model</span>
+
+<span class="n">clf</span> <span class="o">=</span> <span class="n">SkopeRules</span><span class="p">(</span>
+    <span class="n">similarity_thres</span><span class="o">=.</span><span class="mi">9</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">max_samples_features</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">n_estimators</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">recall_min</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">precision_min</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># in the separate_rules_score method, a score of k means that rule number k</span>
+<span class="c1"># vote positively, but not rules 1, ..., k-1. It will allow us to plot</span>
+<span class="c1"># performance of each rule separately on ROC and PR plots.</span>
+<span class="n">scoring</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">separate_rules_score</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">rules_</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; rules have been built.&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;The most precise rules are the following:&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">rules_</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+
+<span class="n">curves</span> <span class="o">=</span> <span class="p">[</span><span class="n">roc_curve</span><span class="p">,</span> <span class="n">precision_recall_curve</span><span class="p">]</span>
+<span class="n">xlabels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;False Positive Rate&#39;</span><span class="p">,</span> <span class="s1">&#39;Recall (True Positive Rate)&#39;</span><span class="p">]</span>
+<span class="n">ylabels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;True Positive Rate (Recall)&#39;</span><span class="p">,</span> <span class="s1">&#39;Precision&#39;</span><span class="p">]</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                         <span class="n">sharex</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">scoring</span><span class="p">)</span>
+<span class="n">fpr_rf</span><span class="p">,</span> <span class="n">tpr_rf</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">scoring_rf</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">fpr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">tpr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">fpr_RF</span><span class="p">,</span> <span class="n">tpr_RF</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;ROC&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;False Positive Rate&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;True Positive Rate (Recall)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">precision_recall_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">scoring</span><span class="p">)</span>
+<span class="n">precision_rf</span><span class="p">,</span> <span class="n">recall_rf</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">precision_recall_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">scoring_rf</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">recall</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">precision</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">recall_RF</span><span class="p">,</span> <span class="n">precision_RF</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Precision-Recall&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Recall (True Positive Rate)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Precision&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/sphx_glr_plot_credit_default_002.png" class="align-center" src="../_images/sphx_glr_plot_credit_default_002.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-default"><div class="highlight"><pre><span></span><span class="mi">69</span> <span class="n">rules</span> <span class="n">have</span> <span class="n">been</span> <span class="n">built</span><span class="o">.</span>
+<span class="n">The</span> <span class="n">most</span> <span class="n">precise</span> <span class="n">rules</span> <span class="n">are</span> <span class="n">the</span> <span class="n">following</span><span class="p">:</span>
+<span class="p">[(</span><span class="s1">&#39;LIMIT_BAL &gt; 145000.0 and PAY_old_mean &gt; 0.125 and PAY_old_mean &gt; 1.75&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.90625</span><span class="p">,</span> <span class="mf">0.042709867452135494</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="s1">&#39;PAY_old_mean &gt; 0.125 and PAY_AMT2 &gt; 3804.0 and PAY_1 &gt; 1.5&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.89583333333333337</span><span class="p">,</span> <span class="mf">0.06323529411764706</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="s1">&#39;PAY_old_mean &gt; 0.125 and PAY_AMT_old_std &lt;= 142.304473877 and PAY_old_mean &gt; 1.375&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.88888888888888884</span><span class="p">,</span> <span class="mf">0.023289665211062592</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="s1">&#39;PAY_AMT1 &lt;= 22.0 and PAY_1 &gt; 1.5 and PAY_AMT2 &gt; 2658.0&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.83870967741935487</span><span class="p">,</span> <span class="mf">0.03757225433526012</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="s1">&#39;PAY_old_mean &gt; 0.125 and PAY_1 &gt; 1.5 and PAY_old_mean &gt; 1.875&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.77000000000000002</span><span class="p">,</span> <span class="mf">0.11937984496124031</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span>
+</pre></div>
+</div>
+<p>The ROC and Precision-Recall curves show the performance of the rules
+generated by SkopeRules the (the blue points) and the performance of the
+Random Forest classifier fitted above.
+Each blue point represents the performance of a set of rules: The kth point
+represents the score associated to the concatenation (union) of the k first
+rules, etc. Thus, each blue point is associated with an interpretable
+classifier.
+In terms of performance, each of these interpretable classifiers compare well
+with Random Forest, while offering complete interpretation.
+The range of recall and precision can be controlled by the precision_min and
+recall_min parameters. Here, setting precision_min to 0.6 force the rules to
+have a limited recall.</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  49.388 seconds)</p>
+<div class="sphx-glr-footer container">
+<div class="sphx-glr-download container">
+<a class="reference download internal" href="../_downloads/plot_credit_default.py" download=""><code class="xref download docutils literal"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_credit_default.py</span></code></a></div>
+<div class="sphx-glr-download container">
+<a class="reference download internal" href="../_downloads/plot_credit_default.ipynb" download=""><code class="xref download docutils literal"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_credit_default.ipynb</span></code></a></div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.readthedocs.io">Generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="plot_skope_rules.html" class="btn btn-neutral" title="SkopeRules example" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
