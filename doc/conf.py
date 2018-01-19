@@ -29,6 +29,10 @@ try:
     import gen_rst
 except:
     pass
+
+import sys
+sys.path.append('../')
+import skrules
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
