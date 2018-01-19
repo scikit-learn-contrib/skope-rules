@@ -100,7 +100,7 @@ def test_skope_rules_error():
     assert_raises(ValueError, SkopeRules().fit(X, y).decision_function,
                   X[:, 1:])
     assert_raises(ValueError, SkopeRules().fit(X, y).rules_vote, X[:, 1:])
-    assert_raises(ValueError, SkopeRules().fit(X, y).separate_rules_score,
+    assert_raises(ValueError, SkopeRules().fit(X, y).score_top_rules,
                   X[:, 1:])
 
 
@@ -133,15 +133,16 @@ def test_skope_rules_works():
     clf.fit(X, y)
     decision_func = clf.decision_function(X_test)
     rules_vote = clf.rules_vote(X_test)
-    separate_rules_score = clf.separate_rules_score(X_test)
+    score_top_rules = clf.score_top_rules(X_test)
     pred = clf.predict(X_test)
+    pred_score_top_rules = clf.predict_top_rules(X_test,1)
     # assert detect outliers:
     assert_greater(np.min(decision_func[-2:]), np.max(decision_func[:-2]))
     assert_greater(np.min(rules_vote[-2:]), np.max(rules_vote[:-2]))
-    assert_greater(np.min(separate_rules_score[-2:]),
-                   np.max(separate_rules_score[:-2]))
+    assert_greater(np.min(score_top_rules[-2:]),
+                   np.max(score_top_rules[:-2]))
     assert_array_equal(pred, 6 * [0] + 2 * [1])
-
+    assert_array_equal(pred_score_top_rules, 6 * [0] + 2 * [1])
 
 def test_performances():
     X, y = make_blobs(n_samples=1000, random_state=0, centers=2)
