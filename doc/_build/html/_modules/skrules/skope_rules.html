@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -32,6 +34,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
     <link rel="top" title="skope_rules 0.1.0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
@@ -42,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -82,7 +88,10 @@
           
             
             
-                <ul>
+              
+            
+            
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">General examples</a></li>
 </ul>
@@ -97,8 +106,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../index.html">skope_rules</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">skope_rules</a>
+        
       </nav>
 
 
@@ -111,19 +122,36 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../index.html">Module code</a> &raquo;</li>
-      
-    <li>skrules.skope_rules</li>
+        
+      <li>skrules.skope_rules</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -270,7 +298,7 @@
                  <span class="n">precision_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                  <span class="n">recall_min</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
                  <span class="n">n_estimators</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                 <span class="n">similarity_thres</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                 <span class="n">similarity_thres</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
                  <span class="n">max_samples</span><span class="o">=.</span><span class="mi">8</span><span class="p">,</span>
                  <span class="n">max_samples_features</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
                  <span class="n">bootstrap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -570,8 +598,8 @@
                              <span class="s2">&quot; Please reshape your data.&quot;</span>
                              <span class="o">%</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">))</span>
 
-        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">]</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">)</span>
+        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span>
 
         <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="ow">in</span> <span class="n">selected_rules</span><span class="p">:</span>
@@ -611,8 +639,8 @@
                              <span class="s2">&quot; Please reshape your data.&quot;</span>
                              <span class="o">%</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">))</span>
 
-        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">]</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">)</span>
+        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span>
 
         <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">selected_rules</span><span class="p">:</span>
@@ -620,11 +648,10 @@
 
         <span class="k">return</span> <span class="n">scores</span></div>
 
-<div class="viewcode-block" id="SkopeRules.separate_rules_score"><a class="viewcode-back" href="../../skope_rules.html#skrules.skope_rules.SkopeRules.separate_rules_score">[docs]</a>    <span class="k">def</span> <span class="nf">separate_rules_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<div class="viewcode-block" id="SkopeRules.score_top_rules"><a class="viewcode-back" href="../../skope_rules.html#skrules.skope_rules.SkopeRules.score_top_rules">[docs]</a>    <span class="k">def</span> <span class="nf">score_top_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Score representing an ordering between the base classifiers (rules).</span>
 
-<span class="sd">        The score of an input sample is computed as the number of the more</span>
-<span class="sd">        precise rule voting positively.</span>
+<span class="sd">        The score is high when the instance is detected by a performing rule.</span>
 <span class="sd">        If there are n rules, ordered by increasing OOB precision, a score of k</span>
 <span class="sd">        means than the kth rule has voted positively, but not the (k-1) first</span>
 <span class="sd">        rules.</span>
@@ -654,15 +681,41 @@
                              <span class="s2">&quot; Please reshape your data.&quot;</span>
                              <span class="o">%</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">))</span>
 
-        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">]</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">)</span>
+        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span>
 
         <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">selected_rules</span><span class="p">))):</span>
             <span class="n">scores</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
-                <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">scores</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">)])</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">selected_rules</span><span class="p">)</span> <span class="o">-</span> <span class="n">k</span><span class="p">,</span>
+                <span class="n">scores</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">)])</span>
 
         <span class="k">return</span> <span class="n">scores</span></div>
+
+<div class="viewcode-block" id="SkopeRules.predict_top_rules"><a class="viewcode-back" href="../../skope_rules.html#skrules.skope_rules.SkopeRules.predict_top_rules">[docs]</a>    <span class="k">def</span> <span class="nf">predict_top_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">n_rules</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Predict if a particular sample is an outlier or not,</span>
+<span class="sd">        using the n_rules most performing rules.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like, shape (n_samples, n_features)</span>
+<span class="sd">            The input samples. Internally, it will be converted to</span>
+<span class="sd">            ``dtype=np.float32``</span>
+
+<span class="sd">        n_rules : int</span>
+<span class="sd">            The number of rules used for the prediction. If one of the</span>
+<span class="sd">            n_rules most performing rules is activated, the prediction</span>
+<span class="sd">            is equal to 1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        is_outlier : array, shape (n_samples,)</span>
+<span class="sd">            For each observations, tells whether or not (1 or 0) it should</span>
+<span class="sd">            be considered as an outlier according to the selected rules.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">score_top_rules</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">)</span> <span class="o">-</span> <span class="n">n_rules</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_tree_to_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">feature_names</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -723,6 +776,9 @@
 </pre></div>
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
@@ -754,7 +810,8 @@
             VERSION:'0.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../../_static/jquery.js"></script>

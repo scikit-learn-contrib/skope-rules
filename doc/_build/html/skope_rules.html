@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -32,6 +34,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="skope_rules 0.1.0 documentation" href="index.html"/> 
 
   
@@ -41,6 +46,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -81,7 +87,10 @@
           
             
             
-                <ul>
+              
+            
+            
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">General examples</a></li>
 </ul>
@@ -96,8 +105,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">skope_rules</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">skope_rules</a>
+        
       </nav>
 
 
@@ -106,21 +117,38 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>SkopeRules</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>SkopeRules</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -131,7 +159,7 @@
 <p>The documentation of the SkopeRules module.</p>
 <span class="target" id="module-skrules.skope_rules"></span><dl class="class">
 <dt id="skrules.skope_rules.SkopeRules">
-<em class="property">class </em><code class="descclassname">skrules.skope_rules.</code><code class="descname">SkopeRules</code><span class="sig-paren">(</span><em>feature_names=None</em>, <em>precision_min=0.5</em>, <em>recall_min=0.01</em>, <em>n_estimators=10</em>, <em>similarity_thres=0.99</em>, <em>max_samples=0.8</em>, <em>max_samples_features=1.0</em>, <em>bootstrap=False</em>, <em>bootstrap_features=False</em>, <em>max_depth=3</em>, <em>max_features=1.0</em>, <em>min_samples_split=2</em>, <em>n_jobs=1</em>, <em>random_state=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">skrules.skope_rules.</code><code class="descname">SkopeRules</code><span class="sig-paren">(</span><em>feature_names=None</em>, <em>precision_min=0.5</em>, <em>recall_min=0.01</em>, <em>n_estimators=10</em>, <em>similarity_thres=0.95</em>, <em>max_samples=0.8</em>, <em>max_samples_features=1.0</em>, <em>bootstrap=False</em>, <em>bootstrap_features=False</em>, <em>max_depth=3</em>, <em>max_features=1.0</em>, <em>min_samples_split=2</em>, <em>n_jobs=1</em>, <em>random_state=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules" title="Permalink to this definition">¶</a></dt>
 <dd><p>An easy-interpretable classifier optimizing simple logical rules.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -199,7 +227,7 @@ which rules are generated and selected.</p>
 expanded until all leaves are pure or until all leaves contain less
 than min_samples_split samples.</p>
 </div></blockquote>
-<p><strong>max_features</strong> : int, float, string or None, optional (default=&#8221;auto&#8221;)</p>
+<p><strong>max_features</strong> : int, float, string or None, optional (default=”auto”)</p>
 <blockquote>
 <div><p>The number of features considered (by each decision tree) when looking
 for the best split:</p>
@@ -208,9 +236,9 @@ for the best split:</p>
 <li>If float, then <cite>max_features</cite> is a percentage and
 <cite>int(max_features * n_features)</cite> features are considered at each
 split.</li>
-<li>If &#8220;auto&#8221;, then <cite>max_features=sqrt(n_features)</cite>.</li>
-<li>If &#8220;sqrt&#8221;, then <cite>max_features=sqrt(n_features)</cite> (same as &#8220;auto&#8221;).</li>
-<li>If &#8220;log2&#8221;, then <cite>max_features=log2(n_features)</cite>.</li>
+<li>If “auto”, then <cite>max_features=sqrt(n_features)</cite>.</li>
+<li>If “sqrt”, then <cite>max_features=sqrt(n_features)</cite> (same as “auto”).</li>
+<li>If “log2”, then <cite>max_features=log2(n_features)</cite>.</li>
 <li>If None, then <cite>max_features=n_features</cite>.</li>
 </ul>
 <p>Note: the search for a split does not stop until at least one
@@ -376,6 +404,39 @@ be considered as an outlier according to the selected rules.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="skrules.skope_rules.SkopeRules.predict_top_rules">
+<code class="descname">predict_top_rules</code><span class="sig-paren">(</span><em>X</em>, <em>n_rules</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.predict_top_rules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.predict_top_rules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict if a particular sample is an outlier or not,
+using the n_rules most performing rules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : array-like, shape (n_samples, n_features)</p>
+<blockquote>
+<div><p>The input samples. Internally, it will be converted to
+<code class="docutils literal"><span class="pre">dtype=np.float32</span></code></p>
+</div></blockquote>
+<p><strong>n_rules</strong> : int</p>
+<blockquote>
+<div><p>The number of rules used for the prediction. If one of the
+n_rules most performing rules is activated, the prediction
+is equal to 1.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>is_outlier</strong> : array, shape (n_samples,)</p>
+<blockquote class="last">
+<div><p>For each observations, tells whether or not (1 or 0) it should
+be considered as an outlier according to the selected rules.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="skrules.skope_rules.SkopeRules.rules_vote">
 <code class="descname">rules_vote</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.rules_vote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.rules_vote" title="Permalink to this definition">¶</a></dt>
 <dd><p>Score representing a vote of the base classifiers (rules).</p>
@@ -404,11 +465,10 @@ null scores represent inliers.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="skrules.skope_rules.SkopeRules.separate_rules_score">
-<code class="descname">separate_rules_score</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.separate_rules_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.separate_rules_score" title="Permalink to this definition">¶</a></dt>
+<dt id="skrules.skope_rules.SkopeRules.score_top_rules">
+<code class="descname">score_top_rules</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/skrules/skope_rules.html#SkopeRules.score_top_rules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#skrules.skope_rules.SkopeRules.score_top_rules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Score representing an ordering between the base classifiers (rules).</p>
-<p>The score of an input sample is computed as the number of the more
-precise rule voting positively.
+<p>The score is high when the instance is detected by a performing rule.
 If there are n rules, ordered by increasing OOB precision, a score of k
 means than the kth rule has voted positively, but not the (k-1) first
 rules.</p>
@@ -438,6 +498,9 @@ Positive scores represent outliers, null scores represent inliers.</p>
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
            </div>
           </div>
           <footer>
@@ -470,7 +533,8 @@ Positive scores represent outliers, null scores represent inliers.</p>
             VERSION:'0.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>

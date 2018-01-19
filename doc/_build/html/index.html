@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -32,6 +34,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="skope_rules 0.1.0 documentation" href="#"/>
         <link rel="next" title="API Documentation" href="api.html"/> 
 
@@ -42,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -82,7 +88,10 @@
           
             
             
-                <ul>
+              
+            
+            
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">General examples</a></li>
 </ul>
@@ -97,8 +106,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">skope_rules</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">skope_rules</a>
+        
       </nav>
 
 
@@ -107,35 +118,52 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
-      
-    <li>Welcome to skope_rules&#8217; documentation!</li>
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to skope_rules’ documentation!</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
   <div class="section" id="welcome-to-skope-rules-documentation">
-<h1>Welcome to skope_rules&#8217; documentation!<a class="headerlink" href="#welcome-to-skope-rules-documentation" title="Permalink to this headline">¶</a></h1>
+<h1>Welcome to skope_rules’ documentation!<a class="headerlink" href="#welcome-to-skope-rules-documentation" title="Permalink to this headline">¶</a></h1>
 <p>This project can be useful to anyone who wishes to do supervised
 classification under interpretability constraints: explicit logical
 rules have to be used for classifying data.
 This project is particularly suitable for supervised anomaly detection,
 i.e. imbalanced classification.
 Application domains include fraud detection, predictive
-maintenance, intrusion detection, churn detection...</p>
+maintenance, intrusion detection, churn detection…</p>
 <p>This project comes with a <cite>skrules</cite> module which contains a single
 estimator with unit tests, along with examples and benchmarks.</p>
 <blockquote>
@@ -155,12 +183,15 @@ for more information.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
@@ -193,7 +224,8 @@ for more information.</p>
             VERSION:'0.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
