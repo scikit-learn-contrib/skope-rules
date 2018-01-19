@@ -81,4 +81,4 @@ Then you just need to execute in the skope-rules directory::
 Documentation
 --------------
 
-You can access the documentation of the project here : http://skope-rules.readthedocs.io/en/latest/
+You can access the documentation of the project `here <http://skope-rules.readthedocs.io/en/latest/>`_
