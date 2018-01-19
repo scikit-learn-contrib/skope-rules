@@ -138,7 +138,7 @@ class SkopeRules(BaseEstimator):
                  precision_min=0.5,
                  recall_min=0.01,
                  n_estimators=10,
-                 similarity_thres=0.99,
+                 similarity_thres=0.95,
                  max_samples=.8,
                  max_samples_features=1.,
                  bootstrap=False,
@@ -438,8 +438,8 @@ class SkopeRules(BaseEstimator):
                              " Please reshape your data."
                              % (X.shape[1], self.n_features_))
 
-        selected_rules = self.rules_[:self.n_estimators]
         df = pandas.DataFrame(X, columns=self.feature_names_)
+        selected_rules = self.rules_
 
         scores = np.zeros(X.shape[0])
         for (r, w) in selected_rules:
@@ -479,8 +479,8 @@ class SkopeRules(BaseEstimator):
                              " Please reshape your data."
                              % (X.shape[1], self.n_features_))
 
-        selected_rules = self.rules_[:self.n_estimators]
         df = pandas.DataFrame(X, columns=self.feature_names_)
+        selected_rules = self.rules_
 
         scores = np.zeros(X.shape[0])
         for (r, _) in selected_rules:
@@ -488,11 +488,10 @@ class SkopeRules(BaseEstimator):
 
         return scores
 
-    def separate_rules_score(self, X):
+    def score_top_rules(self, X):
         """Score representing an ordering between the base classifiers (rules).
 
-        The score of an input sample is computed as the number of the more
-        precise rule voting positively.
+        The score is high when the instance is detected by a performing rule.
         If there are n rules, ordered by increasing OOB precision, a score of k
         means than the kth rule has voted positively, but not the (k-1) first
         rules.
@@ -522,15 +521,41 @@ class SkopeRules(BaseEstimator):
                              " Please reshape your data."
                              % (X.shape[1], self.n_features_))
 
-        selected_rules = self.rules_[:self.n_estimators]
         df = pandas.DataFrame(X, columns=self.feature_names_)
+        selected_rules = self.rules_
 
         scores = np.zeros(X.shape[0])
         for (k, r) in enumerate(list((selected_rules))):
             scores[list(df.query(r[0]).index)] = np.maximum(
-                k + 1, scores[list(df.query(r[0]).index)])
+                len(selected_rules) - k,
+                scores[list(df.query(r[0]).index)])
 
         return scores
+
+    def predict_top_rules(self, X, n_rules):
+        """Predict if a particular sample is an outlier or not,
+        using the n_rules most performing rules.
+
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            The input samples. Internally, it will be converted to
+            ``dtype=np.float32``
+
+        n_rules : int
+            The number of rules used for the prediction. If one of the
+            n_rules most performing rules is activated, the prediction
+            is equal to 1.
+
+        Returns
+        -------
+        is_outlier : array, shape (n_samples,)
+            For each observations, tells whether or not (1 or 0) it should
+            be considered as an outlier according to the selected rules.
+        """
+
+        return np.array((self.score_top_rules(X) > len(self.rules_) - n_rules),
+                        dtype=int)
 
     def _tree_to_rules(self, tree, feature_names):
         """
