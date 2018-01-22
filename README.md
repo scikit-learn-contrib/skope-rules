@@ -77,3 +77,8 @@ You can get the latest sources with the command::
 Then you just need to execute in the skope-rules directory::
 
     python setup.py install
+
+Documentation
+--------------
+
+You can access the full project documentation `here <http://skope-rules.readthedocs.io/en/latest/>`_
