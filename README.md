@@ -19,7 +19,7 @@
 
 
 skope-rules
-============
+===========
 
 skope-rules is a Python machine learning module built on top of
 scikit-learn and distributed under the 3-Clause BSD license.
@@ -30,7 +30,7 @@ class, i.e. detecting with high precision instances of this class.
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
 Links with existing litterature
-------------------------------
+-------------------------------
 
 The main advantage of decision rules is that they are offering interpretable models. The problem of generating such rules has been widely considered in machine learning, see e.g. RuleFit [1], Slipper [2], LRI [3], MLRules[4].
 
@@ -42,6 +42,8 @@ A decision rule is a logical expression of the form "IF conditions THEN reponse"
 
 In this package, we use the second approach. Rules are extracted from tree ensemble, which allow us to take advantage of existing fast algorithms (such as bagged decision trees, or gradient boosting) to produce such tree ensemble. Too similar or duplicated rules are then removed, based on a similarity threshold of their supports..
 The main goal of this package is to provide rules verifying precision and recall conditions. It still implement a score (`decision_function`) method, but which does not solve the L1-regularized optimization problem as in [1]. Instead, weights are simply proportional to the OOB associated precision of the rule.
+
+This package also offers convenient methods to compute predictions with the k most precise rules (cf score_top_rules() and predict_top_rules() functions).
 
 
 [1] Friedman and Popescu, Predictive learning via rule ensembles,Technical Report, 2005.
@@ -78,3 +80,5 @@ Documentation
 --------------
 
 You can access the full project documentation `here <http://skope-rules.readthedocs.io/en/latest/>`_
+
+You can also check the notebooks/ folder which contains some examples of utilisation.
