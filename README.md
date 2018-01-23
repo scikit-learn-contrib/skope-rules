@@ -72,12 +72,8 @@ Installation
 
 You can get the latest sources with the command::
 
-    git clone https://github.com/skope-rules/skope-rules.git
-
-Then you just need to execute in the skope-rules directory::
-
-    python setup.py install
-
+    pip install skope-rules
+    
 Documentation
 --------------
 
