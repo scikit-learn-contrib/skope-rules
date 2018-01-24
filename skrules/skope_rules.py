@@ -66,7 +66,7 @@ class SkopeRules(BaseEstimator):
         than min_samples_split samples.
 
     max_depth_duplication : integer or None, optional (default=3)
-        The maximum depth of the decision tree for rule deduplication.
+        The maximum depth of the decision tree for rule deduplication, if None then no deduplication occurs.
 
     max_features : int, float, string or None, optional (default="auto")
         The number of features considered (by each decision tree) when looking
@@ -603,10 +603,12 @@ class SkopeRules(BaseEstimator):
         Parameters
         ----------
         rules : List, List of rules
+                The rules that should be splitted in subsets of similar rules
 
         Returns
         -------
         rules : List of list of rules
+                The different set of rules. Each set should be homogeneous
 
         """
         def split_with_best_feature(rules, depth, exceptions=[]):
@@ -643,7 +645,7 @@ class SkopeRules(BaseEstimator):
 
         def breadth_first_search(rules, leaves=None):
             if len(rules) == 0 or not isinstance(rules[0], list):
-                if len(rules)>0:
+                if len(rules) > 0:
                     return leaves.append(rules)
             else:
                 for rules_child in rules:
