@@ -79,12 +79,6 @@ def test_skope_rules_error():
     y = iris.target
     y = (y != 0)
 
-    # Test similarity_thres:
-    assert_raises(ValueError,
-                  SkopeRules(similarity_thres=2).fit, X, y)
-    assert_raises(ValueError,
-                  SkopeRules(similarity_thres=0).fit, X, y)
-
     # Test max_samples
     assert_raises(ValueError,
                   SkopeRules(max_samples=-1).fit, X, y)
@@ -176,7 +170,7 @@ def test_performances():
 
 
 def test_similarity_tree():
-    ## Test that rules are well splitted
+    # Test that rules are well splitted
     rules = [("a <= 2 and b > 45 and c <= 3 and a > 4", (1, 1, 0)),
              ("a <= 2 and b > 45 and c <= 3 and a > 4", (1, 1, 0)),
              ("a > 2 and b > 45", (0.5, 0.3, 0)),

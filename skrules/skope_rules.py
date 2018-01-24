@@ -14,7 +14,6 @@ from sklearn.tree import _tree
 
 INTEGER_TYPES = (numbers.Integral, np.integer)
 
-
 class SkopeRules(BaseEstimator):
     """ An easy-interpretable classifier optimizing simple logical rules.
 
@@ -34,11 +33,6 @@ class SkopeRules(BaseEstimator):
     n_estimators : int, optional (default=10)
         The number of base estimators (rules) to use for prediction. More are
         built before selection. All are available in the estimators_ attribute.
-
-    similarity_thres : float, optional (default=0.99)
-        Similarity threshold between rules. Rules too similar
-        (> similarity_thres) are fused. The similarity between two rules is
-        computed according to the formula `# {intersection} / # {union}`.
 
     max_samples : int or float, optional (default=.8)
         The number of samples to draw from X to train each decision tree, from
@@ -66,7 +60,8 @@ class SkopeRules(BaseEstimator):
         than min_samples_split samples.
 
     max_depth_duplication : integer or None, optional (default=3)
-        The maximum depth of the decision tree for rule deduplication, if None then no deduplication occurs.
+        The maximum depth of the decision tree for rule deduplication,
+        if None then no deduplication occurs.
 
     max_features : int, float, string or None, optional (default="auto")
         The number of features considered (by each decision tree) when looking
@@ -140,13 +135,12 @@ class SkopeRules(BaseEstimator):
                  precision_min=0.5,
                  recall_min=0.01,
                  n_estimators=10,
-                 similarity_thres=0.95,
                  max_samples=.8,
                  max_samples_features=1.,
                  bootstrap=False,
                  bootstrap_features=False,
                  max_depth=3,
-                 max_depth_duplication=3,
+                 max_depth_duplication=None,
                  max_features=1.,
                  min_samples_split=2,
                  n_jobs=1,
@@ -156,7 +150,6 @@ class SkopeRules(BaseEstimator):
         self.recall_min = recall_min
         self.feature_names = feature_names
         self.n_estimators = n_estimators
-        self.similarity_thres = similarity_thres
         self.max_samples = max_samples
         self.max_samples_features = max_samples_features
         self.bootstrap = bootstrap
@@ -213,11 +206,6 @@ class SkopeRules(BaseEstimator):
                  " target class."
                  % set(self.classes_))
             y = (y > 0)
-
-        # ensure similarity_thres is in (0., 1.]:
-        if not (0. < self.similarity_thres <= 1.):
-            raise ValueError("similarity_thres must be in (0, 1], got %r"
-                             % self.similarity_thres)
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
@@ -640,8 +628,10 @@ class SkopeRules(BaseEstimator):
                     rules_splitted[2].append(rule)
 
             # Choose best term
-            return [split_with_best_feature(ruleset, depth-1, exceptions=exceptions+[most_represented_term]) for ruleset in rules_splitted]
-
+            return [split_with_best_feature(ruleset,
+                                            depth-1,
+                                            exceptions=exceptions+[most_represented_term])
+                    for ruleset in rules_splitted]
 
         def breadth_first_search(rules, leaves=None):
             if len(rules) == 0 or not isinstance(rules[0], list):
