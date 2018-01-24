@@ -1,5 +1,5 @@
 import numpy as np
-from collections import Counter
+from collections import Counter, Iterable
 import pandas
 import numbers
 from warnings import warn
@@ -54,10 +54,13 @@ class SkopeRules(BaseEstimator):
     bootstrap_features : boolean, optional (default=False)
         Whether features are drawn with replacement.
 
-    max_depth : integer or None, optional (default=3)
+    max_depth : integer or List or None, optional (default=3)
         The maximum depth of the decision trees. If None, then nodes are
         expanded until all leaves are pure or until all leaves contain less
         than min_samples_split samples.
+        If an iterable is passed, you will train n_estimators
+        for each tree depth. It allows you to create and compare
+        rules of different length.
 
     max_depth_duplication : integer or None, optional (default=3)
         The maximum depth of the decision tree for rule deduplication,
@@ -155,6 +158,7 @@ class SkopeRules(BaseEstimator):
         self.bootstrap = bootstrap
         self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
+        self.max_depths = max_depth if isinstance(max_depth, Iterable) else [max_depth]
         self.max_depth_duplication = max_depth_duplication
         self.max_features = max_features
         self.min_samples_split = min_samples_split
@@ -242,40 +246,44 @@ class SkopeRules(BaseEstimator):
                           else ['c' + x for x in
                                 np.arange(X.shape[1]).astype(str)])
         self.feature_names_ = feature_names_
+        clfs = []
+        regs = []
 
-        bagging_clf = BaggingClassifier(
-            base_estimator=DecisionTreeClassifier(
-                max_depth=self.max_depth,
-                max_features=self.max_features,
-                min_samples_split=self.min_samples_split),
-            n_estimators=self.n_estimators,
-            max_samples=self.max_samples_,
-            max_features=self.max_samples_features,
-            bootstrap=self.bootstrap,
-            bootstrap_features=self.bootstrap_features,
-            # oob_score=... XXX may be added if selection on tree perf needed.
-            # warm_start=... XXX may be added to increase computation perf.
-            n_jobs=self.n_jobs,
-            random_state=self.random_state,
-            verbose=self.verbose)
+        for max_depth in self.max_depths:
+            bagging_clf = BaggingClassifier(
+                base_estimator=DecisionTreeClassifier(
+                    max_depth=max_depth,
+                    max_features=self.max_features,
+                    min_samples_split=self.min_samples_split),
+                n_estimators=self.n_estimators,
+                max_samples=self.max_samples_,
+                max_features=self.max_samples_features,
+                bootstrap=self.bootstrap,
+                bootstrap_features=self.bootstrap_features,
+                # oob_score=... XXX may be added if selection on tree perf needed.
+                # warm_start=... XXX may be added to increase computation perf.
+                n_jobs=self.n_jobs,
+                random_state=self.random_state,
+                verbose=self.verbose)
 
-        bagging_reg = BaggingRegressor(
-            base_estimator=DecisionTreeRegressor(
-                max_depth=self.max_depth,
-                max_features=self.max_features,
-                min_samples_split=self.min_samples_split),
-            n_estimators=self.n_estimators,
-            max_samples=self.max_samples_,
-            max_features=self.max_samples_features,
-            bootstrap=self.bootstrap,
-            bootstrap_features=self.bootstrap_features,
-            # oob_score=... XXX may be added if selection on tree perf needed.
-            # warm_start=... XXX may be added to increase computation perf.
-            n_jobs=self.n_jobs,
-            random_state=self.random_state,
-            verbose=self.verbose)
+            bagging_reg = BaggingRegressor(
+                base_estimator=DecisionTreeRegressor(
+                    max_depth=max_depth,
+                    max_features=self.max_features,
+                    min_samples_split=self.min_samples_split),
+                n_estimators=self.n_estimators,
+                max_samples=self.max_samples_,
+                max_features=self.max_samples_features,
+                bootstrap=self.bootstrap,
+                bootstrap_features=self.bootstrap_features,
+                # oob_score=... XXX may be added if selection on tree perf needed.
+                # warm_start=... XXX may be added to increase computation perf.
+                n_jobs=self.n_jobs,
+                random_state=self.random_state,
+                verbose=self.verbose)
 
-        bagging_clf.fit(X, y)
+            clfs.append(bagging_clf)
+            regs.append(bagging_reg)
 
         # define regression target:
         if sample_weight is not None:
@@ -290,16 +298,17 @@ class SkopeRules(BaseEstimator):
         else:
             y_reg = y  # same as an other classification bagging
 
-        bagging_reg.fit(X, y_reg)
+        for clf in clfs:
+            clf.fit(X, y)
+            self.estimators_ += clf.estimators_
+            self.estimators_samples_ += clf.estimators_samples_
+            self.estimators_features_ += clf.estimators_features_
 
-        self.estimators_ += bagging_clf.estimators_
-        self.estimators_ += bagging_reg.estimators_
-
-        self.estimators_samples_ += bagging_clf.estimators_samples_
-        self.estimators_samples_ += bagging_reg.estimators_samples_
-
-        self.estimators_features_ += bagging_clf.estimators_features_
-        self.estimators_features_ += bagging_reg.estimators_features_
+        for reg in regs:
+            reg.fit(X, y_reg)
+            self.estimators_ += reg.estimators_
+            self.estimators_samples_ += reg.estimators_samples_
+            self.estimators_features_ += reg.estimators_features_
 
         rules_ = []
         for estimator, samples, features in zip(self.estimators_,
