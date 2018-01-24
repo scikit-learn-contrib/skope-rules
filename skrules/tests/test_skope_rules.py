@@ -13,6 +13,9 @@ from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_warns_message
 from sklearn.utils.testing import assert_equal
+from sklearn.utils.testing import assert_in
+from sklearn.utils.testing import assert_not_in
+from sklearn.utils.testing import assert_not_equal
 from sklearn.utils.testing import assert_no_warnings
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import ignore_warnings
@@ -170,3 +173,45 @@ def test_performances():
     assert_equal(decision.shape, (n_samples,))
     dec_pred = (decision.ravel() < 0).astype(np.int)
     assert_array_equal(dec_pred, y_pred)
+
+
+def test_similarity_tree():
+    ## Test that rules are well splitted
+    rules = [("a <= 2 and b > 45 and c <= 3 and a > 4", (1, 1, 0)),
+             ("a <= 2 and b > 45 and c <= 3 and a > 4", (1, 1, 0)),
+             ("a > 2 and b > 45", (0.5, 0.3, 0)),
+             ("a > 2 and b > 40", (0.5, 0.2, 0)),
+             ("a <= 2 and b <= 45", (1, 1, 0)),
+             ("a > 2 and c <= 3", (1, 1, 0)),
+             ("b > 45", (1, 1, 0)),
+             ]
+
+    sk = SkopeRules(max_depth_duplication=2)
+    rulesets = sk._find_similar_rulesets(rules)
+    # Assert some couples of rules are in the same bag
+    idx_bags_rules = []
+    for idx_rule, r in enumerate(rules):
+        idx_bags_for_rule = []
+        for idx_bag, bag in enumerate(rulesets):
+            if r in bag:
+                idx_bags_for_rule.append(idx_bag)
+        idx_bags_rules.append(idx_bags_for_rule)
+
+    assert_equal(idx_bags_rules[0], idx_bags_rules[1])
+    assert_not_equal(idx_bags_rules[0], idx_bags_rules[2])
+    # Assert the best rules are kept
+    final_rules = sk.deduplicate(rules)
+    assert_in(rules[0], final_rules)
+    assert_in(rules[2], final_rules)
+    assert_not_in(rules[3], final_rules)
+
+
+def test_f1_score():
+    clf = SkopeRules()
+    rule0 = ('a > 0', (0, 0, 0))
+    rule1 = ('a > 0', (0.5, 0.5, 0))
+    rule2 = ('a > 0', (0.5, 0, 0))
+
+    assert_equal(clf.f1_score(rule0), 0)
+    assert_equal(clf.f1_score(rule1), 0.5)
+    assert_equal(clf.f1_score(rule2), 0)

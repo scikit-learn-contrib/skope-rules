@@ -1,15 +1,14 @@
 import numpy as np
+from collections import Counter
 import pandas
 import numbers
 from warnings import warn
+
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
-
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-
 from sklearn.ensemble import BaggingClassifier, BaggingRegressor
-
 from sklearn.externals import six
 from sklearn.tree import _tree
 
@@ -65,6 +64,9 @@ class SkopeRules(BaseEstimator):
         The maximum depth of the decision trees. If None, then nodes are
         expanded until all leaves are pure or until all leaves contain less
         than min_samples_split samples.
+
+    max_depth_duplication : integer or None, optional (default=3)
+        The maximum depth of the decision tree for rule deduplication.
 
     max_features : int, float, string or None, optional (default="auto")
         The number of features considered (by each decision tree) when looking
@@ -144,6 +146,7 @@ class SkopeRules(BaseEstimator):
                  bootstrap=False,
                  bootstrap_features=False,
                  max_depth=3,
+                 max_depth_duplication=3,
                  max_features=1.,
                  min_samples_split=2,
                  n_jobs=1,
@@ -159,6 +162,7 @@ class SkopeRules(BaseEstimator):
         self.bootstrap = bootstrap
         self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
+        self.max_depth_duplication = max_depth_duplication
         self.max_features = max_features
         self.min_samples_split = min_samples_split
         self.n_jobs = n_jobs
@@ -357,34 +361,10 @@ class SkopeRules(BaseEstimator):
         self.rules_ = sorted(self.rules_.items(),
                              key=lambda x: (x[1][0], x[1][1]), reverse=True)
 
-        # removing rules which have very similar domains
-        X_ = pandas.DataFrame(X, columns=np.array(self.feature_names_))
-        omit_these_rules_list = []
-        perimeter_index_of_all_rules = []
-        for i in range(len(self.rules_)):
-            current = self.rules_[i]
-            perimeter_index_of_all_rules.append(
-                set(list(X_.query(current[0]).index))
-                )
-            index_current = perimeter_index_of_all_rules[i]
-
-            for j in range(i):
-                if j in omit_these_rules_list:
-                    continue
-                    # if a rule have already been discarded,
-                    # it should not be processed again
-
-                index_rival = perimeter_index_of_all_rules[j]
-                size_union = len(index_rival.union(index_current))
-                size_intersection = len(
-                    index_rival.intersection(index_current))
-
-                if float(size_intersection)/size_union > self.similarity_thres:
-                    omit_these_rules_list.append(j)
-
-        self.rules_ = [self.rules_[i] for i in range(
-            len(self.rules_)) if i not in omit_these_rules_list]
-
+        # count representation of feature
+        if self.max_depth_duplication is not None:
+            self.rules_ = self.deduplicate(self.rules_)
+            # TODO : Factorize disjoints performing rules (ex : c0 > 0 and c1 > 1  , c0 > 0 and c1 <= 1)
         return self
 
     def predict(self, X):
@@ -613,3 +593,66 @@ class SkopeRules(BaseEstimator):
             return (0, 0)
         pos = y[y > 0].sum()
         return y_detected.mean(), float(true_pos) / pos
+
+    def deduplicate(self, rules):
+        return [max(rules_set, key=self.f1_score) for rules_set in self._find_similar_rulesets(rules)]
+
+    def _find_similar_rulesets(self, rules):
+        """Create clusters of rules using a decision tree based on the terms of the rules
+
+        Parameters
+        ----------
+        rules : List, List of rules
+
+        Returns
+        -------
+        rules : List of list of rules
+
+        """
+        def split_with_best_feature(rules, depth, exceptions=[]):
+            """
+            Method to find a split of rules given most represented feature
+            """
+            if depth == 0:
+                return rules
+
+            rulelist = [rule.split(' and ') for rule, score in rules]
+            terms = [t.split(' ')[0] for term in rulelist for t in term]
+            counter = Counter(terms)
+            # Drop exception list
+            for exception in exceptions:
+                del counter[exception]
+
+            if len(counter) == 0:
+                return rules
+
+            most_represented_term = counter.most_common()[0][0]
+            # Proceed to split
+            rules_splitted = [[], [], []]
+            for rule in rules:
+                if (most_represented_term + ' <=') in rule[0]:
+                    rules_splitted[0].append(rule)
+                elif (most_represented_term + ' >') in rule[0]:
+                    rules_splitted[1].append(rule)
+                else:
+                    rules_splitted[2].append(rule)
+
+            # Choose best term
+            return [split_with_best_feature(ruleset, depth-1, exceptions=exceptions+[most_represented_term]) for ruleset in rules_splitted]
+
+
+        def breadth_first_search(rules, leaves=None):
+            if len(rules) == 0 or not isinstance(rules[0], list):
+                if len(rules)>0:
+                    return leaves.append(rules)
+            else:
+                for rules_child in rules:
+                    breadth_first_search(rules_child, leaves=leaves)
+            return leaves
+        leaves = []
+        res = split_with_best_feature(rules, self.max_depth_duplication)
+        breadth_first_search(res, leaves=leaves)
+        return leaves
+
+    def f1_score(self, x):
+        return 2 * x[1][0] * x[1][1] / (x[1][0] + x[1][1]) if (x[1][0] + x[1][1]) > 0 else 0
