@@ -141,6 +141,22 @@ def test_skope_rules_works():
     assert_array_equal(pred, 6 * [0] + 2 * [1])
     assert_array_equal(pred_score_top_rules, 6 * [0] + 2 * [1])
 
+def test_deduplication_works():
+    # toy sample (the last two samples are outliers)
+    X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1], [6, 3], [4, -7]]
+    y = [0] * 6 + [1] * 2
+    X_test = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1],
+              [10, 5], [5, -7]]
+    # Test LOF
+    clf = SkopeRules(random_state=rng, max_samples=1., max_depth_duplication=3)
+    clf.fit(X, y)
+    decision_func = clf.decision_function(X_test)
+    rules_vote = clf.rules_vote(X_test)
+    score_top_rules = clf.score_top_rules(X_test)
+    pred = clf.predict(X_test)
+    pred_score_top_rules = clf.predict_top_rules(X_test,1)
+
+
 def test_performances():
     X, y = make_blobs(n_samples=1000, random_state=0, centers=2)
 
