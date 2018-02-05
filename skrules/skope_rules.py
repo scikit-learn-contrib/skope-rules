@@ -205,6 +205,9 @@ class SkopeRules(BaseEstimator):
                              " in the data, but the data contains only one"
                              " class: %r" % self.classes_[0])
 
+        if not isinstance(self.max_depth_duplication, int) and self.max_depth_duplication is not None:
+            raise ValueError("max_depth_duplication should be an integer"
+                             )
         if not set(self.classes_) == set([0, 1]):
             warn("Found labels %s. This method assumes target class to be"
                  " labeled as 1 and normal data to be labeled as 0. Any label"

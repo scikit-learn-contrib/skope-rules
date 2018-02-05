@@ -93,6 +93,7 @@ def test_skope_rules_error():
     assert_no_warnings(SkopeRules(max_samples=np.int64(2)).fit, X, y)
     assert_raises(ValueError, SkopeRules(max_samples='foobar').fit, X, y)
     assert_raises(ValueError, SkopeRules(max_samples=1.5).fit, X, y)
+    assert_raises(ValueError, SkopeRules(max_depth_duplication=1.5).fit, X, y)
     assert_raises(ValueError, SkopeRules().fit(X, y).predict, X[:, 1:])
     assert_raises(ValueError, SkopeRules().fit(X, y).decision_function,
                   X[:, 1:])
