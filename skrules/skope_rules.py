@@ -14,6 +14,7 @@ from sklearn.tree import _tree
 
 INTEGER_TYPES = (numbers.Integral, np.integer)
 
+
 class SkopeRules(BaseEstimator):
     """ An easy-interpretable classifier optimizing simple logical rules.
 
@@ -158,7 +159,8 @@ class SkopeRules(BaseEstimator):
         self.bootstrap = bootstrap
         self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
-        self.max_depths = max_depth if isinstance(max_depth, Iterable) else [max_depth]
+        self.max_depths = max_depth \
+            if isinstance(max_depth, Iterable) else [max_depth]
         self.max_depth_duplication = max_depth_duplication
         self.max_features = max_features
         self.min_samples_split = min_samples_split
@@ -361,7 +363,6 @@ class SkopeRules(BaseEstimator):
         # count representation of feature
         if self.max_depth_duplication is not None:
             self.rules_ = self.deduplicate(self.rules_)
-            # TODO : Factorize disjoints performing rules (ex : c0 > 0 and c1 > 1  , c0 > 0 and c1 <= 1)
         return self
 
     def predict(self, X):
@@ -592,10 +593,12 @@ class SkopeRules(BaseEstimator):
         return y_detected.mean(), float(true_pos) / pos
 
     def deduplicate(self, rules):
-        return [max(rules_set, key=self.f1_score) for rules_set in self._find_similar_rulesets(rules)]
+        return [max(rules_set, key=self.f1_score)
+                for rules_set in self._find_similar_rulesets(rules)]
 
     def _find_similar_rulesets(self, rules):
-        """Create clusters of rules using a decision tree based on the terms of the rules
+        """Create clusters of rules using a decision tree based
+        on the terms of the rules
 
         Parameters
         ----------
@@ -635,11 +638,11 @@ class SkopeRules(BaseEstimator):
                     rules_splitted[1].append(rule)
                 else:
                     rules_splitted[2].append(rule)
-
+            new_exceptions = exceptions+[most_represented_term]
             # Choose best term
             return [split_with_best_feature(ruleset,
                                             depth-1,
-                                            exceptions=exceptions+[most_represented_term])
+                                            exceptions=new_exceptions)
                     for ruleset in rules_splitted]
 
         def breadth_first_search(rules, leaves=None):
@@ -656,4 +659,5 @@ class SkopeRules(BaseEstimator):
         return leaves
 
     def f1_score(self, x):
-        return 2 * x[1][0] * x[1][1] / (x[1][0] + x[1][1]) if (x[1][0] + x[1][1]) > 0 else 0
+        return 2 * x[1][0] * x[1][1] / \
+               (x[1][0] + x[1][1]) if (x[1][0] + x[1][1]) > 0 else 0

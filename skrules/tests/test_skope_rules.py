@@ -132,7 +132,7 @@ def test_skope_rules_works():
     rules_vote = clf.rules_vote(X_test)
     score_top_rules = clf.score_top_rules(X_test)
     pred = clf.predict(X_test)
-    pred_score_top_rules = clf.predict_top_rules(X_test,1)
+    pred_score_top_rules = clf.predict_top_rules(X_test, 1)
     # assert detect outliers:
     assert_greater(np.min(decision_func[-2:]), np.max(decision_func[:-2]))
     assert_greater(np.min(rules_vote[-2:]), np.max(rules_vote[:-2]))
@@ -140,6 +140,7 @@ def test_skope_rules_works():
                    np.max(score_top_rules[:-2]))
     assert_array_equal(pred, 6 * [0] + 2 * [1])
     assert_array_equal(pred_score_top_rules, 6 * [0] + 2 * [1])
+
 
 def test_deduplication_works():
     # toy sample (the last two samples are outliers)
@@ -154,7 +155,7 @@ def test_deduplication_works():
     rules_vote = clf.rules_vote(X_test)
     score_top_rules = clf.score_top_rules(X_test)
     pred = clf.predict(X_test)
-    pred_score_top_rules = clf.predict_top_rules(X_test,1)
+    pred_score_top_rules = clf.predict_top_rules(X_test, 1)
 
 
 def test_performances():
