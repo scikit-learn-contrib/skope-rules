@@ -63,7 +63,7 @@ class SkopeRules(BaseEstimator):
         for each tree depth. It allows you to create and compare
         rules of different length.
 
-    max_depth_duplication : integer or None, optional (default=3)
+    max_depth_duplication : integer, optional (default=None)
         The maximum depth of the decision tree for rule deduplication,
         if None then no deduplication occurs.
 
