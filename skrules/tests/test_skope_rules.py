@@ -13,6 +13,9 @@ from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_raises
 from sklearn.utils.testing import assert_warns_message
 from sklearn.utils.testing import assert_equal
+from sklearn.utils.testing import assert_in
+from sklearn.utils.testing import assert_not_in
+from sklearn.utils.testing import assert_not_equal
 from sklearn.utils.testing import assert_no_warnings
 from sklearn.utils.testing import assert_greater
 from sklearn.utils.testing import ignore_warnings
@@ -76,12 +79,6 @@ def test_skope_rules_error():
     y = iris.target
     y = (y != 0)
 
-    # Test similarity_thres:
-    assert_raises(ValueError,
-                  SkopeRules(similarity_thres=2).fit, X, y)
-    assert_raises(ValueError,
-                  SkopeRules(similarity_thres=0).fit, X, y)
-
     # Test max_samples
     assert_raises(ValueError,
                   SkopeRules(max_samples=-1).fit, X, y)
@@ -96,6 +93,7 @@ def test_skope_rules_error():
     assert_no_warnings(SkopeRules(max_samples=np.int64(2)).fit, X, y)
     assert_raises(ValueError, SkopeRules(max_samples='foobar').fit, X, y)
     assert_raises(ValueError, SkopeRules(max_samples=1.5).fit, X, y)
+    assert_raises(ValueError, SkopeRules(max_depth_duplication=1.5).fit, X, y)
     assert_raises(ValueError, SkopeRules().fit(X, y).predict, X[:, 1:])
     assert_raises(ValueError, SkopeRules().fit(X, y).decision_function,
                   X[:, 1:])
@@ -135,7 +133,7 @@ def test_skope_rules_works():
     rules_vote = clf.rules_vote(X_test)
     score_top_rules = clf.score_top_rules(X_test)
     pred = clf.predict(X_test)
-    pred_score_top_rules = clf.predict_top_rules(X_test,1)
+    pred_score_top_rules = clf.predict_top_rules(X_test, 1)
     # assert detect outliers:
     assert_greater(np.min(decision_func[-2:]), np.max(decision_func[:-2]))
     assert_greater(np.min(rules_vote[-2:]), np.max(rules_vote[:-2]))
@@ -143,6 +141,23 @@ def test_skope_rules_works():
                    np.max(score_top_rules[:-2]))
     assert_array_equal(pred, 6 * [0] + 2 * [1])
     assert_array_equal(pred_score_top_rules, 6 * [0] + 2 * [1])
+
+
+def test_deduplication_works():
+    # toy sample (the last two samples are outliers)
+    X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1], [6, 3], [4, -7]]
+    y = [0] * 6 + [1] * 2
+    X_test = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1],
+              [10, 5], [5, -7]]
+    # Test LOF
+    clf = SkopeRules(random_state=rng, max_samples=1., max_depth_duplication=3)
+    clf.fit(X, y)
+    decision_func = clf.decision_function(X_test)
+    rules_vote = clf.rules_vote(X_test)
+    score_top_rules = clf.score_top_rules(X_test)
+    pred = clf.predict(X_test)
+    pred_score_top_rules = clf.predict_top_rules(X_test, 1)
+
 
 def test_performances():
     X, y = make_blobs(n_samples=1000, random_state=0, centers=2)
@@ -170,3 +185,45 @@ def test_performances():
     assert_equal(decision.shape, (n_samples,))
     dec_pred = (decision.ravel() < 0).astype(np.int)
     assert_array_equal(dec_pred, y_pred)
+
+
+def test_similarity_tree():
+    # Test that rules are well splitted
+    rules = [("a <= 2 and b > 45 and c <= 3 and a > 4", (1, 1, 0)),
+             ("a <= 2 and b > 45 and c <= 3 and a > 4", (1, 1, 0)),
+             ("a > 2 and b > 45", (0.5, 0.3, 0)),
+             ("a > 2 and b > 40", (0.5, 0.2, 0)),
+             ("a <= 2 and b <= 45", (1, 1, 0)),
+             ("a > 2 and c <= 3", (1, 1, 0)),
+             ("b > 45", (1, 1, 0)),
+             ]
+
+    sk = SkopeRules(max_depth_duplication=2)
+    rulesets = sk._find_similar_rulesets(rules)
+    # Assert some couples of rules are in the same bag
+    idx_bags_rules = []
+    for idx_rule, r in enumerate(rules):
+        idx_bags_for_rule = []
+        for idx_bag, bag in enumerate(rulesets):
+            if r in bag:
+                idx_bags_for_rule.append(idx_bag)
+        idx_bags_rules.append(idx_bags_for_rule)
+
+    assert_equal(idx_bags_rules[0], idx_bags_rules[1])
+    assert_not_equal(idx_bags_rules[0], idx_bags_rules[2])
+    # Assert the best rules are kept
+    final_rules = sk.deduplicate(rules)
+    assert_in(rules[0], final_rules)
+    assert_in(rules[2], final_rules)
+    assert_not_in(rules[3], final_rules)
+
+
+def test_f1_score():
+    clf = SkopeRules()
+    rule0 = ('a > 0', (0, 0, 0))
+    rule1 = ('a > 0', (0.5, 0.5, 0))
+    rule2 = ('a > 0', (0.5, 0, 0))
+
+    assert_equal(clf.f1_score(rule0), 0)
+    assert_equal(clf.f1_score(rule1), 0.5)
+    assert_equal(clf.f1_score(rule2), 0)

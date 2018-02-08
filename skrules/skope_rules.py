@@ -1,15 +1,14 @@
 import numpy as np
+from collections import Counter, Iterable
 import pandas
 import numbers
 from warnings import warn
+
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
-
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-
 from sklearn.ensemble import BaggingClassifier, BaggingRegressor
-
 from sklearn.externals import six
 from sklearn.tree import _tree
 
@@ -36,11 +35,6 @@ class SkopeRules(BaseEstimator):
         The number of base estimators (rules) to use for prediction. More are
         built before selection. All are available in the estimators_ attribute.
 
-    similarity_thres : float, optional (default=0.99)
-        Similarity threshold between rules. Rules too similar
-        (> similarity_thres) are fused. The similarity between two rules is
-        computed according to the formula `# {intersection} / # {union}`.
-
     max_samples : int or float, optional (default=.8)
         The number of samples to draw from X to train each decision tree, from
         which rules are generated and selected.
@@ -61,10 +55,17 @@ class SkopeRules(BaseEstimator):
     bootstrap_features : boolean, optional (default=False)
         Whether features are drawn with replacement.
 
-    max_depth : integer or None, optional (default=3)
+    max_depth : integer or List or None, optional (default=3)
         The maximum depth of the decision trees. If None, then nodes are
         expanded until all leaves are pure or until all leaves contain less
         than min_samples_split samples.
+        If an iterable is passed, you will train n_estimators
+        for each tree depth. It allows you to create and compare
+        rules of different length.
+
+    max_depth_duplication : integer, optional (default=None)
+        The maximum depth of the decision tree for rule deduplication,
+        if None then no deduplication occurs.
 
     max_features : int, float, string or None, optional (default="auto")
         The number of features considered (by each decision tree) when looking
@@ -138,12 +139,12 @@ class SkopeRules(BaseEstimator):
                  precision_min=0.5,
                  recall_min=0.01,
                  n_estimators=10,
-                 similarity_thres=0.95,
                  max_samples=.8,
                  max_samples_features=1.,
                  bootstrap=False,
                  bootstrap_features=False,
                  max_depth=3,
+                 max_depth_duplication=None,
                  max_features=1.,
                  min_samples_split=2,
                  n_jobs=1,
@@ -153,12 +154,14 @@ class SkopeRules(BaseEstimator):
         self.recall_min = recall_min
         self.feature_names = feature_names
         self.n_estimators = n_estimators
-        self.similarity_thres = similarity_thres
         self.max_samples = max_samples
         self.max_samples_features = max_samples_features
         self.bootstrap = bootstrap
         self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
+        self.max_depths = max_depth \
+            if isinstance(max_depth, Iterable) else [max_depth]
+        self.max_depth_duplication = max_depth_duplication
         self.max_features = max_features
         self.min_samples_split = min_samples_split
         self.n_jobs = n_jobs
@@ -202,6 +205,9 @@ class SkopeRules(BaseEstimator):
                              " in the data, but the data contains only one"
                              " class: %r" % self.classes_[0])
 
+        if not isinstance(self.max_depth_duplication, int) and self.max_depth_duplication is not None:
+            raise ValueError("max_depth_duplication should be an integer"
+                             )
         if not set(self.classes_) == set([0, 1]):
             warn("Found labels %s. This method assumes target class to be"
                  " labeled as 1 and normal data to be labeled as 0. Any label"
@@ -209,11 +215,6 @@ class SkopeRules(BaseEstimator):
                  " target class."
                  % set(self.classes_))
             y = (y > 0)
-
-        # ensure similarity_thres is in (0., 1.]:
-        if not (0. < self.similarity_thres <= 1.):
-            raise ValueError("similarity_thres must be in (0, 1], got %r"
-                             % self.similarity_thres)
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
@@ -250,40 +251,44 @@ class SkopeRules(BaseEstimator):
                           else ['c' + x for x in
                                 np.arange(X.shape[1]).astype(str)])
         self.feature_names_ = feature_names_
+        clfs = []
+        regs = []
 
-        bagging_clf = BaggingClassifier(
-            base_estimator=DecisionTreeClassifier(
-                max_depth=self.max_depth,
-                max_features=self.max_features,
-                min_samples_split=self.min_samples_split),
-            n_estimators=self.n_estimators,
-            max_samples=self.max_samples_,
-            max_features=self.max_samples_features,
-            bootstrap=self.bootstrap,
-            bootstrap_features=self.bootstrap_features,
-            # oob_score=... XXX may be added if selection on tree perf needed.
-            # warm_start=... XXX may be added to increase computation perf.
-            n_jobs=self.n_jobs,
-            random_state=self.random_state,
-            verbose=self.verbose)
+        for max_depth in self.max_depths:
+            bagging_clf = BaggingClassifier(
+                base_estimator=DecisionTreeClassifier(
+                    max_depth=max_depth,
+                    max_features=self.max_features,
+                    min_samples_split=self.min_samples_split),
+                n_estimators=self.n_estimators,
+                max_samples=self.max_samples_,
+                max_features=self.max_samples_features,
+                bootstrap=self.bootstrap,
+                bootstrap_features=self.bootstrap_features,
+                # oob_score=... XXX may be added if selection on tree perf needed.
+                # warm_start=... XXX may be added to increase computation perf.
+                n_jobs=self.n_jobs,
+                random_state=self.random_state,
+                verbose=self.verbose)
 
-        bagging_reg = BaggingRegressor(
-            base_estimator=DecisionTreeRegressor(
-                max_depth=self.max_depth,
-                max_features=self.max_features,
-                min_samples_split=self.min_samples_split),
-            n_estimators=self.n_estimators,
-            max_samples=self.max_samples_,
-            max_features=self.max_samples_features,
-            bootstrap=self.bootstrap,
-            bootstrap_features=self.bootstrap_features,
-            # oob_score=... XXX may be added if selection on tree perf needed.
-            # warm_start=... XXX may be added to increase computation perf.
-            n_jobs=self.n_jobs,
-            random_state=self.random_state,
-            verbose=self.verbose)
+            bagging_reg = BaggingRegressor(
+                base_estimator=DecisionTreeRegressor(
+                    max_depth=max_depth,
+                    max_features=self.max_features,
+                    min_samples_split=self.min_samples_split),
+                n_estimators=self.n_estimators,
+                max_samples=self.max_samples_,
+                max_features=self.max_samples_features,
+                bootstrap=self.bootstrap,
+                bootstrap_features=self.bootstrap_features,
+                # oob_score=... XXX may be added if selection on tree perf needed.
+                # warm_start=... XXX may be added to increase computation perf.
+                n_jobs=self.n_jobs,
+                random_state=self.random_state,
+                verbose=self.verbose)
 
-        bagging_clf.fit(X, y)
+            clfs.append(bagging_clf)
+            regs.append(bagging_reg)
 
         # define regression target:
         if sample_weight is not None:
@@ -298,16 +303,17 @@ class SkopeRules(BaseEstimator):
         else:
             y_reg = y  # same as an other classification bagging
 
-        bagging_reg.fit(X, y_reg)
+        for clf in clfs:
+            clf.fit(X, y)
+            self.estimators_ += clf.estimators_
+            self.estimators_samples_ += clf.estimators_samples_
+            self.estimators_features_ += clf.estimators_features_
 
-        self.estimators_ += bagging_clf.estimators_
-        self.estimators_ += bagging_reg.estimators_
-
-        self.estimators_samples_ += bagging_clf.estimators_samples_
-        self.estimators_samples_ += bagging_reg.estimators_samples_
-
-        self.estimators_features_ += bagging_clf.estimators_features_
-        self.estimators_features_ += bagging_reg.estimators_features_
+        for reg in regs:
+            reg.fit(X, y_reg)
+            self.estimators_ += reg.estimators_
+            self.estimators_samples_ += reg.estimators_samples_
+            self.estimators_features_ += reg.estimators_features_
 
         rules_ = []
         for estimator, samples, features in zip(self.estimators_,
@@ -357,34 +363,9 @@ class SkopeRules(BaseEstimator):
         self.rules_ = sorted(self.rules_.items(),
                              key=lambda x: (x[1][0], x[1][1]), reverse=True)
 
-        # removing rules which have very similar domains
-        X_ = pandas.DataFrame(X, columns=np.array(self.feature_names_))
-        omit_these_rules_list = []
-        perimeter_index_of_all_rules = []
-        for i in range(len(self.rules_)):
-            current = self.rules_[i]
-            perimeter_index_of_all_rules.append(
-                set(list(X_.query(current[0]).index))
-                )
-            index_current = perimeter_index_of_all_rules[i]
-
-            for j in range(i):
-                if j in omit_these_rules_list:
-                    continue
-                    # if a rule have already been discarded,
-                    # it should not be processed again
-
-                index_rival = perimeter_index_of_all_rules[j]
-                size_union = len(index_rival.union(index_current))
-                size_intersection = len(
-                    index_rival.intersection(index_current))
-
-                if float(size_intersection)/size_union > self.similarity_thres:
-                    omit_these_rules_list.append(j)
-
-        self.rules_ = [self.rules_[i] for i in range(
-            len(self.rules_)) if i not in omit_these_rules_list]
-
+        # count representation of feature
+        if self.max_depth_duplication is not None:
+            self.rules_ = self.deduplicate(self.rules_)
         return self
 
     def predict(self, X):
@@ -613,3 +594,73 @@ class SkopeRules(BaseEstimator):
             return (0, 0)
         pos = y[y > 0].sum()
         return y_detected.mean(), float(true_pos) / pos
+
+    def deduplicate(self, rules):
+        return [max(rules_set, key=self.f1_score)
+                for rules_set in self._find_similar_rulesets(rules)]
+
+    def _find_similar_rulesets(self, rules):
+        """Create clusters of rules using a decision tree based
+        on the terms of the rules
+
+        Parameters
+        ----------
+        rules : List, List of rules
+                The rules that should be splitted in subsets of similar rules
+
+        Returns
+        -------
+        rules : List of list of rules
+                The different set of rules. Each set should be homogeneous
+
+        """
+        def split_with_best_feature(rules, depth, exceptions=[]):
+            """
+            Method to find a split of rules given most represented feature
+            """
+            if depth == 0:
+                return rules
+
+            rulelist = [rule.split(' and ') for rule, score in rules]
+            terms = [t.split(' ')[0] for term in rulelist for t in term]
+            counter = Counter(terms)
+            # Drop exception list
+            for exception in exceptions:
+                del counter[exception]
+
+            if len(counter) == 0:
+                return rules
+
+            most_represented_term = counter.most_common()[0][0]
+            # Proceed to split
+            rules_splitted = [[], [], []]
+            for rule in rules:
+                if (most_represented_term + ' <=') in rule[0]:
+                    rules_splitted[0].append(rule)
+                elif (most_represented_term + ' >') in rule[0]:
+                    rules_splitted[1].append(rule)
+                else:
+                    rules_splitted[2].append(rule)
+            new_exceptions = exceptions+[most_represented_term]
+            # Choose best term
+            return [split_with_best_feature(ruleset,
+                                            depth-1,
+                                            exceptions=new_exceptions)
+                    for ruleset in rules_splitted]
+
+        def breadth_first_search(rules, leaves=None):
+            if len(rules) == 0 or not isinstance(rules[0], list):
+                if len(rules) > 0:
+                    return leaves.append(rules)
+            else:
+                for rules_child in rules:
+                    breadth_first_search(rules_child, leaves=leaves)
+            return leaves
+        leaves = []
+        res = split_with_best_feature(rules, self.max_depth_duplication)
+        breadth_first_search(res, leaves=leaves)
+        return leaves
+
+    def f1_score(self, x):
+        return 2 * x[1][0] * x[1][1] / \
+               (x[1][0] + x[1][1]) if (x[1][0] + x[1][1]) > 0 else 0

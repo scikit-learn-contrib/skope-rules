@@ -149,7 +149,7 @@ plt.show()
 # fit the model
 
 clf = SkopeRules(
-    similarity_thres=.8, max_depth=3, max_features=0.5,
+    max_depth_duplication=3, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=20,
     feature_names=feature_names, recall_min=0.04, precision_min=0.6)
 clf.fit(X_train, y_train)
