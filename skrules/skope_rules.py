@@ -12,6 +12,8 @@ from sklearn.ensemble import BaggingClassifier, BaggingRegressor
 from sklearn.externals import six
 from sklearn.tree import _tree
 
+from .rule import Rule
+
 INTEGER_TYPES = (numbers.Integral, np.integer)
 
 
@@ -344,7 +346,8 @@ class SkopeRules(BaseEstimator):
                 rules_from_tree = [(r, self._eval_rule_perf(r, X_oob, y_oob))
                                    for r in set(rules_from_tree)]
                 rules_ += rules_from_tree
-
+        # Factorize rules before semantic filtering
+        rules_ = [tuple(rule) for rule in set([Rule(r, args=args) for r, args in rules_])]
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
             if score[0] >= self.precision_min and score[1] >= self.recall_min:
@@ -576,7 +579,7 @@ class SkopeRules(BaseEstimator):
             else:
                 rule = str.join(' and ', base_name)
                 rule = (rule if rule != ''
-                        else '=='.join([feature_names[0]] * 2))
+                        else ' == '.join([feature_names[0]] * 2))
                 # a rule selecting all is set to "c0==c0"
                 rules.append(rule)
 
