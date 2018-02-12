@@ -48,5 +48,8 @@ def test_equals_rule():
     rule = "a == a"
     assert_equal(rule, str(Rule(rule)))
 
-    rule = "a == a and a < 3.0"
-    assert_equal(rule, str(Rule(rule)))
+    rule2 = "a == a and a == a"
+    assert_equal(rule, str(Rule(rule2)))
+
+    rule3 = "a < 3.0 and a == a"
+    assert_equal(rule3, str(Rule(rule3)))

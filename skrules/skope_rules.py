@@ -349,10 +349,7 @@ class SkopeRules(BaseEstimator):
                 rules_from_tree = [(r, self._eval_rule_perf(r, X_oob, y_oob))
                                    for r in set(rules_from_tree)]
                 rules_ += rules_from_tree
-        # Factorize rules before semantic filtering
-        rules_ = [tuple(rule)
-                  for rule in
-                  set([Rule(r, args=args) for r, args in rules_])]
+
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
             if score[0] >= self.precision_min and score[1] >= self.recall_min:
@@ -371,7 +368,13 @@ class SkopeRules(BaseEstimator):
         self.rules_ = sorted(self.rules_.items(),
                              key=lambda x: (x[1][0], x[1][1]), reverse=True)
 
-        # count representation of feature
+        # Factorize rules before semantic tree filtering
+        self.rules_ = [
+            tuple(rule)
+            for rule in
+            set([Rule(r, args=args) for r, args in self.rules_])]
+
+        # Deduplicate the rule using semantic tree
         if self.max_depth_duplication is not None:
             self.rules_ = self.deduplicate(self.rules_)
         return self
