@@ -12,9 +12,6 @@ class Rule:
         Arguments associated to the rule, it is not used for factorization but it takes part of the output when the rule
         is converted to an array.
 
-    recall_min : float, optional (default=0.01)
-        The minimal recall of a rule to be selected.
-
     """
 
     def __init__(self, rule, args=None):
