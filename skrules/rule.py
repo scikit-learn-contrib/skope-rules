@@ -52,6 +52,7 @@ class Rule:
         yield self.args
 
     def __repr__(self):
-        return ' and '.join([' '.join([feature, symbol,
-                                       str(self.agg_dict[(feature, symbol)])])
-                            for feature, symbol in sorted(self.agg_dict.keys())])
+        return ' and '.join([' '.join(
+                [feature, symbol, str(self.agg_dict[(feature, symbol)])])
+                for feature, symbol in sorted(self.agg_dict.keys())
+                ])

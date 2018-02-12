@@ -373,7 +373,7 @@ class SkopeRules(BaseEstimator):
 
         self.rules_ = sorted(self.rules_.items(),
                              key=lambda x: (x[1][0], x[1][1]), reverse=True)
-        
+
         # Deduplicate the rule using semantic tree
         if self.max_depth_duplication is not None:
             self.rules_ = self.deduplicate(self.rules_)
