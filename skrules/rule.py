@@ -38,12 +38,12 @@ class Rule:
             else:
                 if symbol[0] == '<':
                     self.agg_dict[(feature, symbol)] = str(min(
-                                            float(self.agg_dict[(feature, symbol)]),
-                                            float(value)))
+                                float(self.agg_dict[(feature, symbol)]),
+                                float(value)))
                 elif symbol[0] == '>':
                     self.agg_dict[(feature, symbol)] = str(max(
-                                            float(self.agg_dict[(feature, symbol)]),
-                                            float(value)))
+                                float(self.agg_dict[(feature, symbol)]),
+                                float(value)))
                 else:  # Handle the c0 == c0 case
                     self.agg_dict[(feature, symbol)] = value
 

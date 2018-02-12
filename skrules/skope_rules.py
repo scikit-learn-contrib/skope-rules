@@ -207,7 +207,8 @@ class SkopeRules(BaseEstimator):
                              " in the data, but the data contains only one"
                              " class: %r" % self.classes_[0])
 
-        if not isinstance(self.max_depth_duplication, int) and self.max_depth_duplication is not None:
+        if not isinstance(self.max_depth_duplication, int) \
+                and self.max_depth_duplication is not None:
             raise ValueError("max_depth_duplication should be an integer"
                              )
         if not set(self.classes_) == set([0, 1]):
@@ -267,7 +268,8 @@ class SkopeRules(BaseEstimator):
                 max_features=self.max_samples_features,
                 bootstrap=self.bootstrap,
                 bootstrap_features=self.bootstrap_features,
-                # oob_score=... XXX may be added if selection on tree perf needed.
+                # oob_score=... XXX may be added
+                # if selection on tree perf needed.
                 # warm_start=... XXX may be added to increase computation perf.
                 n_jobs=self.n_jobs,
                 random_state=self.random_state,
@@ -283,7 +285,8 @@ class SkopeRules(BaseEstimator):
                 max_features=self.max_samples_features,
                 bootstrap=self.bootstrap,
                 bootstrap_features=self.bootstrap_features,
-                # oob_score=... XXX may be added if selection on tree perf needed.
+                # oob_score=... XXX may be added
+                # if selection on tree perf needed.
                 # warm_start=... XXX may be added to increase computation perf.
                 n_jobs=self.n_jobs,
                 random_state=self.random_state,
@@ -347,7 +350,9 @@ class SkopeRules(BaseEstimator):
                                    for r in set(rules_from_tree)]
                 rules_ += rules_from_tree
         # Factorize rules before semantic filtering
-        rules_ = [tuple(rule) for rule in set([Rule(r, args=args) for r, args in rules_])]
+        rules_ = [tuple(rule)
+                  for rule in
+                  set([Rule(r, args=args) for r, args in rules_])]
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
             if score[0] >= self.precision_min and score[1] >= self.recall_min:
