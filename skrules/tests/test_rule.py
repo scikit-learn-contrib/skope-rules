@@ -27,6 +27,7 @@ def test_rule():
                       Rule('b <= 2 and a <= 3')
                       }), 1)
 
+
 def test_hash_rule():
     assert_equal(len({
                         Rule('a <= 2 and a <= 3'),
@@ -36,6 +37,7 @@ def test_hash_rule():
                         Rule('a <= 4 and a <= 3'),
                         Rule('a <= 2')
                       }), 1)
+
 
 def test_str_rule():
     rule = 'a <= 10.0 and b > 3.0'

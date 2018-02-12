@@ -1,6 +1,6 @@
 class Rule:
-    """ An object modelizing a logical rule and add factorization methods. It is used to simplify rules and deduplicate
-    them.
+    """ An object modelizing a logical rule and add factorization methods.
+    It is used to simplify rules and deduplicate them.
 
     Parameters
     ----------
@@ -9,8 +9,8 @@ class Rule:
         The logical rule that is interpretable by a pandas query.
 
     args : object, optional
-        Arguments associated to the rule, it is not used for factorization but it takes part of the output when the rule
-        is converted to an array.
+        Arguments associated to the rule, it is not used for factorization
+        but it takes part of the output when the rule is converted to an array.
     """
 
     def __init__(self, rule, args=None):
@@ -25,7 +25,8 @@ class Rule:
         return self.agg_dict == other.agg_dict
 
     def __hash__(self):
-        return hash(tuple(sorted(((i, j) for i, j in self.agg_dict.items()))))  # FIXME : Easier method ?
+        # FIXME : Easier method ?
+        return hash(tuple(sorted(((i, j) for i, j in self.agg_dict.items()))))
 
     def factorize(self):
         for feature, symbol, value in self.terms:
@@ -36,18 +37,21 @@ class Rule:
                     self.agg_dict[(feature, symbol)] = value
             else:
                 if symbol[0] == '<':
-                    self.agg_dict[(feature, symbol)] = str(min(float(self.agg_dict[(feature, symbol)]),
-                                                               float(value)))
+                    self.agg_dict[(feature, symbol)] = str(min(
+                                            float(self.agg_dict[(feature, symbol)]),
+                                            float(value)))
                 elif symbol[0] == '>':
-                    self.agg_dict[(feature, symbol)] = str(max(float(self.agg_dict[(feature, symbol)]), float(value)))
+                    self.agg_dict[(feature, symbol)] = str(max(
+                                            float(self.agg_dict[(feature, symbol)]),
+                                            float(value)))
                 else:  # Handle the c0 == c0 case
                     self.agg_dict[(feature, symbol)] = value
-
 
     def __iter__(self):
         yield str(self)
         yield self.args
 
     def __repr__(self):
-        return ' and '.join([' '.join([feature, symbol, str(self.agg_dict[(feature, symbol)])])
+        return ' and '.join([' '.join([feature, symbol,
+                                       str(self.agg_dict[(feature, symbol)])])
                             for feature, symbol in self.agg_dict.keys()])
