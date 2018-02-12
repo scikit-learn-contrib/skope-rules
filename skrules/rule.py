@@ -11,7 +11,6 @@ class Rule:
     args : object, optional
         Arguments associated to the rule, it is not used for factorization but it takes part of the output when the rule
         is converted to an array.
-
     """
 
     def __init__(self, rule, args=None):
@@ -42,7 +41,6 @@ class Rule:
                 elif symbol[0] == '>':
                     self.agg_dict[(feature, symbol)] = str(max(float(self.agg_dict[(feature, symbol)]), float(value)))
                 else:  # Handle the c0 == c0 case
-                    print(feature, symbol, value)
                     self.agg_dict[(feature, symbol)] = value
 
 
