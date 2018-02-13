@@ -12,6 +12,8 @@ from sklearn.ensemble import BaggingClassifier, BaggingRegressor
 from sklearn.externals import six
 from sklearn.tree import _tree
 
+from .rule import Rule
+
 INTEGER_TYPES = (numbers.Integral, np.integer)
 
 
@@ -205,7 +207,8 @@ class SkopeRules(BaseEstimator):
                              " in the data, but the data contains only one"
                              " class: %r" % self.classes_[0])
 
-        if not isinstance(self.max_depth_duplication, int) and self.max_depth_duplication is not None:
+        if not isinstance(self.max_depth_duplication, int) \
+                and self.max_depth_duplication is not None:
             raise ValueError("max_depth_duplication should be an integer"
                              )
         if not set(self.classes_) == set([0, 1]):
@@ -265,7 +268,8 @@ class SkopeRules(BaseEstimator):
                 max_features=self.max_samples_features,
                 bootstrap=self.bootstrap,
                 bootstrap_features=self.bootstrap_features,
-                # oob_score=... XXX may be added if selection on tree perf needed.
+                # oob_score=... XXX may be added
+                # if selection on tree perf needed.
                 # warm_start=... XXX may be added to increase computation perf.
                 n_jobs=self.n_jobs,
                 random_state=self.random_state,
@@ -281,7 +285,8 @@ class SkopeRules(BaseEstimator):
                 max_features=self.max_samples_features,
                 bootstrap=self.bootstrap,
                 bootstrap_features=self.bootstrap_features,
-                # oob_score=... XXX may be added if selection on tree perf needed.
+                # oob_score=... XXX may be added
+                # if selection on tree perf needed.
                 # warm_start=... XXX may be added to increase computation perf.
                 n_jobs=self.n_jobs,
                 random_state=self.random_state,
@@ -345,6 +350,12 @@ class SkopeRules(BaseEstimator):
                                    for r in set(rules_from_tree)]
                 rules_ += rules_from_tree
 
+        # Factorize rules before semantic tree filtering
+        rules_ = [
+            tuple(rule)
+            for rule in
+            [Rule(r, args=args) for r, args in rules_]]
+
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
             if score[0] >= self.precision_min and score[1] >= self.recall_min:
@@ -363,7 +374,7 @@ class SkopeRules(BaseEstimator):
         self.rules_ = sorted(self.rules_.items(),
                              key=lambda x: (x[1][0], x[1][1]), reverse=True)
 
-        # count representation of feature
+        # Deduplicate the rule using semantic tree
         if self.max_depth_duplication is not None:
             self.rules_ = self.deduplicate(self.rules_)
         return self
@@ -576,7 +587,7 @@ class SkopeRules(BaseEstimator):
             else:
                 rule = str.join(' and ', base_name)
                 rule = (rule if rule != ''
-                        else '=='.join([feature_names[0]] * 2))
+                        else ' == '.join([feature_names[0]] * 2))
                 # a rule selecting all is set to "c0==c0"
                 rules.append(rule)
 
