@@ -15,7 +15,7 @@ except ImportError:
     sys.exit(1)
 
 setup(name='skope-rules',
-      version='0.0.1',
+      version='1.0.0',
       description='Machine Learning with Interpretable Rules',
       url='https://github.com/skope-rules/skope-rules',
       author='see AUTHORS.rst',
