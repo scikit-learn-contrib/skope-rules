@@ -29,6 +29,14 @@ class, i.e. detecting with high precision instances of this class.
 
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
+Installation
+------------
+
+You can get the latest sources with the command:
+````bash
+ pip install skope-rules
+````
+   
 Quick Start
 ------------
 
@@ -63,7 +71,6 @@ which will give for each class the Top 3 rules found by Skope Rules.
 SkopeRules can also be used as a predictor if you use the "score_top_rules" method :
 
 ```python
-
 from sklearn.datasets import load_boston
 from skrules import SkopeRules
 from sklearn.metrics import precision_recall_curve
@@ -133,12 +140,6 @@ skope-rules requires:
 
 For running the examples Matplotlib >= 1.1.1 is required.
 
-Installation
-------------
-
-You can get the latest sources with the command::
-
-    pip install skope-rules
     
 Documentation
 --------------
