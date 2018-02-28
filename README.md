@@ -17,6 +17,7 @@
 .. |Python35| image:: https://img.shields.io/badge/python-3.5-blue.svg
 .. _Python35: https://badge.fury.io/py/skope-rules
 
+.. image:: skope_rules.png
 
 skope-rules
 ===========
@@ -41,7 +42,8 @@ Quick Start
 ------------
 
 SkopeRules can be used to describe classes with logical rules.
-This is a quick code example on Iris Dataset which will give for each class the Top 3 rules found by Skope Rules : 
+This is a code example on Iris Dataset. 
+It gives the Top 3 rules found by SkopeRules for each species:
 
 .. code:: python
 
