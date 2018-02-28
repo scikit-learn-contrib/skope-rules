@@ -32,7 +32,7 @@ See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 Installation
 ------------
 
-You can get the latest sources with the command:
+You can get the latest sources with pip :
 
     pip install skope-rules
 
