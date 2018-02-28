@@ -25,7 +25,7 @@ skope-rules
 Skope-rules is a Python machine learning module built on top of
 scikit-learn and distributed under the 3-Clause BSD license.
 
-It aims at learning logical, interpretable rules for "scoping" a target
+Skope-rules aims at learning logical, interpretable rules for "scoping" a target
 class, i.e. detecting with high precision instances of this class.
 
 Skope-rules is a trade off between the interpretability of a Decision Tree
@@ -59,11 +59,11 @@ SkopeRules can be used to describe classes with logical rules :
                      recall_min=0.1,
                      feature_names=feature_names)
     
-    for idx, specy in enumerate(dataset.target_names):
+    for idx, species in enumerate(dataset.target_names):
         X, y = dataset.data, dataset.target
         clf.fit(X, y == idx)
         rules = clf.rules_[0:3]
-        print("Rules for iris", specy)
+        print("Rules for iris", species)
         for rule in rules:
             print(rule)
         print()
@@ -102,6 +102,7 @@ SkopeRules can also be used as a predictor if you use the "score_top_rules" meth
 
 
 For more examples and use cases please check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
+You can also check the `demonstration notebooks <notebooks/>`_.
 
 Links with existing litterature
 -------------------------------
