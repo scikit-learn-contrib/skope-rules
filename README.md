@@ -103,7 +103,7 @@ SkopeRules can also be used as a predictor if you use the "score_top_rules" meth
 ::
 
 
-For more examples and use cases check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
+For more examples and use cases please check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
 
 Links with existing litterature
 -------------------------------
