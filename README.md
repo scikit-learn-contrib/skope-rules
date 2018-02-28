@@ -33,9 +33,9 @@ Installation
 ------------
 
 You can get the latest sources with the command:
-````bash
+.. code:: bash
  pip install skope-rules
-````
+::
    
 Quick Start
 ------------
@@ -43,7 +43,7 @@ Quick Start
 SkopeRules can be used to describe classes with logical rules.
 This is a quick code example on Iris Dataset : 
 
-````python
+.. code:: python
 from sklearn.datasets import load_iris
 from skrules import SkopeRules
 
@@ -65,12 +65,13 @@ for idx, specy in enumerate(dataset.target_names):
     print()
     print(20*'=')
     print()
-````
+::
+
 which will give for each class the Top 3 rules found by Skope Rules.
 
 SkopeRules can also be used as a predictor if you use the "score_top_rules" method :
 
-```python
+.. code:: python
 from sklearn.datasets import load_boston
 from skrules import SkopeRules
 from sklearn.metrics import precision_recall_curve
@@ -95,7 +96,7 @@ plt.xlabel('Recall')
 plt.ylabel('Precision')
 plt.title('Precision Recall curve')
 plt.show()
-```
+::
 
 
 For more examples and use cases check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_
