@@ -33,9 +33,9 @@ Installation
 ------------
 
 You can get the latest sources with the command:
-.. code:: bash
- pip install skope-rules
-::
+
+    pip install skope-rules
+
    
 Quick Start
 ------------
