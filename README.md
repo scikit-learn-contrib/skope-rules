@@ -75,12 +75,11 @@ SkopeRules can also be used as a predictor if you use the "score_top_rules" meth
 .. code:: python
 
     from sklearn.datasets import load_boston
-    from skrules import SkopeRules
     from sklearn.metrics import precision_recall_curve
     from matplotlib import pyplot as plt
+    from skrules import SkopeRules
     
     dataset = load_boston()
-    
     clf = SkopeRules(max_depth_duplication=None,
                      n_estimators=30,
                      precision_min=0.2,
