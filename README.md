@@ -98,7 +98,7 @@ plt.show()
 ```
 
 
-For more examples and use cases check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
+For more examples and use cases check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_
 
 Links with existing litterature
 -------------------------------
