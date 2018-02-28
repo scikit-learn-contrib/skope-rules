@@ -41,7 +41,7 @@ Quick Start
 ------------
 
 SkopeRules can be used to describe classes with logical rules.
-This is a quick code example on Iris Dataset : 
+This is a quick code example on Iris Dataset which will give for each class the Top 3 rules found by Skope Rules : 
 
 .. code:: python
 
@@ -67,8 +67,6 @@ This is a quick code example on Iris Dataset :
         print(20*'=')
         print()
 ::
-
-which will give for each class the Top 3 rules found by Skope Rules.
 
 SkopeRules can also be used as a predictor if you use the "score_top_rules" method :
 
