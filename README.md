@@ -44,9 +44,7 @@ You can get the latest sources with pip :
 Quick Start
 ------------
 
-SkopeRules can be used to describe classes with logical rules.
-This is a code example on Iris Dataset. 
-It gives the Top 3 rules found by SkopeRules for each species:
+SkopeRules can be used to describe classes with logical rules :
 
 .. code:: python
 
