@@ -17,17 +17,95 @@
 .. |Python35| image:: https://img.shields.io/badge/python-3.5-blue.svg
 .. _Python35: https://badge.fury.io/py/skope-rules
 
+.. image:: logo.png
 
 skope-rules
 ===========
 
-skope-rules is a Python machine learning module built on top of
+Skope-rules is a Python machine learning module built on top of
 scikit-learn and distributed under the 3-Clause BSD license.
 
-It aims at learning logical, interpretable rules for "scoping" a target
+Skope-rules aims at learning logical, interpretable rules for "scoping" a target
 class, i.e. detecting with high precision instances of this class.
 
+Skope-rules is a trade off between the interpretability of a Decision Tree
+and the modelization power of a Random Forest.
+
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
+
+.. image:: schema.png
+
+
+Installation
+------------
+
+You can get the latest sources with pip :
+
+    pip install skope-rules
+
+   
+Quick Start
+------------
+
+SkopeRules can be used to describe classes with logical rules :
+
+.. code:: python
+
+    from sklearn.datasets import load_iris
+    from skrules import SkopeRules
+    
+    dataset = load_iris()
+    feature_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+    clf = SkopeRules(max_depth_duplication=2,
+                     n_estimators=30,
+                     precision_min=0.3,
+                     recall_min=0.1,
+                     feature_names=feature_names)
+    
+    for idx, species in enumerate(dataset.target_names):
+        X, y = dataset.data, dataset.target
+        clf.fit(X, y == idx)
+        rules = clf.rules_[0:3]
+        print("Rules for iris", species)
+        for rule in rules:
+            print(rule)
+        print()
+        print(20*'=')
+        print()
+::
+
+SkopeRules can also be used as a predictor if you use the "score_top_rules" method :
+
+.. code:: python
+
+    from sklearn.datasets import load_boston
+    from sklearn.metrics import precision_recall_curve
+    from matplotlib import pyplot as plt
+    from skrules import SkopeRules
+    
+    dataset = load_boston()
+    clf = SkopeRules(max_depth_duplication=None,
+                     n_estimators=30,
+                     precision_min=0.2,
+                     recall_min=0.01,
+                     feature_names=dataset.feature_names)
+    
+    X, y = dataset.data, dataset.target > 25
+    X_train, y_train = X[:len(y)//2], y[:len(y)//2]
+    X_test, y_test = X[len(y)//2:], y[len(y)//2:]
+    clf.fit(X_train, y_train)
+    y_score = clf.score_top_rules(X_test) # Get a risk score for each test example
+    precision, recall, _ = precision_recall_curve(y_test, y_score)
+    plt.plot(recall, precision)
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision Recall curve')
+    plt.show()
+::
+
+
+For more examples and use cases please check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
+You can also check the `demonstration notebooks <notebooks/>`_.
 
 Links with existing litterature
 -------------------------------
@@ -69,12 +147,6 @@ skope-rules requires:
 
 For running the examples Matplotlib >= 1.1.1 is required.
 
-Installation
-------------
-
-You can get the latest sources with the command::
-
-    pip install skope-rules
     
 Documentation
 --------------
