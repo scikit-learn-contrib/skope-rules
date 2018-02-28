@@ -33,6 +33,9 @@ and the modelization power of a Random Forest.
 
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
+.. image:: schema.png
+
+
 Installation
 ------------
 
