@@ -1,3 +1,8 @@
+def replace_feature_name(rule, replace_dict):
+    for key, value in replace_dict.items():
+        rule = rule.replace(key, value)
+    return rule
+
 class Rule:
     """ An object modelizing a logical rule and add factorization methods.
     It is used to simplify rules and deduplicate them.
@@ -56,3 +61,4 @@ class Rule:
                 [feature, symbol, str(self.agg_dict[(feature, symbol)])])
                 for feature, symbol in sorted(self.agg_dict.keys())
                 ])
+
