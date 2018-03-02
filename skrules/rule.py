@@ -1,3 +1,13 @@
+import re
+
+def replace_feature_name(rule, replace_dict):
+    def replace(match):
+        return replace_dict[match.group(0)]
+
+    rule = re.sub('|'.join(r'\b%s\b' % re.escape(s) for s in replace_dict),
+           replace, rule)
+    return rule
+
 class Rule:
     """ An object modelizing a logical rule and add factorization methods.
     It is used to simplify rules and deduplicate them.
@@ -56,3 +66,4 @@ class Rule:
                 [feature, symbol, str(self.agg_dict[(feature, symbol)])])
                 for feature, symbol in sorted(self.agg_dict.keys())
                 ])
+
