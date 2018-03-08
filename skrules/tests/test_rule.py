@@ -1,6 +1,6 @@
 from sklearn.utils.testing import assert_equal, assert_not_equal
 
-from skrules import Rule, replace_feature_name
+from skrules import Rule
 
 
 def test_rule():
@@ -53,13 +53,3 @@ def test_equals_rule():
 
     rule3 = "a < 3.0 and a == a"
     assert_equal(rule3, str(Rule(rule3)))
-
-
-def test_replace_feature_name():
-    rule = "__C__0 <= 3 and __C__1 > 4"
-    real_rule = "$b <= 3 and c(4) > 4"
-    replace_dict = {
-                    "__C__0": "$b",
-                    "__C__1": "c(4)"
-                    }
-    assert_equal(replace_feature_name(rule, replace_dict=replace_dict), real_rule)
