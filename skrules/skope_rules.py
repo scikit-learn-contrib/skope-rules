@@ -12,10 +12,10 @@ from sklearn.ensemble import BaggingClassifier, BaggingRegressor
 from sklearn.externals import six
 from sklearn.tree import _tree
 
-from .rule import Rule, replace_feature_name
+from .rule import Rule
 
 INTEGER_TYPES = (numbers.Integral, np.integer)
-BASE_FEATURE_NAME = "__C__"
+
 
 class SkopeRules(BaseEstimator):
     """ An easy-interpretable classifier optimizing simple logical rules.
@@ -249,17 +249,11 @@ class SkopeRules(BaseEstimator):
         self.estimators_samples_ = []
         self.estimators_features_ = []
 
-        # default columns names :
-        feature_names_ = [BASE_FEATURE_NAME + x for x in
-                            np.arange(X.shape[1]).astype(str)]
-        if self.feature_names is not None:
-            self.feature_dict_ = {BASE_FEATURE_NAME + str(i): feat
-                                  for i, feat in enumerate(self.feature_names)}
-        else:
-            self.feature_dict_ = {BASE_FEATURE_NAME + str(i): feat
-                                  for i, feat in enumerate(feature_names_)}
+        # default columns names of the form ['c0', 'c1', ...]:
+        feature_names_ = (self.feature_names if self.feature_names is not None
+                          else ['c' + x for x in
+                                np.arange(X.shape[1]).astype(str)])
         self.feature_names_ = feature_names_
-
         clfs = []
         regs = []
 
@@ -362,10 +356,6 @@ class SkopeRules(BaseEstimator):
             for rule in
             [Rule(r, args=args) for r, args in rules_]]
 
-
-
-
-
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
             if score[0] >= self.precision_min and score[1] >= self.recall_min:
@@ -387,14 +377,7 @@ class SkopeRules(BaseEstimator):
         # Deduplicate the rule using semantic tree
         if self.max_depth_duplication is not None:
             self.rules_ = self.deduplicate(self.rules_)
-
         self.rules_ = sorted(self.rules_, key=lambda x: - self.f1_score(x))
-        self.rules_without_feature_names_ = self.rules_
-
-        # Replace generic feature names by real feature names
-        self.rules_ = [(replace_feature_name(rule, self.feature_dict_), perf)
-                  for rule, perf in self.rules_]
-
         return self
 
     def predict(self, X):
@@ -449,7 +432,7 @@ class SkopeRules(BaseEstimator):
                              % (X.shape[1], self.n_features_))
 
         df = pandas.DataFrame(X, columns=self.feature_names_)
-        selected_rules = self.rules_without_feature_names_
+        selected_rules = self.rules_
 
         scores = np.zeros(X.shape[0])
         for (r, w) in selected_rules:
