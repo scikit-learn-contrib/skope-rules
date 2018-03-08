@@ -532,7 +532,7 @@ class SkopeRules(BaseEstimator):
                              % (X.shape[1], self.n_features_))
 
         df = pandas.DataFrame(X, columns=self.feature_names_)
-        selected_rules = self.rules_
+        selected_rules = self.rules_without_feature_names_
 
         scores = np.zeros(X.shape[0])
         for (k, r) in enumerate(list((selected_rules))):
