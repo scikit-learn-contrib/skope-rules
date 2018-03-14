@@ -17,7 +17,7 @@
 .. |Python35| image:: https://img.shields.io/badge/python-3.5-blue.svg
 .. _Python35: https://badge.fury.io/py/skope-rules
 
-.. image:: logo.png
+.. image:: ressources/logo.png
 
 skope-rules
 ===========
@@ -33,13 +33,17 @@ and the modelization power of a Random Forest.
 
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
-.. image:: schema.png
+.. image:: ressources/schema.png
 
+One of the original contribution of the package is the use of a semantic deduplication tree.
+for getting rules that cover different subspaces.
+
+.. image:: ressources/semantic_deduplication_tree.png
 
 Installation
 ------------
 
-You can get the latest sources with pip :
+You can get the latest stable version with pip :
 
     pip install skope-rules
 
