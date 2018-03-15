@@ -34,10 +34,14 @@ and the modelization power of a Random Forest.
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
 .. image:: ressources/schema.png
+
 |
+
 One of the original contribution of the package is the use of a semantic deduplication tree.
 It ensures that rules are diversified by design.
+
 |
+
 .. image:: ressources/semantic_deduplication_tree.png
 
 Installation
