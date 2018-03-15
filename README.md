@@ -38,7 +38,7 @@ See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 |
 
 One of the original contribution of the package is the use of a semantic deduplication tree.
-It ensures that rules are diversified by design.
+It ensures that rules are diversified by design :
 
 |
 
