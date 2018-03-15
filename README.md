@@ -38,7 +38,7 @@ See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 One of the original contribution of the package is the use of a semantic deduplication tree.
 for getting rules that cover different subspaces.
 
-.. image:: ressources/semantic_deduplication_tree_schema.png
+.. image:: ressources/semantic_deduplication_tree.png
 
 Installation
 ------------
