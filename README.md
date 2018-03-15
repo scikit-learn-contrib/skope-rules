@@ -17,7 +17,7 @@
 .. |Python35| image:: https://img.shields.io/badge/python-3.5-blue.svg
 .. _Python35: https://badge.fury.io/py/skope-rules
 
-.. image:: logo.png
+.. image:: ressources/logo.png
 
 skope-rules
 ===========
@@ -31,15 +31,25 @@ class, i.e. detecting with high precision instances of this class.
 Skope-rules is a trade off between the interpretability of a Decision Tree
 and the modelization power of a Random Forest.
 
-See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
-.. image:: schema.png
+.. image:: ressources/schema.png
+
+|
+
+One of the original contribution of the package is the use of a semantic deduplication tree.
+It ensures that rules are diversified by design :
+
+|
+
+.. image:: ressources/semantic_deduplication_tree_schema.png
+
+See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
 
 Installation
 ------------
 
-You can get the latest sources with pip :
+You can get the latest stable version with pip :
 
     pip install skope-rules
 
@@ -74,7 +84,7 @@ SkopeRules can be used to describe classes with logical rules :
         print()
 ::
 
-SkopeRules can also be used as a predictor if you use the "score_top_rules" method :
+SkopeRules can also be used as a predictor if you use the *score_top_rules* method :
 
 .. code:: python
 
