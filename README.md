@@ -41,7 +41,7 @@ It ensures that rules are diversified by design :
 
 |
 
-.. image:: ressources/semantic_deduplication_tree.png
+.. image:: ressources/semantic_deduplication_tree_schema.png
 
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
