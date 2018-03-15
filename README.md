@@ -31,7 +31,6 @@ class, i.e. detecting with high precision instances of this class.
 Skope-rules is a trade off between the interpretability of a Decision Tree
 and the modelization power of a Random Forest.
 
-See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
 .. image:: ressources/schema.png
 
@@ -43,6 +42,9 @@ It ensures that rules are diversified by design :
 |
 
 .. image:: ressources/semantic_deduplication_tree.png
+
+See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
+
 
 Installation
 ------------
