@@ -84,7 +84,7 @@ SkopeRules can be used to describe classes with logical rules :
         print()
 ::
 
-SkopeRules can also be used as a predictor if you use the "score_top_rules" method :
+SkopeRules can also be used as a predictor if you use the *score_top_rules* method :
 
 .. code:: python
 
