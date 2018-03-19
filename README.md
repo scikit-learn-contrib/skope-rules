@@ -43,8 +43,24 @@ It ensures that rules are diversified by design :
 
 .. image:: ressources/semantic_deduplication_tree_schema.png
 
-See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
+As described in the previous schema the deduplication algorithm construct a ternary tree 
+of depth *max_depth_duplication* that classify rules in subgroups that are semantically related.
+The nodes represent the most represented 
+variables in the rule set remaining in the current node.
+The edges differentiates the semantic
+possibilities. The three possibilities are : 
 
+- The rule use the variable and the term that contains it looks like : "variable <= value"
+- The rule use the variable and the term that contains it looks like : "variable > value"
+- We don't use the variable in the rule
+ 
+(Nb : a rule can take two different decision path if it uses the same variables 
+twice with a different symbol).
+At the end each leave is composed of a set of rules that look alike. The algorithm
+just take the best rule in each leave in term of OOB f1-score. At the end it makes sure
+that the generated rules set is heterogeneous and is relatively small.
+
+See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
 Installation
 ------------
