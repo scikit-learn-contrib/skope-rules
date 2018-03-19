@@ -22,13 +22,13 @@
 skope-rules
 ===========
 
-Skope-rules is a Python machine learning module built on top of
+- Skope-rules is a Python machine learning module built on top of
 scikit-learn and distributed under the 3-Clause BSD license.
 
-Skope-rules aims at learning logical, interpretable rules for "scoping" a target
+- Skope-rules aims at learning logical, interpretable rules for "scoping" a target
 class, i.e. detecting with high precision instances of this class.
 
-Skope-rules is a trade off between the interpretability of a Decision Tree
+- Skope-rules is a trade off between the interpretability of a Decision Tree
 and the modelization power of a Random Forest.
 
 
@@ -36,14 +36,20 @@ and the modelization power of a Random Forest.
 
 |
 
-One of the original contribution of the package is the use of a semantic deduplication tree.
-It ensures that rules are diversified by design :
+The previous figure explains that skope-rules trains a tree based bagging estimator 
+for a binary classification problem. It then
+extract and filter rules from this estimator based on minimum precision/recall 
+thresholds.
+
+One of the original contribution of the package is the optional use of another layer of filtering. 
+It uses what we call a "semantic deduplication tree".
+This ensures that rules are diversified by design :
 
 |
 
 .. image:: ressources/semantic_deduplication_tree_schema.png
 
-As described in the previous schema the deduplication algorithm construct a ternary tree 
+As described in the previous figure the deduplication algorithm construct a ternary tree 
 of depth *max_depth_duplication* that classify rules in subgroups that are semantically related.
 The tree nodes represent the most represented variables in the rule set remaining in the current node.
 The tree edges differentiates three possibilities for a rule : 
