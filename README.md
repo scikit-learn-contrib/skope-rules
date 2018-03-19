@@ -42,7 +42,7 @@ extract and filter rules from this estimator based on minimum precision/recall
 thresholds.
 
 One of the original contribution of the package is the optional use of another layer of filtering. 
-It uses a semantic rule deduplication module which ensures that rules are diversified by design :
+It uses a *semantic rule deduplication* module which ensures that rules are diversified by design :
 
 |
 
