@@ -107,12 +107,12 @@ SkopeRules can also be used as a predictor if you use the "score_top_rules" meth
 For more examples and use cases please check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
 You can also check the `demonstration notebooks <notebooks/>`_.
 
-Links with existing litterature
+Links with existing literature
 -------------------------------
 
 The main advantage of decision rules is that they are offering interpretable models. The problem of generating such rules has been widely considered in machine learning, see e.g. RuleFit [1], Slipper [2], LRI [3], MLRules[4].
 
-A decision rule is a logical expression of the form "IF conditions THEN reponse". In a binary classification setting, if an instance satisfies conditions of the rule, then it is assigned to one of the two classes. If this instance does not satisfy conditions, it remains unassigned.
+A decision rule is a logical expression of the form "IF conditions THEN response". In a binary classification setting, if an instance satisfies conditions of the rule, then it is assigned to one of the two classes. If this instance does not satisfy conditions, it remains unassigned.
 
 1) In [2, 3, 4], rules induction is done by considering each single decision rule as a base classifier in an ensemble, which is built by greedily minimizing some loss function.
 
@@ -153,4 +153,4 @@ Documentation
 
 You can access the full project documentation `here <http://skope-rules.readthedocs.io/en/latest/>`_
 
-You can also check the notebooks/ folder which contains some examples of utilisation.
+You can also check the notebooks/ folder which contains some examples of utilization.
