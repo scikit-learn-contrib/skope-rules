@@ -107,7 +107,7 @@ SkopeRules can also be used as a predictor if you use the "score_top_rules" meth
 For more examples and use cases please check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
 You can also check the `demonstration notebooks <notebooks/>`_.
 
-Links with existing litterature
+Links with existing literature
 -------------------------------
 
 The main advantage of decision rules is that they are offering interpretable models. The problem of generating such rules has been widely considered in machine learning, see e.g. RuleFit [1], Slipper [2], LRI [3], MLRules[4].
