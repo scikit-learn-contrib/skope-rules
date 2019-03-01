@@ -227,3 +227,4 @@ def test_f1_score():
     assert_equal(clf.f1_score(rule0), 0)
     assert_equal(clf.f1_score(rule1), 0.5)
     assert_equal(clf.f1_score(rule2), 0)
+

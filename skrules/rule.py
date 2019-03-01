@@ -29,7 +29,7 @@ class Rule:
         self.terms = [t.split(' ') for t in self.rule.split(' and ')]
         self.agg_dict = {}
         self.factorize()
-        self.rule = str(self)
+        self.importances_dict = None
 
     def __eq__(self, other):
         return self.agg_dict == other.agg_dict
@@ -37,6 +37,9 @@ class Rule:
     def __hash__(self):
         # FIXME : Easier method ?
         return hash(tuple(sorted(((i, j) for i, j in self.agg_dict.items()))))
+
+    def reorder_by_importance(self, importances_dict):
+        self.importances_dict = importances_dict
 
     def factorize(self):
         for feature, symbol, value in self.terms:
@@ -62,8 +65,13 @@ class Rule:
         yield self.args
 
     def __repr__(self):
+        # Sort by importance dict if it exists
+        keys = sorted(self.agg_dict.keys())
+        if self.importances_dict is not None:
+            keys = sorted(keys, key=lambda x: -self.importances_dict[x[0]])
+
         return ' and '.join([' '.join(
                 [feature, symbol, str(self.agg_dict[(feature, symbol)])])
-                for feature, symbol in sorted(self.agg_dict.keys())
+                for feature, symbol in keys
                 ])
 

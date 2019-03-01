@@ -356,15 +356,30 @@ class SkopeRules(BaseEstimator):
                                    for r in set(rules_from_tree)]
                 rules_ += rules_from_tree
 
-        # Factorize rules before semantic tree filtering
+        # Calculate feature importance
+        feature_importance_raw = [tree.feature_importances_ for tree in bagging_clf.estimators_]
+        estimators_features_ = bagging_clf.estimators_features_ # not all features are used
+        feature_importance = np.zeros((len(feature_importance_raw), self.n_features_))
+
+        # FIXME : How to avoid this nested loop here ?
+        for idx1, row in enumerate(feature_importance):
+            for col, val in zip(estimators_features_[idx1], feature_importance_raw[idx1]):
+                feature_importance[idx1, col] = val
+
+        self.feature_importance_mean_ = np.mean(feature_importance, axis=0)
+        # Create feature importance dict
+        self.feature_importance_dict_ = {feat: self.feature_importance_mean_[idx]
+                                         for idx, feat in enumerate(self.feature_names_)}
+
+        # Factorize rules before semantic tree filtering and sort terms per importance
+        rule_objects = [Rule(r, args=args) for r, args in rules_]
+        for rule in rule_objects:
+            rule.reorder_by_importance(self.feature_importance_dict_)
+
         rules_ = [
             tuple(rule)
-            for rule in
-            [Rule(r, args=args) for r, args in rules_]]
-
-
-
-
+            for rule in rule_objects
+            ]
 
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:

@@ -63,3 +63,12 @@ def test_replace_feature_name():
                     "__C__1": "c(4)"
                     }
     assert_equal(replace_feature_name(rule, replace_dict=replace_dict), real_rule)
+
+
+def test_order_per_importance():
+    importances = {"a" : 0.1, "b": 0.2}
+    rule = "a > 2.0 and b <= 1.0"
+    expected_rule = "b <= 1.0 and a > 2.0"
+    rule_object = Rule(rule)
+    rule_object.reorder_by_importance(importances)
+    assert_equal(str(rule_object), expected_rule)
