@@ -22,13 +22,13 @@
 skope-rules
 ===========
 
-Skope-rules is a Python machine learning module built on top of
+*Skope-rules* is a Python machine learning module built on top of
 scikit-learn and distributed under the 3-Clause BSD license.
 
-Skope-rules aims at learning logical, interpretable rules for "scoping" a target
+*Skope-rules* aims at learning logical, interpretable rules for "scoping" a target
 class, i.e. detecting with high precision instances of this class.
 
-Skope-rules is a trade off between the interpretability of a Decision Tree
+*Skope-rules* is a trade off between the interpretability of a Decision Tree
 and the modelization power of a Random Forest.
 
 
@@ -36,15 +36,35 @@ and the modelization power of a Random Forest.
 
 |
 
-One of the original contribution of the package is the use of a semantic deduplication tree.
-It ensures that rules are diversified by design :
+As illustrated in the above figure, the idea behind skope-rules is to fit a tree based
+bagging estimator for a binary classification problem. 
+A set of rules is then extracted from this tree ensemble, and rules are filtered using
+thresholds on precision and recall.
+
+One of the original contribution of the package is the optional use of another layer of filtering. 
+It uses a *semantic rule deduplication* module which ensures that rules are diversified by design :
 
 |
 
 .. image:: ressources/semantic_deduplication_tree_schema.png
 
-See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
+As described in the previous figure the deduplication algorithm constructs a ternary tree 
+of depth *max_depth_duplication* that classifies rules in subgroups that are semantically related.
+The tree nodes represent the most represented variables in the rule set remaining in the current node.
+The tree edges differentiates three possibilities for a rule : 
 
+- The rule use the variable and the term that contains it looks like : "variable <= value"
+- The rule use the variable and the term that contains it looks like : "variable > value"
+- We don't use the variable in the rule
+ 
+(Nb : a rule can take two different decision path if it uses the same variables 
+twice with a different symbol).
+
+Each leave defines a set of rules. The algorithm
+just selects the best rule in each leave in terms of OOB f1-score.
+It remains a few and heterogeneous rules.
+
+See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
 
 Installation
 ------------
