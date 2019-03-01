@@ -153,4 +153,5 @@ Documentation
 
 You can access the full project documentation `here <http://skope-rules.readthedocs.io/en/latest/>`_
 
+
 You can also check the notebooks/ folder which contains some examples of utilization.
