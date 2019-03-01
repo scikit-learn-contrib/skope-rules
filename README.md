@@ -36,10 +36,10 @@ and the modelization power of a Random Forest.
 
 |
 
-The previous figure explains that skope-rules trains a tree based bagging estimator 
-for a binary classification problem. It then
-extract and filter rules from this estimator based on minimum precision/recall 
-thresholds.
+As illustrated in the above figure, the idea behind skope-rules is to fit a tree based
+bagging estimator for a binary classification problem. 
+A set of rules is then extracted from this tree ensemble, and rules are filtered using
+thresholds on precision and recall.
 
 One of the original contribution of the package is the optional use of another layer of filtering. 
 It uses a *semantic rule deduplication* module which ensures that rules are diversified by design :
@@ -48,7 +48,7 @@ It uses a *semantic rule deduplication* module which ensures that rules are dive
 
 .. image:: ressources/semantic_deduplication_tree_schema.png
 
-As described in the previous figure the deduplication algorithm construct a ternary tree 
+As described in the previous figure the deduplication algorithm constructs a ternary tree 
 of depth *max_depth_duplication* that classify rules in subgroups that are semantically related.
 The tree nodes represent the most represented variables in the rule set remaining in the current node.
 The tree edges differentiates three possibilities for a rule : 
