@@ -49,7 +49,7 @@ It uses a *semantic rule deduplication* module which ensures that rules are dive
 .. image:: ressources/semantic_deduplication_tree_schema.png
 
 As described in the previous figure the deduplication algorithm constructs a ternary tree 
-of depth *max_depth_duplication* that classify rules in subgroups that are semantically related.
+of depth *max_depth_duplication* that classifies rules in subgroups that are semantically related.
 The tree nodes represent the most represented variables in the rule set remaining in the current node.
 The tree edges differentiates three possibilities for a rule : 
 
@@ -61,7 +61,7 @@ The tree edges differentiates three possibilities for a rule :
 twice with a different symbol).
 
 Each leave defines a set of rules. The algorithm
-just take the best rule in each leave in terms of OOB f1-score.
+just selects the best rule in each leave in terms of OOB f1-score.
 It remains a few and heterogeneous rules.
 
 See the `AUTHORS.rst <AUTHORS.rst>`_ file for a list of contributors.
