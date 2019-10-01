@@ -36,7 +36,7 @@ def load_credit_data():
         _fetch_remote(archive, dirname=sk_data_dir)
 
     data = pd.read_excel(join(sk_data_dir, archive.filename),
-                         sheetname='Data', header=1)
+                         'Data', header=1)
 
     dataset = Bunch(
         data=(data.drop('default payment next month', axis=1)),
