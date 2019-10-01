@@ -17,7 +17,7 @@ except ImportError:
 setup(name='skope-rules',
       version='1.0.0',
       description='Machine Learning with Interpretable Rules',
-      url='https://github.com/skope-rules/skope-rules',
+      url='https://github.com/scikit-learn-contrib/skope-rules',
       author='see AUTHORS.rst',
       license='BSD 3 clause',
       packages=find_packages(),

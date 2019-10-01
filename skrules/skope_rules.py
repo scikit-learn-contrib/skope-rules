@@ -17,8 +17,9 @@ from .rule import Rule, replace_feature_name
 INTEGER_TYPES = (numbers.Integral, np.integer)
 BASE_FEATURE_NAME = "__C__"
 
+
 class SkopeRules(BaseEstimator):
-    """ An easy-interpretable classifier optimizing simple logical rules.
+    """An easy-interpretable classifier optimizing simple logical rules.
 
     Parameters
     ----------
@@ -161,8 +162,6 @@ class SkopeRules(BaseEstimator):
         self.bootstrap = bootstrap
         self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
-        self.max_depths = max_depth \
-            if isinstance(max_depth, Iterable) else [max_depth]
         self.max_depth_duplication = max_depth_duplication
         self.max_features = max_features
         self.min_samples_split = min_samples_split
@@ -251,7 +250,7 @@ class SkopeRules(BaseEstimator):
 
         # default columns names :
         feature_names_ = [BASE_FEATURE_NAME + x for x in
-                            np.arange(X.shape[1]).astype(str)]
+                          np.arange(X.shape[1]).astype(str)]
         if self.feature_names is not None:
             self.feature_dict_ = {BASE_FEATURE_NAME + str(i): feat
                                   for i, feat in enumerate(self.feature_names)}
@@ -263,7 +262,10 @@ class SkopeRules(BaseEstimator):
         clfs = []
         regs = []
 
-        for max_depth in self.max_depths:
+        self._max_depths = self.max_depth \
+            if isinstance(self.max_depth, Iterable) else [self.max_depth]
+
+        for max_depth in self._max_depths:
             bagging_clf = BaggingClassifier(
                 base_estimator=DecisionTreeClassifier(
                     max_depth=max_depth,
@@ -362,10 +364,6 @@ class SkopeRules(BaseEstimator):
             for rule in
             [Rule(r, args=args) for r, args in rules_]]
 
-
-
-
-
         # keep only rules verifying precision_min and recall_min:
         for rule, score in rules_:
             if score[0] >= self.precision_min and score[1] >= self.recall_min:
@@ -393,7 +391,7 @@ class SkopeRules(BaseEstimator):
 
         # Replace generic feature names by real feature names
         self.rules_ = [(replace_feature_name(rule, self.feature_dict_), perf)
-                  for rule, perf in self.rules_]
+                       for rule, perf in self.rules_]
 
         return self
 
