@@ -334,7 +334,9 @@ class SkopeRules(BaseEstimator):
                                                 self.estimators_features_):
 
             # Create mask for OOB samples
-            mask = ~samples
+#             mask = ~samples # samples is numpy array. when you put ~. it returns array([-(value_1 + 1), ..., -(value_n + 1)])
+            mask = list(set(np.arange(len(samples))).difference(samples)
+            
             if sum(mask) == 0:
                 warn("OOB evaluation not possible: doing it in-bag."
                      " Performance evaluation is likely to be wrong"
