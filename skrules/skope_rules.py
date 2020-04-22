@@ -7,6 +7,7 @@ from warnings import warn
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils import indices_to_mask
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.ensemble import BaggingClassifier, BaggingRegressor
 from sklearn.externals import six
@@ -335,8 +336,7 @@ class SkopeRules(BaseEstimator):
 
             # Create mask for OOB samples
             # mask = ~samples # samples is numpy array. when you put ~. it returns array([-(value_1 + 1), ..., -(value_n + 1)])
-            mask = list(set(np.arange(len(samples))).difference(samples))
-            
+            mask = ~indices_to_mask(samples, n_samples)            
                         
             if sum(mask) == 0:
                 warn("OOB evaluation not possible: doing it in-bag."
