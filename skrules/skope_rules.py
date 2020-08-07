@@ -17,6 +17,10 @@ from .rule import (Rule, replace_feature_name,
                    get_confusionMatrix, f1_score, mcc_score,
                    precision, recall)
 
+from .utils import (check_filtering_criteria, check_deduplication_criterion,
+                    check_myfunc, check_consistency,
+                    check_max_depth_duplication, check_max_samples)
+
 INTEGER_TYPES = (numbers.Integral, np.integer)
 BASE_FEATURE_NAME = "__C__"
 
@@ -167,13 +171,20 @@ class SkopeRules(BaseEstimator):
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
+        check_filtering_criteria(filtering_criteria)
         self.filtering_criteria = filtering_criteria
+        check_deduplication_criterion(deduplication_criterion)
         self.deduplication_criterion = deduplication_criterion
+        check_myfunc(myfunc)
         if myfunc is not None:
             # Enable rule as arguments (r[1]==(tn, fp, fn, tp))
             self.myfunc = lambda r: myfunc(*r[1])
         else:
             self.myfunc = None
+        check_consistency(self.myfunc,
+                          self.deduplication_criterion,
+                          self.filtering_criteria
+                          )
         self.feature_names = feature_names
         self.n_estimators = n_estimators
         self.max_samples = max_samples
@@ -181,6 +192,7 @@ class SkopeRules(BaseEstimator):
         self.bootstrap = bootstrap
         self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
+        check_max_depth_duplication(max_depth_duplication)
         self.max_depth_duplication = max_depth_duplication
         self.max_features = max_features
         self.min_samples_split = min_samples_split
@@ -225,10 +237,6 @@ class SkopeRules(BaseEstimator):
                              " in the data, but the data contains only one"
                              " class: %r" % self.classes_[0])
 
-        if not isinstance(self.max_depth_duplication, int) \
-                and self.max_depth_duplication is not None:
-            raise ValueError("max_depth_duplication should be an integer"
-                             )
         if not set(self.classes_) == set([0, 1]):
             warn("Found labels %s. This method assumes target class to be"
                  " labeled as 1 and normal data to be labeled as 0. Any label"
@@ -239,28 +247,7 @@ class SkopeRules(BaseEstimator):
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
-
-        if isinstance(self.max_samples, six.string_types):
-            raise ValueError('max_samples (%s) is not supported.'
-                             'Valid choices are: "auto", int or'
-                             'float' % self.max_samples)
-
-        elif isinstance(self.max_samples, INTEGER_TYPES):
-            if self.max_samples > n_samples:
-                warn("max_samples (%s) is greater than the "
-                     "total number of samples (%s). max_samples "
-                     "will be set to n_samples for estimation."
-                     % (self.max_samples, n_samples))
-                max_samples = n_samples
-            else:
-                max_samples = self.max_samples
-        else:  # float
-            if not (0. < self.max_samples <= 1.):
-                raise ValueError("max_samples must be in (0, 1], got %r"
-                                 % self.max_samples)
-            max_samples = int(self.max_samples * X.shape[0])
-
-        self.max_samples_ = max_samples
+        self.max_samples_ = check_max_samples(self.max_samples, n_samples)
 
         self.rules_ = {}
         self.estimators_ = []
