@@ -91,7 +91,7 @@ def get_confusionMatrix(rule, X, y):
         tuple: confusion matrix 
     """
     # not using confusion_matrix function from sklearn.metrics
-    # for computation time perfs
+    # for computation time perfs reasons
     n_samples = y.shape[0]
 
     detected_indices = list(X.query(rule).index)

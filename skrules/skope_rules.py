@@ -31,11 +31,21 @@ class SkopeRules(BaseEstimator):
         The names of each feature to be used for returning rules in string
         format.
 
-    precision_min : float, optional (default=0.5)
-        The minimal precision of a rule to be selected.
-
-    recall_min : float, optional (default=0.01)
-        The minimal recall of a rule to be selected.
+    filtering_criteria: dict, optional
+                        default={'precision': 0.5, 'recall': 0.01}
+        The criteria to be used for filtering the rules.
+        In the form {criterion: min_value}.
+        The keys can be among ('precision', 'recall', 'f1', 'mcc', 'myfunc').
+    
+    deduplication_criterion: str, optional (default='f1')
+        The criterion to be used for deduplicating the rules.
+        Either 'f1', 'mcc' or 'myfunc'.
+    
+    myfunc: FunctionType, optional (default=None)
+        A personalised function that can be used as either/both a filtering
+        or/and deduplication criterion.
+        Has to take 4 parameters which are supposed to be the confusion matrix
+        elements tn, fp, fn, tp (in that order).
 
     n_estimators : int, optional (default=10)
         The number of base estimators (rules) to use for prediction. More are
@@ -142,8 +152,9 @@ class SkopeRules(BaseEstimator):
 
     def __init__(self,
                  feature_names=None,
-                 precision_min=0.5,
-                 recall_min=0.01,
+                 filtering_criteria={'precision': 0.5, 'recall': 0.01},
+                 deduplication_criterion='f1',
+                 myfunc=None,
                  n_estimators=10,
                  max_samples=.8,
                  max_samples_features=1.,
@@ -156,8 +167,13 @@ class SkopeRules(BaseEstimator):
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
-        self.precision_min = precision_min
-        self.recall_min = recall_min
+        self.filtering_criteria = filtering_criteria
+        self.deduplication_criterion = deduplication_criterion
+        if myfunc is not None:
+            # Enable rule as arguments (r[1]==(tn, fp, fn, tp))
+            self.myfunc = lambda r: myfunc(*r[1])
+        else:
+            self.myfunc = None
         self.feature_names = feature_names
         self.n_estimators = n_estimators
         self.max_samples = max_samples
@@ -338,7 +354,7 @@ class SkopeRules(BaseEstimator):
 
             # Create mask for OOB samples
             mask = ~indices_to_mask(samples, n_samples)
-            if sum(mask) == 0:
+            if np.sum(mask) == 0:
                 warn("OOB evaluation not possible: doing it in-bag."
                      " Performance evaluation is likely to be wrong"
                      " (overfitting) and selected rules are likely to"
@@ -363,18 +379,34 @@ class SkopeRules(BaseEstimator):
                 rules_ += rules_from_tree
 
         # Factorize rules before semantic tree filtering
-        rules_ = [
-            tuple(rule)
-            for rule in
-            [Rule(r, args=args) for r, args in rules_]]
+        rules_ = [tuple(rule)
+                  for rule in [Rule(r, args=confusionMatrix) 
+                               for r, confusionMatrix in rules_
+                               ]
+                  ]
 
-        # keep only rules verifying precision_min and recall_min:
+        # Filter the rules according to filtering_criteria
         for r in rules_:
             rule_str, confusionMatrix = r
-            if precision(r) >= self.precision_min and recall(r) >= self.recall_min:
+            # retrieve all scores infos about the rule
+            infos_rule = {'precision': precision(r),
+                          'recall': recall(r),
+                          'f1': f1_score(r),
+                          'mcc': mcc_score(r)
+                          }
+            if self.myfunc is not None:
+                infos_rule['myfunc'] = self.myfunc(r)
+            
+            if all(x < y for x, y in 
+                    zip(self.filtering_criteria.values(),
+                        [infos_rule[criterion]
+                         for criterion in self.filtering_criteria
+                         ]
+                        )
+                   ):
                 if rule_str in self.rules_:
                     # update the confusion matrix to the new mean
-                    def update(x, y, z): return round(x + 1./y*(z-x))
+                    def update(x, y, z): return round(x + 1. / y * (z - x))
                     nb = self.rules_[rule_str][1] + 1
                     new_confusionMatrix = [update(self.rules_[rule_str][0][i],
                                                   nb,
@@ -384,20 +416,35 @@ class SkopeRules(BaseEstimator):
                     self.rules_[rule_str] = (new_confusionMatrix, nb)
                 else:
                     self.rules_[rule_str] = (confusionMatrix, 1)
+        
+        # Replace (confusionMatrix, nb) tuple by confusionMatrix
+        for key in self.rules_:
+            self.rules_[key] = self.rules_[key][0]
 
         # Transform dic object into list
         self.rules_ = self.rules_.items()
 
         # Deduplicate the rule using semantic tree
         if self.max_depth_duplication is not None:
-            self.rules_ = self.deduplicate(self.rules_)
+            self.rules_ = self._deduplicate(self.rules_)
 
-        self.rules_ = sorted(self.rules_, key=lambda x: - f1_score(x))
+        # Sort the rules according to deduplication criterion
+        if self.myfunc is None:
+            self.rules_ = sorted(
+                self.rules_,
+                key=globals()[self.deduplication_criterion+'_score'],
+                reverse=True
+                )
+        else:
+            self.rules_ = sorted(self.rules_, key=self.myfunc, reverse=True)
+
         self.rules_without_feature_names_ = self.rules_
 
         # Replace generic feature names by real feature names
-        self.rules_ = [(replace_feature_name(rule, self.feature_dict_), perf)
-                       for rule, perf in self.rules_]
+        self.rules_ = [(replace_feature_name(rule, self.feature_dict_),
+                        args)
+                       for rule, args in self.rules_
+                       ]
 
         return self
 
@@ -456,8 +503,8 @@ class SkopeRules(BaseEstimator):
         selected_rules = self.rules_without_feature_names_
 
         scores = np.zeros(X.shape[0])
-        for (r, w) in selected_rules:
-            scores[list(df.query(r).index)] += precision(r)
+        for (r, args) in selected_rules:
+            scores[list(df.query(r).index)] += precision((r,args))
 
         return scores
 
@@ -617,9 +664,24 @@ class SkopeRules(BaseEstimator):
 
         return rules if len(rules) > 0 else 'True'
 
-    def deduplicate(self, rules):
-        return [max(rules_set, key=f1_score)
-                for rules_set in self._find_similar_rulesets(rules)]
+    def _deduplicate(self, rules):
+        """Select the best rules according to the deduplication_criterion
+        from the clusters of rules built by find_similar_rulesets
+
+        Arguments:
+            rules: list of rules
+
+        Returns:
+            list of rules
+        """
+        if self.myfunc is None:
+            func = globals()[self.deduplication_criterion+'_score']
+        else:
+            func = self.myfunc
+        
+        return [max(rules_set, key=func)
+                for rules_set in self._find_similar_rulesets(rules)
+                ]
 
     def _find_similar_rulesets(self, rules):
         """Create clusters of rules using a decision tree based
