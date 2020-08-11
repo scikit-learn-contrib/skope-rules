@@ -2,6 +2,9 @@
 import re
 import numpy as np
 from sklearn.utils import indices_to_mask
+from decimal import Decimal as D
+
+from .utils import check_features_to_round
 
 
 def replace_feature_name(rule, replace_dict):
@@ -174,3 +177,55 @@ def f1_score(rule):
     r = recall(rule)
 
     return 2*p*r / (p+r) if (p+r) > 0 else 0
+
+
+def round_rule(rule, features_to_round):
+    """Approximate the values of the features of a rule
+    according to a dict containing the features to round.
+
+    Arguments:
+        rule: Rule
+            Tuple containing the rule string and confusion matrix
+
+        features_to_round: dict
+            A dict containing the names of the quantitative features
+            whose values are to be rounded.
+            Should be in the form {var_name: power_of_ten_exponent}
+            with types {str: int/float}.
+            The power_of_ten_exponent should be an int
+            (if float then rounded) either positive or negative.
+            It is the exponent of the power of ten at which the value
+            of the feature is rounded.
+
+            example:
+                - power_of_ten_exponent = 1 => 1357.914 becomes 1.36E+3
+                - power_of_ten_exponent = 0 => 1357.914 becomes 1358
+                - power_of_ten_exponent = -2 => 1357.914 becomes 1357.91
+
+    Returns:
+        rounded rule: str
+            A string representation of the rule with rounded features values.
+    """
+    check_features_to_round(features_to_round)
+    
+    def truncate(n, order=None):
+        if order is not None:
+            power_of_ten = 10**(round(order))
+            return D(str(n)).quantize(D('{:.0e}'.format(power_of_ten)))
+        else:
+            return n
+
+    terms = [t.split(' ') for t in rule[0].split(' and ')]
+
+    for j in range(len(terms)):
+        if terms[j][0] in features_to_round:
+            terms[j][2] = truncate(terms[j][2],
+                                    order=features_to_round[terms[j][0]]
+                                    )
+
+    rounded_rule = ' and '.join([' '.join([elt[0], elt[1], str(elt[2])])
+                                    for elt in terms
+                                    ]
+                                )
+
+    return rounded_rule

@@ -92,3 +92,15 @@ def check_max_samples(max_samples, n_samples):
         max_samples_ = int(max_samples * n_samples)
     
     return max_samples_
+
+
+def check_features_to_round(features_to_round):
+    if features_to_round is not None:
+        if not isinstance(features_to_round, dict):
+            raise TypeError("features_to_round should be a dict")
+        if not all(isinstance(key, str) and isinstance(value, (float, int))
+                   for key, value in features_to_round.items()
+                   ):
+            raise TypeError('features_to_round should see its keys as str '
+                            'and values as int or float (if float then the '
+                            'value will be rounded)')
