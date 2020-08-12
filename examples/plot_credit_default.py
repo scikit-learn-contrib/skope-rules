@@ -151,7 +151,8 @@ plt.show()
 clf = SkopeRules(
     max_depth_duplication=3, max_depth=3, max_features=0.5,
     max_samples_features=0.5, random_state=rng, n_estimators=20,
-    feature_names=feature_names, recall_min=0.04, precision_min=0.6)
+    feature_names=feature_names,
+    filtering_criteria = {'precision': 0.6, 'recall': 0.04})
 clf.fit(X_train, y_train)
 
 # in the score_top_rules method, a score of k means that rule number k
