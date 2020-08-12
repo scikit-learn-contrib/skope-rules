@@ -49,7 +49,7 @@ def check_myfunc(myfunc):
         try:
             if not isinstance(myfunc(0, 0, 0, 0), (float, int)):
                 raise TypeError("myfunc should return a float or an int")
-        except:
+        except TypeError:
             raise TypeError("myfunc should take int as parameters")
 
 
@@ -72,15 +72,15 @@ def check_max_depth_duplication(max_depth_duplication):
 def check_max_samples(max_samples, n_samples):
     if isinstance(max_samples, six.string_types):
         raise ValueError('max_samples (%s) is not supported.'
-                            'Valid choices are: "auto", int or'
-                            'float' % max_samples)
+                         'Valid choices are: "auto", int or'
+                         'float' % max_samples)
 
     elif isinstance(max_samples, INTEGER_TYPES):
         if max_samples > n_samples:
             warn("max_samples (%s) is greater than the "
-                    "total number of samples (%s). max_samples "
-                    "will be set to n_samples for estimation."
-                    % (max_samples, n_samples))
+                 "total number of samples (%s). max_samples "
+                 "will be set to n_samples for estimation."
+                 % (max_samples, n_samples))
             max_samples_ = n_samples
         else:
             max_samples_ = max_samples
@@ -88,9 +88,9 @@ def check_max_samples(max_samples, n_samples):
     else:  # float
         if not (0. < max_samples <= 1.):
             raise ValueError("max_samples must be in (0, 1], got %r"
-                                % max_samples)
+                             % max_samples)
         max_samples_ = int(max_samples * n_samples)
-    
+
     return max_samples_
 
 

@@ -89,16 +89,17 @@ def get_confusionMatrix(rule, X, y):
         y: array-like, shape (n_samples,)
             Target vector relative to X. Has to follow the convention
             0 for normal data, 1 for anomalies
-    
+
     Returns:
-        tuple: confusion matrix 
+        tuple: confusion matrix
     """
     # not using confusion_matrix function from sklearn.metrics
     # for computation time perfs reasons
     n_samples = y.shape[0]
 
     detected_indices = list(X.query(rule).index)
-    if len(detected_indices) < 1: return (0, 0, 0, 0)
+    if len(detected_indices) < 1:
+        return (0, 0, 0, 0)
     y_detected = y[detected_indices]
 
     undetected_indices = ~indices_to_mask(detected_indices, n_samples)
@@ -159,12 +160,13 @@ def mcc_score(rule):
         denominator = np.exp(1/2*denominator)
 
         return numerator/denominator
-    
-    else: return 0
+
+    else:
+        return 0
 
 
 def f1_score(rule):
-    """Compute the F1-score of a given rule 
+    """Compute the F1-score of a given rule
     (harmonic mean of the precision and recall)
 
     Arguments:
@@ -208,7 +210,7 @@ def round_rule(rule, features_to_round):
             A string representation of the rule with rounded features values.
     """
     check_features_to_round(features_to_round)
-    
+
     def truncate(n, order=None):
         if order is not None:
             power_of_ten = 10**(round(order))
@@ -221,12 +223,12 @@ def round_rule(rule, features_to_round):
     for j in range(len(terms)):
         if terms[j][0] in features_to_round:
             terms[j][2] = truncate(terms[j][2],
-                                    order=features_to_round[terms[j][0]]
-                                    )
+                                   order=features_to_round[terms[j][0]]
+                                   )
 
     rounded_rule = ' and '.join([' '.join([elt[0], elt[1], str(elt[2])])
-                                    for elt in terms
-                                    ]
+                                 for elt in terms
+                                 ]
                                 )
 
     return rounded_rule

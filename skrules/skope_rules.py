@@ -40,11 +40,11 @@ class SkopeRules(BaseEstimator):
         The criteria to be used for filtering the rules.
         In the form {criterion: min_value}.
         The keys can be among ('precision', 'recall', 'f1', 'mcc', 'myfunc').
-    
+
     deduplication_criterion: str, optional (default='f1')
         The criterion to be used for deduplicating the rules.
         Either 'f1', 'mcc' or 'myfunc'.
-    
+
     myfunc: FunctionType, optional (default=None)
         A personalised function that can be used as either/both a filtering
         or/and deduplication criterion.
@@ -367,7 +367,7 @@ class SkopeRules(BaseEstimator):
 
         # Factorize rules before semantic tree filtering
         rules_ = [tuple(rule)
-                  for rule in [Rule(r, args=confusionMatrix) 
+                  for rule in [Rule(r, args=confusionMatrix)
                                for r, confusionMatrix in rules_
                                ]
                   ]
@@ -383,8 +383,8 @@ class SkopeRules(BaseEstimator):
                           }
             if self.myfunc is not None:
                 infos_rule['myfunc'] = self.myfunc(r)
-            
-            if all(x < y for x, y in 
+
+            if all(x < y for x, y in
                     zip(self.filtering_criteria.values(),
                         [infos_rule[criterion]
                          for criterion in self.filtering_criteria
@@ -403,7 +403,7 @@ class SkopeRules(BaseEstimator):
                     self.rules_[rule_str] = (new_confusionMatrix, nb)
                 else:
                     self.rules_[rule_str] = (confusionMatrix, 1)
-        
+
         # Replace (confusionMatrix, nb) tuple by confusionMatrix
         for key in self.rules_:
             self.rules_[key] = self.rules_[key][0]
@@ -491,7 +491,7 @@ class SkopeRules(BaseEstimator):
 
         scores = np.zeros(X.shape[0])
         for (r, args) in selected_rules:
-            scores[list(df.query(r).index)] += precision((r,args))
+            scores[list(df.query(r).index)] += precision((r, args))
 
         return scores
 
@@ -665,7 +665,7 @@ class SkopeRules(BaseEstimator):
             func = globals()[self.deduplication_criterion+'_score']
         else:
             func = self.myfunc
-        
+
         return [max(rules_set, key=func)
                 for rules_set in self._find_similar_rulesets(rules)
                 ]

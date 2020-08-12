@@ -117,9 +117,9 @@ def test_skope_rules_error():
     with assert_raises(TypeError):
         SkopeRules(filtering_criteria={}).fit(X, y)
     with assert_raises(ValueError):
-        SkopeRules(filtering_criteria={'foobar':0.}).fit(X, y)
+        SkopeRules(filtering_criteria={'foobar': 0.}).fit(X, y)
     with assert_raises(TypeError):
-        SkopeRules(filtering_criteria={'foo':'bar'}).fit(X, y)
+        SkopeRules(filtering_criteria={'foo': 'bar'}).fit(X, y)
     # check deduplication_criterion errors
     with assert_raises(ValueError):
         SkopeRules(deduplication_criterion=0).fit(X, y)
@@ -129,13 +129,13 @@ def test_skope_rules_error():
     with assert_raises(TypeError):
         SkopeRules(deduplication_criterion='myfunc', myfunc=None).fit(X, y)
     with assert_raises(TypeError):
-        SkopeRules(filtering_criteria={'myfunc':0.}, myfunc=None).fit(X, y)
+        SkopeRules(filtering_criteria={'myfunc': 0.}, myfunc=None).fit(X, y)
     with assert_raises(TypeError):
         SkopeRules(deduplication_criterion='myfunc',
                    myfunc='foobar').fit(X, y)
     with assert_raises(ValueError):
         SkopeRules(deduplication_criterion='myfunc',
-                   myfunc=lambda x:x).fit(X, y)
+                   myfunc=lambda x: x).fit(X, y)
 
 
 def test_max_samples_attribute():
@@ -158,7 +158,7 @@ def test_max_samples_attribute():
 def test_skope_rules_works():
     # toy sample (the last two samples are outliers)
     X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1], [6, 3],
-        [4, -7]]
+         [4, -7]]
     y = [0] * 6 + [1] * 2
     X_test = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1],
               [10, 5], [5, -7]]
@@ -181,7 +181,7 @@ def test_skope_rules_works():
 def test_deduplication_works():
     # toy sample (the last two samples are outliers)
     X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1], [6, 3],
-        [4, -7]]
+         [4, -7]]
     y = [0] * 6 + [1] * 2
     X_test = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1],
               [10, 5], [5, -7]]
@@ -224,7 +224,7 @@ def test_performances():
 
 
 def test_similarity_tree():
-    # Test that rules are well splitted 
+    # Test that rules are well splitted
     # tn, fp, fn, tp
     rules = [("a <= 2 and b > 45 and c <= 3 and a > 4", (10, 0, 0, 10)),
              ("a <= 2 and b > 45 and c <= 3 and a > 4", (10, 0, 0, 10)),
