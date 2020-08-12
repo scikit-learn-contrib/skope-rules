@@ -25,7 +25,7 @@ def check_filtering_criteria(criteria,
                     ):
         raise TypeError("filtering_criteria should be {str: int or float}")
     elif not all((x in valid_criteria) for x in criteria):
-        raise TypeError("The keys of filtering_criteria should be in: "
+        raise ValueError("The keys of filtering_criteria should be in: "
                          + str(valid_criteria))
 
 
@@ -33,7 +33,7 @@ def check_deduplication_criterion(criterion,
                                   valid_criteria=['f1', 'mcc', 'myfunc']
                                   ):
     if not isinstance(criterion, str) or criterion not in valid_criteria:
-        raise TypeError("deduplication_criterion should be a string in: "
+        raise ValueError("deduplication_criterion should be a string in: "
                          + str(valid_criteria))
 
 

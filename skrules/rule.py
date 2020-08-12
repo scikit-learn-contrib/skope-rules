@@ -98,6 +98,7 @@ def get_confusionMatrix(rule, X, y):
     n_samples = y.shape[0]
 
     detected_indices = list(X.query(rule).index)
+    if len(detected_indices) < 1: return (0, 0, 0, 0)
     y_detected = y[detected_indices]
 
     undetected_indices = ~indices_to_mask(detected_indices, n_samples)
