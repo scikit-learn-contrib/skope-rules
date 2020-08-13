@@ -52,14 +52,13 @@ SkopeRules can be used to describe classes with logical rules :
 .. code:: python
 
     from sklearn.datasets import load_iris
-    from skrules import SkopeRules
+    from skrules import SkopeRules, precision, recall
     
     dataset = load_iris()
     feature_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
     clf = SkopeRules(max_depth_duplication=2,
                      n_estimators=30,
-                     precision_min=0.3,
-                     recall_min=0.1,
+                     filtering_criteria = {'precision': 0.3, 'recall': 0.1},
                      feature_names=feature_names)
     
     for idx, species in enumerate(dataset.target_names):
@@ -68,7 +67,10 @@ SkopeRules can be used to describe classes with logical rules :
         rules = clf.rules_[0:3]
         print("Rules for iris", species)
         for rule in rules:
-            print(rule)
+            print("Rule: {} / OOB precision: {} / OOB recall: {}".format(rule[0],
+                  precision(rule),
+                  recall(rule))
+                  )
         print()
         print(20*'=')
         print()
@@ -86,8 +88,7 @@ SkopeRules can also be used as a predictor if you use the "score_top_rules" meth
     dataset = load_boston()
     clf = SkopeRules(max_depth_duplication=None,
                      n_estimators=30,
-                     precision_min=0.2,
-                     recall_min=0.01,
+                     filtering_criteria = {'precision': 0.2, 'recall': 0.01},
                      feature_names=dataset.feature_names)
     
     X, y = dataset.data, dataset.target > 25
@@ -139,11 +140,11 @@ Dependencies
 
 skope-rules requires:
 
-- Python (>= 2.7 or >= 3.3)
-- NumPy (>= 1.10.4)
-- SciPy (>= 0.17.0)
+- Python (>= 3.6)
+- NumPy (>= 1.13.4)
+- SciPy (>= 0.19.1)
 - Pandas (>= 0.18.1)
-- Scikit-Learn (>= 0.17.1)
+- Scikit-Learn (>= 0.23)
 
 For running the examples Matplotlib >= 1.1.1 is required.
 

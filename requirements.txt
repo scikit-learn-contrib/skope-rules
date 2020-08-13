@@ -1,6 +1,6 @@
-numpy>=1.10.4
-scikit-learn>=0.17.1
-scipy>=0.17.0
+numpy>=1.13.3
+scikit-learn>=0.23
+scipy>=0.19.1
 pandas>=0.18.1
 numpydoc
 sphinx_gallery
