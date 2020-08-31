@@ -1,3 +1,4 @@
+import six
 import numpy as np
 from collections import Counter, Iterable
 import pandas
@@ -9,7 +10,6 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.ensemble import BaggingClassifier, BaggingRegressor
-from sklearn.externals import six
 from sklearn.tree import _tree
 
 from .rule import Rule, replace_feature_name
