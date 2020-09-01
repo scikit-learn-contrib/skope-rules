@@ -17,44 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-    <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="skope_rules 0.1.0 documentation" href="../index.html"/>
-        <link rel="up" title="General examples" href="index.html"/>
-        <link rel="prev" title="SkopeRules example" href="plot_skope_rules.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="SkopeRules example" href="plot_skope_rules.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -115,7 +107,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">skope_rules</a>
@@ -123,9 +115,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -167,7 +160,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="example-detecting-defaults-on-retail-credits">
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Click <a class="reference internal" href="#sphx-glr-download-auto-examples-plot-credit-default-py"><span class="std std-ref">here</span></a> to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="example-detecting-defaults-on-retail-credits">
 <span id="sphx-glr-auto-examples-plot-credit-default-py"></span><h1>Example: detecting defaults on retail credits<a class="headerlink" href="#example-detecting-defaults-on-retail-credits" title="Permalink to this headline">¶</a></h1>
 <p>SkopeRules finds logical rules with high precision and fuse them. Finding
 good rules is done by fitting classification and regression trees
@@ -184,7 +181,7 @@ The target (credit defaults) is transformed in a binary variable with
 integers 0 (no default) and 1 (default).
 From the 30000 credits, 50% are used for training and 50% are used
 for testing. The target is unbalanced with a 22%/78% ratio.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">precision_recall_curve</span>
@@ -242,7 +239,7 @@ for testing. The target is unbalanced with a 22%/78% ratio.</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-default"><div class="highlight"><pre><span></span><span class="n">List</span> <span class="n">of</span> <span class="n">variables</span> <span class="n">used</span> <span class="n">to</span> <span class="n">train</span> <span class="n">models</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;LIMIT_BAL&#39;</span><span class="p">,</span> <span class="s1">&#39;SEX&#39;</span><span class="p">,</span> <span class="s1">&#39;EDUCATION&#39;</span><span class="p">,</span> <span class="s1">&#39;MARRIAGE&#39;</span><span class="p">,</span> <span class="s1">&#39;AGE&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_1&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_2&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT1&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT2&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT1&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT2&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_old_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT_old_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;BILL_AMT_old_std&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT_old_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;PAY_AMT_old_std&#39;</span><span class="p">]</span>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>List of variables used to train models : [&#39;LIMIT_BAL&#39;, &#39;SEX&#39;, &#39;EDUCATION&#39;, &#39;MARRIAGE&#39;, &#39;AGE&#39;, &#39;PAY_1&#39;, &#39;PAY_2&#39;, &#39;BILL_AMT1&#39;, &#39;BILL_AMT2&#39;, &#39;PAY_AMT1&#39;, &#39;PAY_AMT2&#39;, &#39;PAY_old_mean&#39;, &#39;BILL_AMT_old_mean&#39;, &#39;BILL_AMT_old_std&#39;, &#39;PAY_AMT_old_mean&#39;, &#39;PAY_AMT_old_std&#39;]
 </pre></div>
 </div>
 </div>
@@ -250,7 +247,7 @@ for testing. The target is unbalanced with a 22%/78% ratio.</p>
 <h2>Benchmark with a Random Forest classifier<a class="headerlink" href="#benchmark-with-a-random-forest-classifier" title="Permalink to this headline">¶</a></h2>
 <p>This part shows the training and performance evaluation of a random forest
 model. The objective remains to extract rules which targets credit defaults.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">rf</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rf</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
     <span class="n">RandomForestClassifier</span><span class="p">(</span>
         <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
         <span class="n">n_estimators</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
@@ -287,9 +284,9 @@ model. The objective remains to extract rules which targets credit defaults.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="../_images/sphx_glr_plot_credit_default_001.png" class="align-center" src="../_images/sphx_glr_plot_credit_default_001.png" />
+<img alt="../_images/sphx_glr_plot_credit_default_001.png" class="sphx-glr-single-img" src="../_images/sphx_glr_plot_credit_default_001.png" />
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-default"><div class="highlight"><pre><span></span><span class="n">Random</span> <span class="n">Forest</span> <span class="n">selected</span> <span class="n">parameters</span> <span class="p">:</span> <span class="p">{</span><span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;max_features&#39;</span><span class="p">:</span> <span class="mf">0.55000000000000004</span><span class="p">}</span>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Random Forest selected parameters : {&#39;max_depth&#39;: 7, &#39;max_features&#39;: 0.55}
 </pre></div>
 </div>
 <p>The ROC and Precision-Recall curves illustrate the performance of Random
@@ -308,10 +305,10 @@ area of detection (low recall).</p>
 <h2>Getting rules with skrules<a class="headerlink" href="#getting-rules-with-skrules" title="Permalink to this headline">¶</a></h2>
 <p>This part shows how SkopeRules can be fitted to detect credit defaults.
 Performances are compared with the random forest model previously trained.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># fit the model</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># fit the model</span>
 
 <span class="n">clf</span> <span class="o">=</span> <span class="n">SkopeRules</span><span class="p">(</span>
-    <span class="n">similarity_thres</span><span class="o">=.</span><span class="mi">8</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">max_depth_duplication</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="n">max_samples_features</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">n_estimators</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
     <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">recall_min</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">precision_min</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
 <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
@@ -358,15 +355,15 @@ Performances are compared with the random forest model previously trained.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="../_images/sphx_glr_plot_credit_default_002.png" class="align-center" src="../_images/sphx_glr_plot_credit_default_002.png" />
+<img alt="../_images/sphx_glr_plot_credit_default_002.png" class="sphx-glr-single-img" src="../_images/sphx_glr_plot_credit_default_002.png" />
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-default"><div class="highlight"><pre><span></span><span class="mi">35</span> <span class="n">rules</span> <span class="n">have</span> <span class="n">been</span> <span class="n">built</span><span class="o">.</span>
-<span class="n">The</span> <span class="mi">5</span> <span class="n">most</span> <span class="n">precise</span> <span class="n">rules</span> <span class="n">are</span> <span class="n">the</span> <span class="n">following</span><span class="p">:</span>
-<span class="n">PAY_old_mean</span> <span class="o">&gt;</span> <span class="mf">0.125</span> <span class="ow">and</span> <span class="n">PAY_1</span> <span class="o">&gt;</span> <span class="mf">1.5</span> <span class="ow">and</span> <span class="n">PAY_old_mean</span> <span class="o">&gt;</span> <span class="mf">1.875</span>
-<span class="n">PAY_1</span> <span class="o">&gt;</span> <span class="mf">1.5</span> <span class="ow">and</span> <span class="n">BILL_AMT_old_std</span> <span class="o">&lt;=</span> <span class="mf">5435.232421875</span> <span class="ow">and</span> <span class="n">EDUCATION</span> <span class="o">&lt;=</span> <span class="mf">2.5</span>
-<span class="n">PAY_old_mean</span> <span class="o">&gt;</span> <span class="mf">0.375</span> <span class="ow">and</span> <span class="n">LIMIT_BAL</span> <span class="o">&gt;</span> <span class="mf">135000.0</span> <span class="ow">and</span> <span class="n">PAY_old_mean</span> <span class="o">&gt;</span> <span class="mf">1.875</span>
-<span class="n">PAY_AMT_old_std</span> <span class="o">&lt;=</span> <span class="mf">2563.13525390625</span> <span class="ow">and</span> <span class="n">PAY_1</span> <span class="o">&gt;</span> <span class="mf">1.5</span> <span class="ow">and</span> <span class="n">BILL_AMT2</span> <span class="o">&gt;</span> <span class="mf">517.5</span>
-<span class="n">PAY_old_mean</span> <span class="o">&gt;</span> <span class="mf">0.375</span> <span class="ow">and</span> <span class="n">LIMIT_BAL</span> <span class="o">&lt;=</span> <span class="mf">135000.0</span> <span class="ow">and</span> <span class="n">PAY_1</span> <span class="o">&gt;</span> <span class="mf">1.5</span>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>12 rules have been built.
+The 5 most precise rules are the following:
+BILL_AMT_old_std &lt;= 9353.94873046875 and PAY_1 &gt; 1.5 and PAY_2 &gt; -0.5
+BILL_AMT_old_std &lt;= 6513.737548828125 and PAY_2 &gt; 1.5 and BILL_AMT2 &gt; 2132.5
+PAY_AMT_old_std &lt;= 2563.13525390625 and PAY_1 &gt; 1.5 and BILL_AMT2 &gt; 517.5
+PAY_old_mean &gt; 0.125 and PAY_1 &gt; 1.5 and BILL_AMT1 &gt; 410.0
+PAY_AMT_old_std &lt;= 46657.083984375 and PAY_2 &gt; 1.5 and PAY_AMT1 &gt; 122.0
 </pre></div>
 </div>
 <p>The ROC and Precision-Recall curves show the performance of the rules
@@ -382,29 +379,27 @@ with Random Forest, while offering complete interpretation.
 The range of recall and precision can be controlled by the precision_min and
 recall_min parameters. Here, setting precision_min to 0.6 force the rules to
 have a limited recall.</p>
-<p><strong>Total running time of the script:</strong> ( 1 minutes  18.366 seconds)</p>
-<div class="sphx-glr-footer docutils container">
+<p><strong>Total running time of the script:</strong> ( 0 minutes  37.373 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-credit-default-py">
 <div class="sphx-glr-download docutils container">
-<a class="reference download internal" href="../_downloads/plot_credit_default.py" download=""><code class="xref download docutils literal"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_credit_default.py</span></code></a></div>
+<a class="reference download internal" download="" href="../_downloads/2a99c2b7884cbc6e1bb55a0bfee6e16b/plot_credit_default.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_credit_default.py</span></code></a></div>
 <div class="sphx-glr-download docutils container">
-<a class="reference download internal" href="../_downloads/plot_credit_default.ipynb" download=""><code class="xref download docutils literal"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_credit_default.ipynb</span></code></a></div>
+<a class="reference download internal" download="" href="../_downloads/80b5849d75430a24723c5e889d9d1748/plot_credit_default.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_credit_default.ipynb</span></code></a></div>
 </div>
-<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.readthedocs.io">Generated by Sphinx-Gallery</a></p>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.readthedocs.io">Gallery generated by Sphinx-Gallery</a></p>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="plot_skope_rules.html" class="btn btn-neutral" title="SkopeRules example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="plot_skope_rules.html" class="btn btn-neutral float-left" title="SkopeRules example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -428,36 +423,15 @@ have a limited recall.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'0.1.0',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

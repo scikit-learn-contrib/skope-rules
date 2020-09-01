@@ -221,7 +221,7 @@ class SkopeRules(BaseEstimator):
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
 
-        if isinstance(self.max_samples, six.string_types):
+        if isinstance(self.max_samples, str):
             raise ValueError('max_samples (%s) is not supported.'
                              'Valid choices are: "auto", int or'
                              'float' % self.max_samples)
