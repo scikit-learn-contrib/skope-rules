@@ -9,7 +9,6 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.ensemble import BaggingClassifier, BaggingRegressor
-from sklearn.externals import six
 from sklearn.tree import _tree
 
 from .rule import Rule, replace_feature_name
@@ -221,7 +220,7 @@ class SkopeRules(BaseEstimator):
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
 
-        if isinstance(self.max_samples, six.string_types):
+        if isinstance(self.max_samples, str):
             raise ValueError('max_samples (%s) is not supported.'
                              'Valid choices are: "auto", int or'
                              'float' % self.max_samples)
