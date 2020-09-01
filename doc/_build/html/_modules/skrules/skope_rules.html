@@ -17,43 +17,35 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  
-
-  
-    <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
-  
-
-  
-        <link rel="index" title="Index"
-              href="../../genindex.html"/>
-        <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="skope_rules 0.1.0 documentation" href="../../index.html"/>
-        <link rel="up" title="Module code" href="../index.html"/> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -105,7 +97,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">skope_rules</a>
@@ -113,9 +105,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -145,8 +138,6 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
-        
       </li>
     
   </ul>
@@ -159,25 +150,27 @@
             
   <h1>Source code for skrules.skope_rules</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
 <span class="kn">import</span> <span class="nn">numbers</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+
 <span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">BaseEstimator</span>
 <span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="k">import</span> <span class="n">check_X_y</span><span class="p">,</span> <span class="n">check_array</span><span class="p">,</span> <span class="n">check_is_fitted</span>
 <span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="k">import</span> <span class="n">check_classification_targets</span>
-
 <span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="k">import</span> <span class="n">DecisionTreeClassifier</span><span class="p">,</span> <span class="n">DecisionTreeRegressor</span>
-
 <span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="k">import</span> <span class="n">BaggingClassifier</span><span class="p">,</span> <span class="n">BaggingRegressor</span>
-
 <span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="k">import</span> <span class="n">six</span>
 <span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="k">import</span> <span class="n">_tree</span>
 
+<span class="kn">from</span> <span class="nn">.rule</span> <span class="k">import</span> <span class="n">Rule</span><span class="p">,</span> <span class="n">replace_feature_name</span>
+
 <span class="n">INTEGER_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="n">numbers</span><span class="o">.</span><span class="n">Integral</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)</span>
+<span class="n">BASE_FEATURE_NAME</span> <span class="o">=</span> <span class="s2">&quot;__C__&quot;</span>
 
 
 <div class="viewcode-block" id="SkopeRules"><a class="viewcode-back" href="../../skope_rules.html#skrules.skope_rules.SkopeRules">[docs]</a><span class="k">class</span> <span class="nc">SkopeRules</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; An easy-interpretable classifier optimizing simple logical rules.</span>
+    <span class="sd">&quot;&quot;&quot;An easy-interpretable classifier optimizing simple logical rules.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -195,11 +188,6 @@
 <span class="sd">    n_estimators : int, optional (default=10)</span>
 <span class="sd">        The number of base estimators (rules) to use for prediction. More are</span>
 <span class="sd">        built before selection. All are available in the estimators_ attribute.</span>
-
-<span class="sd">    similarity_thres : float, optional (default=0.99)</span>
-<span class="sd">        Similarity threshold between rules. Rules too similar</span>
-<span class="sd">        (&gt; similarity_thres) are fused. The similarity between two rules is</span>
-<span class="sd">        computed according to the formula `# {intersection} / # {union}`.</span>
 
 <span class="sd">    max_samples : int or float, optional (default=.8)</span>
 <span class="sd">        The number of samples to draw from X to train each decision tree, from</span>
@@ -221,10 +209,17 @@
 <span class="sd">    bootstrap_features : boolean, optional (default=False)</span>
 <span class="sd">        Whether features are drawn with replacement.</span>
 
-<span class="sd">    max_depth : integer or None, optional (default=3)</span>
+<span class="sd">    max_depth : integer or List or None, optional (default=3)</span>
 <span class="sd">        The maximum depth of the decision trees. If None, then nodes are</span>
 <span class="sd">        expanded until all leaves are pure or until all leaves contain less</span>
 <span class="sd">        than min_samples_split samples.</span>
+<span class="sd">        If an iterable is passed, you will train n_estimators</span>
+<span class="sd">        for each tree depth. It allows you to create and compare</span>
+<span class="sd">        rules of different length.</span>
+
+<span class="sd">    max_depth_duplication : integer, optional (default=None)</span>
+<span class="sd">        The maximum depth of the decision tree for rule deduplication,</span>
+<span class="sd">        if None then no deduplication occurs.</span>
 
 <span class="sd">    max_features : int, float, string or None, optional (default=&quot;auto&quot;)</span>
 <span class="sd">        The number of features considered (by each decision tree) when looking</span>
@@ -298,12 +293,12 @@
                  <span class="n">precision_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                  <span class="n">recall_min</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
                  <span class="n">n_estimators</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                 <span class="n">similarity_thres</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
                  <span class="n">max_samples</span><span class="o">=.</span><span class="mi">8</span><span class="p">,</span>
                  <span class="n">max_samples_features</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
                  <span class="n">bootstrap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">bootstrap_features</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">max_depth_duplication</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">max_features</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
                  <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                  <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -313,12 +308,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">recall_min</span> <span class="o">=</span> <span class="n">recall_min</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="n">feature_names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span> <span class="o">=</span> <span class="n">n_estimators</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">similarity_thres</span> <span class="o">=</span> <span class="n">similarity_thres</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_samples</span> <span class="o">=</span> <span class="n">max_samples</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_samples_features</span> <span class="o">=</span> <span class="n">max_samples_features</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bootstrap</span> <span class="o">=</span> <span class="n">bootstrap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_features</span> <span class="o">=</span> <span class="n">bootstrap_features</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth_duplication</span> <span class="o">=</span> <span class="n">max_depth_duplication</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_features</span> <span class="o">=</span> <span class="n">max_features</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span> <span class="o">=</span> <span class="n">min_samples_split</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
@@ -362,6 +357,10 @@
                              <span class="s2">&quot; in the data, but the data contains only one&quot;</span>
                              <span class="s2">&quot; class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth_duplication</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth_duplication</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;max_depth_duplication should be an integer&quot;</span>
+                             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]):</span>
             <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Found labels </span><span class="si">%s</span><span class="s2">. This method assumes target class to be&quot;</span>
                  <span class="s2">&quot; labeled as 1 and normal data to be labeled as 0. Any label&quot;</span>
@@ -369,11 +368,6 @@
                  <span class="s2">&quot; target class.&quot;</span>
                  <span class="o">%</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">))</span>
             <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="c1"># ensure similarity_thres is in (0., 1.]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">similarity_thres</span> <span class="o">&lt;=</span> <span class="mf">1.</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;similarity_thres must be in (0, 1], got </span><span class="si">%r</span><span class="s2">&quot;</span>
-                             <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">similarity_thres</span><span class="p">)</span>
 
         <span class="c1"># ensure that max_samples is in [1, n_samples]:</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -405,45 +399,60 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">estimators_samples_</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">estimators_features_</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c1"># default columns names of the form [&#39;c0&#39;, &#39;c1&#39;, ...]:</span>
-        <span class="n">feature_names_</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                          <span class="k">else</span> <span class="p">[</span><span class="s1">&#39;c&#39;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
-                                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)])</span>
+        <span class="c1"># default columns names :</span>
+        <span class="n">feature_names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">BASE_FEATURE_NAME</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_dict_</span> <span class="o">=</span> <span class="p">{</span><span class="n">BASE_FEATURE_NAME</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">feat</span>
+                                  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_dict_</span> <span class="o">=</span> <span class="p">{</span><span class="n">BASE_FEATURE_NAME</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">feat</span>
+                                  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">feature_names_</span><span class="p">)}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span> <span class="o">=</span> <span class="n">feature_names_</span>
 
-        <span class="n">bagging_clf</span> <span class="o">=</span> <span class="n">BaggingClassifier</span><span class="p">(</span>
-            <span class="n">base_estimator</span><span class="o">=</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span>
-                <span class="n">max_depth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">,</span>
-                <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_features</span><span class="p">,</span>
-                <span class="n">min_samples_split</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span><span class="p">),</span>
-            <span class="n">n_estimators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">,</span>
-            <span class="n">max_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_</span><span class="p">,</span>
-            <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_features</span><span class="p">,</span>
-            <span class="n">bootstrap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">,</span>
-            <span class="n">bootstrap_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_features</span><span class="p">,</span>
-            <span class="c1"># oob_score=... XXX may be added if selection on tree perf needed.</span>
-            <span class="c1"># warm_start=... XXX may be added to increase computation perf.</span>
-            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
-            <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
-            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">clfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">regs</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">bagging_reg</span> <span class="o">=</span> <span class="n">BaggingRegressor</span><span class="p">(</span>
-            <span class="n">base_estimator</span><span class="o">=</span><span class="n">DecisionTreeRegressor</span><span class="p">(</span>
-                <span class="n">max_depth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">,</span>
-                <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_features</span><span class="p">,</span>
-                <span class="n">min_samples_split</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span><span class="p">),</span>
-            <span class="n">n_estimators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">,</span>
-            <span class="n">max_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_</span><span class="p">,</span>
-            <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_features</span><span class="p">,</span>
-            <span class="n">bootstrap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">,</span>
-            <span class="n">bootstrap_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_features</span><span class="p">,</span>
-            <span class="c1"># oob_score=... XXX may be added if selection on tree perf needed.</span>
-            <span class="c1"># warm_start=... XXX may be added to increase computation perf.</span>
-            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
-            <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
-            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_depths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> \
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">]</span>
 
-        <span class="n">bagging_clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">max_depth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_depths</span><span class="p">:</span>
+            <span class="n">bagging_clf</span> <span class="o">=</span> <span class="n">BaggingClassifier</span><span class="p">(</span>
+                <span class="n">base_estimator</span><span class="o">=</span><span class="n">DecisionTreeClassifier</span><span class="p">(</span>
+                    <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                    <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_features</span><span class="p">,</span>
+                    <span class="n">min_samples_split</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span><span class="p">),</span>
+                <span class="n">n_estimators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">,</span>
+                <span class="n">max_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_</span><span class="p">,</span>
+                <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_features</span><span class="p">,</span>
+                <span class="n">bootstrap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">,</span>
+                <span class="n">bootstrap_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_features</span><span class="p">,</span>
+                <span class="c1"># oob_score=... XXX may be added</span>
+                <span class="c1"># if selection on tree perf needed.</span>
+                <span class="c1"># warm_start=... XXX may be added to increase computation perf.</span>
+                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+
+            <span class="n">bagging_reg</span> <span class="o">=</span> <span class="n">BaggingRegressor</span><span class="p">(</span>
+                <span class="n">base_estimator</span><span class="o">=</span><span class="n">DecisionTreeRegressor</span><span class="p">(</span>
+                    <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                    <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_features</span><span class="p">,</span>
+                    <span class="n">min_samples_split</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span><span class="p">),</span>
+                <span class="n">n_estimators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">,</span>
+                <span class="n">max_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_</span><span class="p">,</span>
+                <span class="n">max_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples_features</span><span class="p">,</span>
+                <span class="n">bootstrap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">,</span>
+                <span class="n">bootstrap_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_features</span><span class="p">,</span>
+                <span class="c1"># oob_score=... XXX may be added</span>
+                <span class="c1"># if selection on tree perf needed.</span>
+                <span class="c1"># warm_start=... XXX may be added to increase computation perf.</span>
+                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+
+            <span class="n">clfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bagging_clf</span><span class="p">)</span>
+            <span class="n">regs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bagging_reg</span><span class="p">)</span>
 
         <span class="c1"># define regression target:</span>
         <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -458,16 +467,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">y_reg</span> <span class="o">=</span> <span class="n">y</span>  <span class="c1"># same as an other classification bagging</span>
 
-        <span class="n">bagging_reg</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">clf</span> <span class="ow">in</span> <span class="n">clfs</span><span class="p">:</span>
+            <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span> <span class="o">+=</span> <span class="n">clf</span><span class="o">.</span><span class="n">estimators_</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimators_samples_</span> <span class="o">+=</span> <span class="n">clf</span><span class="o">.</span><span class="n">estimators_samples_</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimators_features_</span> <span class="o">+=</span> <span class="n">clf</span><span class="o">.</span><span class="n">estimators_features_</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span> <span class="o">+=</span> <span class="n">bagging_clf</span><span class="o">.</span><span class="n">estimators_</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span> <span class="o">+=</span> <span class="n">bagging_reg</span><span class="o">.</span><span class="n">estimators_</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_samples_</span> <span class="o">+=</span> <span class="n">bagging_clf</span><span class="o">.</span><span class="n">estimators_samples_</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_samples_</span> <span class="o">+=</span> <span class="n">bagging_reg</span><span class="o">.</span><span class="n">estimators_samples_</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_features_</span> <span class="o">+=</span> <span class="n">bagging_clf</span><span class="o">.</span><span class="n">estimators_features_</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_features_</span> <span class="o">+=</span> <span class="n">bagging_reg</span><span class="o">.</span><span class="n">estimators_features_</span>
+        <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">regs</span><span class="p">:</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span> <span class="o">+=</span> <span class="n">reg</span><span class="o">.</span><span class="n">estimators_</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimators_samples_</span> <span class="o">+=</span> <span class="n">reg</span><span class="o">.</span><span class="n">estimators_samples_</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimators_features_</span> <span class="o">+=</span> <span class="n">reg</span><span class="o">.</span><span class="n">estimators_features_</span>
 
         <span class="n">rules_</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">features</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">,</span>
@@ -499,6 +509,12 @@
                                    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">rules_from_tree</span><span class="p">)]</span>
                 <span class="n">rules_</span> <span class="o">+=</span> <span class="n">rules_from_tree</span>
 
+        <span class="c1"># Factorize rules before semantic tree filtering</span>
+        <span class="n">rules_</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span>
+            <span class="p">[</span><span class="n">Rule</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">rules_</span><span class="p">]]</span>
+
         <span class="c1"># keep only rules verifying precision_min and recall_min:</span>
         <span class="k">for</span> <span class="n">rule</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">rules_</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">score</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision_min</span> <span class="ow">and</span> <span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recall_min</span><span class="p">:</span>
@@ -517,33 +533,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
                              <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># removing rules which have very similar domains</span>
-        <span class="n">X_</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">))</span>
-        <span class="n">omit_these_rules_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">perimeter_index_of_all_rules</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">)):</span>
-            <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">perimeter_index_of_all_rules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">X_</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
-                <span class="p">)</span>
-            <span class="n">index_current</span> <span class="o">=</span> <span class="n">perimeter_index_of_all_rules</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="c1"># Deduplicate the rule using semantic tree</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth_duplication</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">omit_these_rules_list</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                    <span class="c1"># if a rule have already been discarded,</span>
-                    <span class="c1"># it should not be processed again</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f1_score</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rules_without_feature_names_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span>
 
-                <span class="n">index_rival</span> <span class="o">=</span> <span class="n">perimeter_index_of_all_rules</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-                <span class="n">size_union</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_rival</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">index_current</span><span class="p">))</span>
-                <span class="n">size_intersection</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
-                    <span class="n">index_rival</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">index_current</span><span class="p">))</span>
-
-                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">size_intersection</span><span class="p">)</span><span class="o">/</span><span class="n">size_union</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">similarity_thres</span><span class="p">:</span>
-                    <span class="n">omit_these_rules_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">))</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">omit_these_rules_list</span><span class="p">]</span>
+        <span class="c1"># Replace generic feature names by real feature names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span> <span class="o">=</span> <span class="p">[(</span><span class="n">replace_feature_name</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_dict_</span><span class="p">),</span> <span class="n">perf</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">rule</span><span class="p">,</span> <span class="n">perf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -599,7 +598,7 @@
                              <span class="o">%</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">))</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">)</span>
-        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span>
+        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_without_feature_names_</span>
 
         <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="ow">in</span> <span class="n">selected_rules</span><span class="p">:</span>
@@ -682,7 +681,7 @@
                              <span class="o">%</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">))</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">)</span>
-        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_</span>
+        <span class="n">selected_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules_without_feature_names_</span>
 
         <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">selected_rules</span><span class="p">))):</span>
@@ -755,7 +754,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">rule</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">,</span> <span class="n">base_name</span><span class="p">)</span>
                 <span class="n">rule</span> <span class="o">=</span> <span class="p">(</span><span class="n">rule</span> <span class="k">if</span> <span class="n">rule</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span>
-                        <span class="k">else</span> <span class="s1">&#39;==&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">feature_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+                        <span class="k">else</span> <span class="s1">&#39; == &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">feature_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
                 <span class="c1"># a rule selecting all is set to &quot;c0==c0&quot;</span>
                 <span class="n">rules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
 
@@ -772,13 +771,81 @@
         <span class="k">if</span> <span class="n">true_pos</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">y_detected</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="nb">float</span><span class="p">(</span><span class="n">true_pos</span><span class="p">)</span> <span class="o">/</span> <span class="n">pos</span></div>
+        <span class="k">return</span> <span class="n">y_detected</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="nb">float</span><span class="p">(</span><span class="n">true_pos</span><span class="p">)</span> <span class="o">/</span> <span class="n">pos</span>
+
+    <span class="k">def</span> <span class="nf">deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">rules_set</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">f1_score</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">rules_set</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_similar_rulesets</span><span class="p">(</span><span class="n">rules</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_find_similar_rulesets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create clusters of rules using a decision tree based</span>
+<span class="sd">        on the terms of the rules</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rules : List, List of rules</span>
+<span class="sd">                The rules that should be splitted in subsets of similar rules</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rules : List of list of rules</span>
+<span class="sd">                The different set of rules. Each set should be homogeneous</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">split_with_best_feature</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="p">[]):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Method to find a split of rules given most represented feature</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rules</span>
+
+            <span class="n">rulelist</span> <span class="o">=</span> <span class="p">[</span><span class="n">rule</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">rule</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">]</span>
+            <span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">rulelist</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">term</span><span class="p">]</span>
+            <span class="n">counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
+            <span class="c1"># Drop exception list</span>
+            <span class="k">for</span> <span class="n">exception</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">counter</span><span class="p">[</span><span class="n">exception</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rules</span>
+
+            <span class="n">most_represented_term</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">most_common</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Proceed to split</span>
+            <span class="n">rules_splitted</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[],</span> <span class="p">[]]</span>
+            <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">most_represented_term</span> <span class="o">+</span> <span class="s1">&#39; &lt;=&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">rule</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">rules_splitted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">most_represented_term</span> <span class="o">+</span> <span class="s1">&#39; &gt;&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">rule</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">rules_splitted</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rules_splitted</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+            <span class="n">new_exceptions</span> <span class="o">=</span> <span class="n">exceptions</span><span class="o">+</span><span class="p">[</span><span class="n">most_represented_term</span><span class="p">]</span>
+            <span class="c1"># Choose best term</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">split_with_best_feature</span><span class="p">(</span><span class="n">ruleset</span><span class="p">,</span>
+                                            <span class="n">depth</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                                            <span class="n">exceptions</span><span class="o">=</span><span class="n">new_exceptions</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">ruleset</span> <span class="ow">in</span> <span class="n">rules_splitted</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">breadth_first_search</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">leaves</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rules</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">leaves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">rules_child</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">:</span>
+                    <span class="n">breadth_first_search</span><span class="p">(</span><span class="n">rules_child</span><span class="p">,</span> <span class="n">leaves</span><span class="o">=</span><span class="n">leaves</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">leaves</span>
+        <span class="n">leaves</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">split_with_best_feature</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth_duplication</span><span class="p">)</span>
+        <span class="n">breadth_first_search</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">leaves</span><span class="o">=</span><span class="n">leaves</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">leaves</span>
+
+    <span class="k">def</span> <span class="nf">f1_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> \
+               <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span></div>
 </pre></div>
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -802,36 +869,15 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'0.1.0',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>
