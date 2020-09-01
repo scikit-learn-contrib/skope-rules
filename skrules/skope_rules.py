@@ -94,7 +94,7 @@ class SkopeRules(BaseEstimator):
               `ceil(min_samples_split * n_samples)` are the minimum
               number of samples for each split.
 
-    n_jobs : integer, optional (default=1)
+    n_jobs : integer, optional (default=None)
         The number of jobs to run in parallel for both `fit` and `predict`.
         If -1, then the number of jobs is set to the number of cores.
 
@@ -149,7 +149,7 @@ class SkopeRules(BaseEstimator):
                  max_depth_duplication=None,
                  max_features=1.,
                  min_samples_split=2,
-                 n_jobs=1,
+                 n_jobs=None,
                  random_state=None,
                  verbose=0):
         self.precision_min = precision_min
