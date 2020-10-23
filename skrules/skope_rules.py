@@ -334,7 +334,6 @@ class SkopeRules(BaseEstimator):
                                                 self.estimators_features_):
 
             # Create mask for OOB samples
-            # mask = ~samples # samples is numpy array. when you put ~. it returns array([-(value_1 + 1), ..., -(value_n + 1)])
             mask = ~indices_to_mask(samples, n_samples)            
                         
             if sum(mask) == 0:
