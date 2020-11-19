@@ -43,11 +43,11 @@ def check_custom_func(custom_func):
                           (types.FunctionType, types.BuiltinFunctionType)
                           ):
             raise TypeError("custom_func should be a function")
-        elif custom_func.__code__.co_argcount != 4:
-            raise ValueError("custom_func must have 4 arguments: tp, fp, fn, tp")
+        elif custom_func.__code__.co_argcount != 1:
+            raise ValueError("custom_func must have 1 argument: (tp, fp, fn, tp)")
 
         try:
-            if not isinstance(custom_func(0, 0, 0, 0), (float, int)):
+            if not isinstance(custom_func((0, 0, 0, 0)), (float, int)):
                 raise TypeError("custom_func should return a float or an int")
         except TypeError:
             raise TypeError("custom_func should take int as parameters")
