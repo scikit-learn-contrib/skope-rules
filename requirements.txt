@@ -1,5 +1,5 @@
-numpy>=1.10.4
-scikit-learn>=0.17.1
+numpy>=1.11.0
+scikit-learn>=0.22
 scipy>=0.17.0
 pandas>=0.18.1
 numpydoc
