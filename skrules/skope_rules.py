@@ -195,7 +195,7 @@ class SkopeRules(BaseEstimator):
         self.random_state = random_state
         self.verbose = verbose
 
-    def fit(self, X, y, sample_weight=None):
+    def fit(self, X, y, sample_weights=None):
         """Fit the model according to the given training data.
 
         Parameters
@@ -208,7 +208,7 @@ class SkopeRules(BaseEstimator):
             Target vector relative to X. Has to follow the convention 0 for
             normal data, 1 for anomalies.
 
-        sample_weight : array-like, shape (n_samples,) optional
+        sample_weights : array-like, shape (n_samples,) optional
             Array of weights that are assigned to individual samples, typically
             the amount in case of transactions data. Used to grow regression
             trees producing further rules to be tested.
@@ -305,10 +305,10 @@ class SkopeRules(BaseEstimator):
             regs.append(bagging_reg)
 
         # define regression target:
-        if sample_weight is not None:
-            if sample_weight is not None:
-                sample_weight = check_array(sample_weight, ensure_2d=False)
-            weights = sample_weight - sample_weight.min()
+        if sample_weights is not None:
+            if sample_weights is not None:
+                sample_weights = check_array(sample_weights, ensure_2d=False)
+            weights = sample_weights - sample_weights.min()
             contamination = float(sum(y)) / len(y)
             y_reg = (
                 pow(weights, 0.5) * 0.5 / contamination * (y > 0) -
