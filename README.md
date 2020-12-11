@@ -107,6 +107,23 @@ SkopeRules can also be used as a predictor if you use the "score_top_rules" meth
 For more examples and use cases please check our `documentation <http://skope-rules.readthedocs.io/en/latest/>`_.
 You can also check the `demonstration notebooks <notebooks/>`_.
 
+Citing
+------
+
+If you use this software, please cite it. Here is a BibTex snippet that you can use:
+
+
+.. code-block::
+
+  @misc{skrules_2017,
+    author       = {Gardin, Gautier, Goix, Ndiaye, Schertzer},
+    title        = {{Skope Rules: Machine Learning with Logical Rules in Python}},
+    year         = 2017,
+    doi          = {10.5281/zenodo.4316671},
+    url          = {https://doi.org/10.5281/zenodo.4316671}
+  }
+
+
 Links with existing literature
 -------------------------------
 
