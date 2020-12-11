@@ -22,6 +22,7 @@ from .utils import (get_confusion_matrix, f1_score, mcc_score,
 
 INTEGER_TYPES = (numbers.Integral, np.integer)
 BASE_FEATURE_NAME = "__C__"
+FILTERING_CRITERIA_DEFAULT = {'precision': 0.5, 'recall': 0.01}
 
 
 class SkopeRules(BaseEstimator):
@@ -34,8 +35,8 @@ class SkopeRules(BaseEstimator):
         The names of each feature to be used for returning rules in string
         format.
 
-    filtering_criteria: dict, optional
-                        default={'precision': 0.5, 'recall': 0.01}
+    filtering_criteria: dict, optional (default None)
+        If None, filtering_criteria will be equal to {'precision': 0.5, 'recall': 0.01}.
         The criteria to be used for filtering the rules.
         In the form {criterion: min_value}.
         The keys can be among ('precision', 'recall', 'f1', 'mcc', 'custom_func').
@@ -155,7 +156,7 @@ class SkopeRules(BaseEstimator):
 
     def __init__(self,
                  feature_names=None,
-                 filtering_criteria={'precision': 0.5, 'recall': 0.01},
+                 filtering_criteria=None,
                  duplication_criterion='f1',
                  custom_func=None,
                  n_estimators=10,
@@ -170,16 +171,26 @@ class SkopeRules(BaseEstimator):
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
-        check_filtering_criteria(filtering_criteria)
+        if filtering_criteria is not None:
+            check_filtering_criteria(filtering_criteria)
+
         self.filtering_criteria = filtering_criteria
+
         check_deduplication_criterion(duplication_criterion)
         self.duplication_criterion = duplication_criterion
         check_custom_func(custom_func)
         self.custom_func = custom_func
-        check_consistency(self.custom_func,
-                          self.duplication_criterion,
-                          self.filtering_criteria
-                          )
+        if self.filtering_criteria:
+            check_consistency(self.custom_func,
+                              self.duplication_criterion,
+                              self.filtering_criteria
+                              )
+        else:
+            check_consistency(self.custom_func,
+                              self.duplication_criterion,
+                              FILTERING_CRITERIA_DEFAULT
+                              )
+
         self.feature_names = feature_names
         self.n_estimators = n_estimators
         self.max_samples = max_samples
@@ -380,11 +391,15 @@ class SkopeRules(BaseEstimator):
                          }
             if self.custom_func is not None:
                 info_rule['custom_func'] = self.custom_func(confusion_matrix)
+            if self.filtering_criteria is None:
+                _filtering_criteria = FILTERING_CRITERIA_DEFAULT
+            else:
+                _filtering_criteria = self.filtering_criteria
 
             if all(x < y for x, y in
-                    zip(self.filtering_criteria.values(),
+                    zip(_filtering_criteria.values(),
                         [info_rule[criterion]
-                         for criterion in self.filtering_criteria
+                         for criterion in _filtering_criteria
                          ]
                         )
                    ):
