@@ -72,6 +72,9 @@ def test_skope_rules():
                recall_min=0.,
                precision_min=0.).fit(X_train, y_train).predict(X_test)
 
+    # with additional class weights
+    SkopeRules(n_estimators=50, class_weight='balanced').fit(X_train, y_train).predict(X_test)
+
 
 def test_skope_rules_error():
     """Test that it gives proper exception on deficient input."""
