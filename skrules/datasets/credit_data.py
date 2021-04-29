@@ -18,18 +18,15 @@ Science.
 
 import pandas as pd
 import numpy as np
-<<<<<<< HEAD
-from sklearn.datasets.base import get_data_home, Bunch
-=======
 
 try:
-    from sklearn.datasets.base import get_data_home, Bunch
-except ModuleNotFoundError:
+    from sklearn.datasets.base import get_data_home, Bunch, _fetch_remote, RemoteFileMetadata
+except (ModuleNotFoundError, ImportError):
+    # For scikit-learn >= 0.24 compatibility
     from sklearn.datasets import get_data_home
     from sklearn.utils import Bunch
+    from sklearn.datasets._base import _fetch_remote, RemoteFileMetadata
 
->>>>>>> aa9588c... fix typo
-from sklearn.datasets.base import _fetch_remote, RemoteFileMetadata
 from os.path import exists, join
 
 
