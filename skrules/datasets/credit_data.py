@@ -22,7 +22,7 @@ import numpy as np
 try:
     from sklearn.datasets.base import get_data_home, Bunch
 except ModuleNotFoundError:
-    from sklearn.datasetse import get_data_home
+    from sklearn.datasets import get_data_home
     from sklearn.utils import Bunch
 
 from sklearn.datasets.base import _fetch_remote, RemoteFileMetadata
