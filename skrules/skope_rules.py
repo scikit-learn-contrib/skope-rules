@@ -317,7 +317,7 @@ class SkopeRules(BaseEstimator):
             y_reg = y  # same as an other classification bagging
 
         for clf in clfs:
-            clf.fit(X, y)
+            clf.fit(X, y, sample_weight)
             self.estimators_ += clf.estimators_
             self.estimators_samples_ += clf.estimators_samples_
             self.estimators_features_ += clf.estimators_features_
