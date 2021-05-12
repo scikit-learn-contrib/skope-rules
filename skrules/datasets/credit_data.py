@@ -40,6 +40,8 @@ def load_credit_data():
                   '011238620f5369220bd60cfc82700933'))
 
     if not exists(join(sk_data_dir, archive.filename)):
+        import socket
+        socket.setdefaulttimeout(180)
         _fetch_remote(archive, dirname=sk_data_dir)
 
     data = pd.read_excel(join(sk_data_dir, archive.filename),
