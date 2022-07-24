@@ -1,5 +1,6 @@
 import numpy as np
-from collections import Counter, Iterable
+from collections import Counter
+from collections.abc import Iterable
 import pandas
 import numbers
 from warnings import warn
