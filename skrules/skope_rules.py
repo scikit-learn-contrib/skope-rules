@@ -1,8 +1,14 @@
 import numpy as np
-from collections import Counter, Iterable
+from collections import Counter
 import pandas
 import numbers
 from warnings import warn
+
+# collections.Iterable alias removed in Python 3.10
+try:
+    from collections import Iterable
+except ImportError:
+    from collections.abc import Iterable
 
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
