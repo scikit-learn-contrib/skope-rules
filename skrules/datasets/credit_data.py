@@ -18,8 +18,15 @@ Science.
 
 import pandas as pd
 import numpy as np
-from sklearn.datasets.base import get_data_home, Bunch
-from sklearn.datasets.base import _fetch_remote, RemoteFileMetadata
+
+try:
+    from sklearn.datasets.base import get_data_home, Bunch, _fetch_remote, RemoteFileMetadata
+except (ModuleNotFoundError, ImportError):
+    # For scikit-learn >= 0.24 compatibility
+    from sklearn.datasets import get_data_home
+    from sklearn.utils import Bunch
+    from sklearn.datasets._base import _fetch_remote, RemoteFileMetadata
+
 from os.path import exists, join
 
 
@@ -33,6 +40,8 @@ def load_credit_data():
                   '011238620f5369220bd60cfc82700933'))
 
     if not exists(join(sk_data_dir, archive.filename)):
+        import socket
+        socket.setdefaulttimeout(180)
         _fetch_remote(archive, dirname=sk_data_dir)
 
     data = pd.read_excel(join(sk_data_dir, archive.filename),
