@@ -4,7 +4,7 @@ from skrules.datasets import load_credit_data
 
 
 def test_classifier():
-    check_estimator(SkopeRules)
+    check_estimator(SkopeRules())
 
 
 def test_load_credit_data():

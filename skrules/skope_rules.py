@@ -15,8 +15,15 @@ from sklearn.tree import _tree
 
 from .rule import Rule, replace_feature_name
 
+from .utils import (check_filtering_criteria, check_deduplication_criterion,
+                    check_custom_func, check_consistency,
+                    check_max_depth_duplication, check_max_samples)
+from .utils import (get_confusion_matrix, f1_score, mcc_score,
+                    precision, recall)
+
 INTEGER_TYPES = (numbers.Integral, np.integer)
 BASE_FEATURE_NAME = "__C__"
+FILTERING_CRITERIA_DEFAULT = {'precision': 0.5, 'recall': 0.01}
 
 
 class SkopeRules(BaseEstimator):
@@ -29,11 +36,21 @@ class SkopeRules(BaseEstimator):
         The names of each feature to be used for returning rules in string
         format.
 
-    precision_min : float, optional (default=0.5)
-        The minimal precision of a rule to be selected.
+    filtering_criteria: dict, optional (default None)
+        If None, filtering_criteria will be equal to {'precision': 0.5, 'recall': 0.01}.
+        The criteria to be used for filtering the rules.
+        In the form {criterion: min_value}.
+        The keys can be among ('precision', 'recall', 'f1', 'mcc', 'custom_func').
 
-    recall_min : float, optional (default=0.01)
-        The minimal recall of a rule to be selected.
+    duplication_criterion: str, optional (default='f1')
+        The criterion to be used for deduplicating the rules.
+        Either 'f1', 'mcc' or 'custom_func'.
+
+    custom_func: FunctionType, optional (default=None)
+        A personalised function that can be used as either/both a filtering
+        or/and deduplication criterion.
+        Has to take tuple of size 4 which is supposed to be the confusion matrix
+        elements (tn, fp, fn, tp) (in that order).
 
     n_estimators : int, optional (default=10)
         The number of base estimators (rules) to use for prediction. More are
@@ -140,8 +157,9 @@ class SkopeRules(BaseEstimator):
 
     def __init__(self,
                  feature_names=None,
-                 precision_min=0.5,
-                 recall_min=0.01,
+                 filtering_criteria=None,
+                 duplication_criterion='f1',
+                 custom_func=None,
                  n_estimators=10,
                  max_samples=.8,
                  max_samples_features=1.,
@@ -154,8 +172,26 @@ class SkopeRules(BaseEstimator):
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
-        self.precision_min = precision_min
-        self.recall_min = recall_min
+        if filtering_criteria is not None:
+            check_filtering_criteria(filtering_criteria)
+
+        self.filtering_criteria = filtering_criteria
+
+        check_deduplication_criterion(duplication_criterion)
+        self.duplication_criterion = duplication_criterion
+        check_custom_func(custom_func)
+        self.custom_func = custom_func
+        if self.filtering_criteria:
+            check_consistency(self.custom_func,
+                              self.duplication_criterion,
+                              self.filtering_criteria
+                              )
+        else:
+            check_consistency(self.custom_func,
+                              self.duplication_criterion,
+                              FILTERING_CRITERIA_DEFAULT
+                              )
+
         self.feature_names = feature_names
         self.n_estimators = n_estimators
         self.max_samples = max_samples
@@ -163,6 +199,7 @@ class SkopeRules(BaseEstimator):
         self.bootstrap = bootstrap
         self.bootstrap_features = bootstrap_features
         self.max_depth = max_depth
+        check_max_depth_duplication(max_depth_duplication)
         self.max_depth_duplication = max_depth_duplication
         self.max_features = max_features
         self.min_samples_split = min_samples_split
@@ -170,7 +207,7 @@ class SkopeRules(BaseEstimator):
         self.random_state = random_state
         self.verbose = verbose
 
-    def fit(self, X, y, sample_weight=None):
+    def fit(self, X, y, sample_weights=None):
         """Fit the model according to the given training data.
 
         Parameters
@@ -183,7 +220,7 @@ class SkopeRules(BaseEstimator):
             Target vector relative to X. Has to follow the convention 0 for
             normal data, 1 for anomalies.
 
-        sample_weight : array-like, shape (n_samples,) optional
+        sample_weights : array-like, shape (n_samples,) optional
             Array of weights that are assigned to individual samples, typically
             the amount in case of transactions data. Used to grow regression
             trees producing further rules to be tested.
@@ -207,10 +244,6 @@ class SkopeRules(BaseEstimator):
                              " in the data, but the data contains only one"
                              " class: %r" % self.classes_[0])
 
-        if not isinstance(self.max_depth_duplication, int) \
-                and self.max_depth_duplication is not None:
-            raise ValueError("max_depth_duplication should be an integer"
-                             )
         if not set(self.classes_) == set([0, 1]):
             warn("Found labels %s. This method assumes target class to be"
                  " labeled as 1 and normal data to be labeled as 0. Any label"
@@ -221,28 +254,7 @@ class SkopeRules(BaseEstimator):
 
         # ensure that max_samples is in [1, n_samples]:
         n_samples = X.shape[0]
-
-        if isinstance(self.max_samples, str):
-            raise ValueError('max_samples (%s) is not supported.'
-                             'Valid choices are: "auto", int or'
-                             'float' % self.max_samples)
-
-        elif isinstance(self.max_samples, INTEGER_TYPES):
-            if self.max_samples > n_samples:
-                warn("max_samples (%s) is greater than the "
-                     "total number of samples (%s). max_samples "
-                     "will be set to n_samples for estimation."
-                     % (self.max_samples, n_samples))
-                max_samples = n_samples
-            else:
-                max_samples = self.max_samples
-        else:  # float
-            if not (0. < self.max_samples <= 1.):
-                raise ValueError("max_samples must be in (0, 1], got %r"
-                                 % self.max_samples)
-            max_samples = int(self.max_samples * X.shape[0])
-
-        self.max_samples_ = max_samples
+        self.max_samples_ = check_max_samples(self.max_samples, n_samples)
 
         self.rules_ = {}
         self.estimators_ = []
@@ -305,10 +317,10 @@ class SkopeRules(BaseEstimator):
             regs.append(bagging_reg)
 
         # define regression target:
-        if sample_weight is not None:
-            if sample_weight is not None:
-                sample_weight = check_array(sample_weight, ensure_2d=False)
-            weights = sample_weight - sample_weight.min()
+        if sample_weights is not None:
+            if sample_weights is not None:
+                sample_weights = check_array(sample_weights, ensure_2d=False)
+            weights = sample_weights - sample_weights.min()
             contamination = float(sum(y)) / len(y)
             y_reg = (
                 pow(weights, 0.5) * 0.5 / contamination * (y > 0) -
@@ -335,8 +347,8 @@ class SkopeRules(BaseEstimator):
                                                 self.estimators_features_):
 
             # Create mask for OOB samples
-            mask = ~indices_to_mask(samples, n_samples)            
-                        
+            mask = ~indices_to_mask(samples, n_samples)
+
             if sum(mask) == 0:
                 warn("OOB evaluation not possible: doing it in-bag."
                      " Performance evaluation is likely to be wrong"
@@ -356,7 +368,8 @@ class SkopeRules(BaseEstimator):
                 y_oob = np.array((y_oob != 0))
 
                 # Add OOB performances to rules:
-                rules_from_tree = [(r, self._eval_rule_perf(r, X_oob, y_oob))
+                # rule <-> (rule_string, confusion matrix)
+                rules_from_tree = [(r, get_confusion_matrix(r, X_oob, y_oob))
                                    for r in set(rules_from_tree)]
                 rules_ += rules_from_tree
 
@@ -364,36 +377,72 @@ class SkopeRules(BaseEstimator):
         rules_ = [
             tuple(rule)
             for rule in
-            [Rule(r, args=args) for r, args in rules_]]
+            [Rule(r, args=confusion_matrix)
+             for r, confusion_matrix in rules_]
+            ]
 
-        # keep only rules verifying precision_min and recall_min:
-        for rule, score in rules_:
-            if score[0] >= self.precision_min and score[1] >= self.recall_min:
-                if rule in self.rules_:
-                    # update the score to the new mean
-                    c = self.rules_[rule][2] + 1
-                    b = self.rules_[rule][1] + 1. / c * (
-                        score[1] - self.rules_[rule][1])
-                    a = self.rules_[rule][0] + 1. / c * (
-                        score[0] - self.rules_[rule][0])
+        # Filter the rules according to filtering_criteria
+        for rule in rules_:
+            rule_str, confusion_matrix = rule
+            # retrieve all scores info about the rule
+            info_rule = {'precision': precision(confusion_matrix),
+                         'recall': recall(confusion_matrix),
+                         'f1': f1_score(confusion_matrix),
+                         'mcc': mcc_score(confusion_matrix)
+                         }
+            if self.custom_func is not None:
+                info_rule['custom_func'] = self.custom_func(confusion_matrix)
+            if self.filtering_criteria is None:
+                _filtering_criteria = FILTERING_CRITERIA_DEFAULT
+            else:
+                _filtering_criteria = self.filtering_criteria
 
-                    self.rules_[rule] = (a, b, c)
+            if all(x < y for x, y in
+                    zip(_filtering_criteria.values(),
+                        [info_rule[criterion]
+                         for criterion in _filtering_criteria
+                         ]
+                        )
+                   ):
+                if rule_str in self.rules_:
+                    # update the confusion matrix to the new mean
+                    def update(x, y, z):
+                        return round(x + 1. / y * (z - x))
+                    nb = self.rules_[rule_str][1] + 1
+                    new_confusion_matrix = [update(self.rules_[rule_str][0][i],
+                                                   nb,
+                                                   confusion_matrix[i]
+                                                   )
+                                            for i in range(4)]
+                    self.rules_[rule_str] = (tuple(new_confusion_matrix), nb)
                 else:
-                    self.rules_[rule] = (score[0], score[1], 1)
+                    self.rules_[rule_str] = (confusion_matrix, 1)
 
-        self.rules_ = sorted(self.rules_.items(),
-                             key=lambda x: (x[1][0], x[1][1]), reverse=True)
+        # Replace (confusion_matrix, nb) tuple by confusion_matrix
+        for key in self.rules_:
+            self.rules_[key] = self.rules_[key][0]
+
+        # Transform dic object into list
+        self.rules_ = list(self.rules_.items())
 
         # Deduplicate the rule using semantic tree
         if self.max_depth_duplication is not None:
-            self.rules_ = self.deduplicate(self.rules_)
+            self.rules_ = self._deduplicate(self.rules_)
 
-        self.rules_ = sorted(self.rules_, key=lambda x: - self.f1_score(x))
+        # Sort the rules according to duplication_criterion criterion
+        func = self.custom_func
+        if self.custom_func is None:
+            func = globals()[self.duplication_criterion + '_score']
+
+        self.rules_ = sorted(self.rules_, key=lambda x: func(x[1]), reverse=True)
+
         self.rules_without_feature_names_ = self.rules_
 
         # Replace generic feature names by real feature names
-        self.rules_ = [(replace_feature_name(rule, self.feature_dict_), perf)
-                       for rule, perf in self.rules_]
+        self.rules_ = [(replace_feature_name(rule, self.feature_dict_),
+                        args)
+                       for rule, args in self.rules_
+                       ]
 
         return self
 
@@ -453,7 +502,7 @@ class SkopeRules(BaseEstimator):
 
         scores = np.zeros(X.shape[0])
         for (r, w) in selected_rules:
-            scores[list(df.query(r).index)] += w[0]
+            scores[list(df.query(r).index)] += precision(w)
 
         return scores
 
@@ -613,20 +662,24 @@ class SkopeRules(BaseEstimator):
 
         return rules if len(rules) > 0 else 'True'
 
-    def _eval_rule_perf(self, rule, X, y):
-        detected_index = list(X.query(rule).index)
-        if len(detected_index) <= 1:
-            return (0, 0)
-        y_detected = y[detected_index]
-        true_pos = y_detected[y_detected > 0].sum()
-        if true_pos == 0:
-            return (0, 0)
-        pos = y[y > 0].sum()
-        return y_detected.mean(), float(true_pos) / pos
+    def _deduplicate(self, rules):
+        """Select the best rules according to the duplication_criterion
+        from the clusters of rules built by find_similar_rulesets
 
-    def deduplicate(self, rules):
-        return [max(rules_set, key=self.f1_score)
-                for rules_set in self._find_similar_rulesets(rules)]
+        Arguments:
+            rules: list of rules
+
+        Returns:
+            list of rules
+        """
+        if self.custom_func is None:
+            func = globals()[self.duplication_criterion + '_score']
+        else:
+            func = self.custom_func
+
+        return [max(rules_set, key=lambda x: func(x[1]))
+                for rules_set in self._find_similar_rulesets(rules)
+                ]
 
     def _find_similar_rulesets(self, rules):
         """Create clusters of rules using a decision tree based
@@ -689,7 +742,3 @@ class SkopeRules(BaseEstimator):
         res = split_with_best_feature(rules, self.max_depth_duplication)
         breadth_first_search(res, leaves=leaves)
         return leaves
-
-    def f1_score(self, x):
-        return 2 * x[1][0] * x[1][1] / \
-               (x[1][0] + x[1][1]) if (x[1][0] + x[1][1]) > 0 else 0
