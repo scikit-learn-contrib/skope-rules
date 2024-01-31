@@ -268,7 +268,7 @@ class SkopeRules(BaseEstimator):
 
         for max_depth in self._max_depths:
             bagging_clf = BaggingClassifier(
-                base_estimator=DecisionTreeClassifier(
+                estimator=DecisionTreeClassifier(
                     max_depth=max_depth,
                     max_features=self.max_features,
                     min_samples_split=self.min_samples_split),
@@ -285,7 +285,7 @@ class SkopeRules(BaseEstimator):
                 verbose=self.verbose)
 
             bagging_reg = BaggingRegressor(
-                base_estimator=DecisionTreeRegressor(
+                estimator=DecisionTreeRegressor(
                     max_depth=max_depth,
                     max_features=self.max_features,
                     min_samples_split=self.min_samples_split),
